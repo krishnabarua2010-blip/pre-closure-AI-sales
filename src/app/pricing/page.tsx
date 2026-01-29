@@ -1,4 +1,4 @@
-
+"use client";
 import { useRouter } from "next/navigation";
 import { createSubscription } from "@/lib/paymentsApi";
 import { useState } from "react";
