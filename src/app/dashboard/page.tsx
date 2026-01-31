@@ -8,7 +8,7 @@ function getLimitText(plan: string) {
   return "Unlimited";
 }
 
-function getLimit(plan) {
+function getLimit(plan: string) {
   if (plan === "Basic") return 200;
   if (plan === "Pro") return 1500;
   return Infinity;
