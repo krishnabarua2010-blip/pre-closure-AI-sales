@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { XANO_BASE } from "@/lib/apiConfig";
 
-function getLimitText(plan) {
+function getLimitText(plan: string) {
   if (plan === "Basic") return "200 / month";
   if (plan === "Pro") return "1500 / month";
   return "Unlimited";
