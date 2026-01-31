@@ -15,7 +15,14 @@ function getLimit(plan: string) {
 }
 
 export default function Dashboard() {
-  const [profile, setProfile] = useState(null);
+  type BusinessProfile = {
+  id?: number;
+  business_id?: number;
+  plan?: string;
+};
+
+const [profile, setProfile] = useState<BusinessProfile | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [summary, setSummary] = useState<{
