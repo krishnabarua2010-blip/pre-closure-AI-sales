@@ -1,3 +1,5 @@
+import { XANO_BASE } from "./apiConfig";
+
 export async function sendMessageToAssistant({
   businessSlug,
   message,

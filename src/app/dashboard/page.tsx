@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { XANO_BASE } from "@/lib/apiConfig";
+import { Profile, DailySummary } from "@/lib/types";
 
 function getLimitText(plan: string) {
   if (plan === "Basic") return "200 / month";
@@ -15,24 +16,10 @@ function getLimit(plan: string) {
 }
 
 export default function Dashboard() {
-  type BusinessProfile = {
-  id?: number;
-  business_id?: number;
-  plan?: string;
-};
-
-const [profile, setProfile] = useState<BusinessProfile | null>(null);
-
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [summary, setSummary] = useState<{
-    total_chats: number;
-    hot_count: number;
-    warm_count: number;
-    cold_count: number;
-    ai_closed_count: number;
-    note?: string;
-  } | null>(null);
+  const [summary, setSummary] = useState<DailySummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
   const fetchedSummaryRef = useRef(false);
@@ -52,15 +39,16 @@ const [profile, setProfile] = useState<BusinessProfile | null>(null);
     fetchProfile();
   }, []);
 
-  async function fetchDailySummary(businessId: string) {
-    if (!businessId) return;
+  async function fetchDailySummary(businessId?: string | number) {
+    if (businessId === undefined || businessId === null) return;
     setSummaryLoading(true);
     setSummaryError(false);
     try {
+      const id = typeof businessId === 'number' ? String(businessId) : businessId;
       const res = await fetch(`${XANO_BASE}/api:t4vcaTEd/generate_daily_summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business_id: businessId }),
+        body: JSON.stringify({ business_id: id }),
       });
 
       if (!res.ok) throw new Error("summary request failed");
@@ -88,8 +76,8 @@ const [profile, setProfile] = useState<BusinessProfile | null>(null);
   let usageWarning = null;
   let usageExceeded = false;
   if (profile) {
-    const limit = getLimit(profile.plan_name);
-    const used = profile.messages_used;
+    const limit = getLimit(profile.plan_name || '');
+    const used = profile.messages_used ?? 0;
     if (limit !== Infinity) {
       const percent = used / limit;
       if (percent >= 1) usageExceeded = true;
@@ -124,8 +112,8 @@ const [profile, setProfile] = useState<BusinessProfile | null>(null);
           <div className="kicker">Usage</div>
           <div style={{fontSize:28,fontWeight:800}}>{profile?.messages_used ?? '-'}</div>
           <div className="muted">Messages used this month</div>
-          {profile && getLimit(profile.plan_name) !== Infinity && (
-            <div className="muted">Limit: {getLimitText(profile.plan_name)}</div>
+          {profile && getLimit(profile.plan_name || '') !== Infinity && (
+            <div className="muted">Limit: {getLimitText(profile?.plan_name || '')}</div>
           )}
           {usageWarning && !usageExceeded && (
             <div style={{color:'#ffb86b',fontWeight:700,marginTop:8}}>Near limit</div>

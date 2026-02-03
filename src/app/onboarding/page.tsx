@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -46,8 +46,9 @@ export default function OnboardingPage() {
       });
       if (!res.ok) throw new Error("Failed to submit");
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Error submitting form");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || "Error submitting form");
     } finally {
       setLoading(false);
     }
