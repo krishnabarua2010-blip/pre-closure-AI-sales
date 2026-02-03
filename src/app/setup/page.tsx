@@ -170,13 +170,13 @@ export default function SetupPage() {
             label="What makes a lead HOT?"
             placeholder="Asking for price, booking, availability today"
             value={hot_criteria}
-            onChange={(e:any)=>setHotCriteria(e.target.value)}
+            onChange={(e)=>setHotCriteria(e.currentTarget.value)}
           />
           <Textarea
             label="What makes a lead COLD?"
             placeholder="Just browsing, general questions"
             value={cold_criteria}
-            onChange={(e:any)=>setColdCriteria(e.target.value)}
+            onChange={(e)=>setColdCriteria(e.currentTarget.value)}
           />
         </Section>
 
