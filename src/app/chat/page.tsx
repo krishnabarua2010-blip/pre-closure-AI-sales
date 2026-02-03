@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import ChatLayout from "@/components/chat/ChatLayout";
 import ChatHeader from "@/components/chat/ChatHeader";
@@ -35,14 +34,27 @@ export default function ChatPage() {
     try {
       const data = await sendMessageToBackend(text);
 
-      // Map common Xano response shapes (reply | assistant_reply | data.reply)
-      const reply =
-        data?.reply ?? data?.assistant_reply ?? data?.data?.reply ?? (typeof data === "string" ? data : undefined) ??
-        "Thanks! We’ll get back to you shortly.";
+      function extractReply(d: unknown): string | undefined {
+        if (!d || typeof d !== 'object') return undefined;
+        const obj = d as Record<string, unknown>;
+        if (typeof obj.reply === 'string') return obj.reply;
+        if (typeof obj.assistant_reply === 'string') return obj.assistant_reply;
+        if (obj.data && typeof obj.data === 'object') {
+          const nested = obj.data as Record<string, unknown>;
+          if (typeof nested.reply === 'string') return nested.reply;
+        }
+        if (typeof d === 'string') return d;
+        return undefined;
+      }
+
+      const reply = extractReply(data) ?? "Thanks! We’ll get back to you shortly.";
 
       // If Xano returns lead classification, keep it for later (no UI yet)
-      if ((data as any)?.lead_type) {
-        console.log("Lead type:", (data as any).lead_type);
+      if (data && typeof data === 'object') {
+        const obj = data as Record<string, unknown>;
+        if ('lead_type' in obj) {
+          console.log('Lead type:', obj['lead_type']);
+        }
       }
 
       setMessages((prev) => [

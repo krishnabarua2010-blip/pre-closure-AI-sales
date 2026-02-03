@@ -35,7 +35,12 @@ export default function SetupPage() {
 
       const res = await saveBusinessProfile(payload);
 
-      setGeneratedLink(`/b/${res.slug}`);
+      const result = res as Record<string, unknown>;
+      if (typeof result.slug === 'string') {
+        setGeneratedLink(`/b/${result.slug}`);
+      } else {
+        setGeneratedLink(null);
+      }
     } catch (e) {
       alert("Something went wrong. Please try again.");
     }
@@ -79,13 +84,13 @@ export default function SetupPage() {
 
         {/* SECTION 1 */}
         <Section title="1. Business Identity">
-          <Input label="Business Name" placeholder="Elite Fitness Gym" value={business_name} onChange={(e:any)=>setBusinessName(e.target.value)} />
-          <Input label="Business Type" placeholder="Gym / Coach / Store" value={business_type} onChange={(e:any)=>setBusinessType(e.target.value)} />
+          <Input label="Business Name" placeholder="Elite Fitness Gym" value={business_name} onChange={(e)=>setBusinessName(e.currentTarget.value)} />
+          <Input label="Business Type" placeholder="Gym / Coach / Store" value={business_type} onChange={(e)=>setBusinessType(e.currentTarget.value)} />
           <Textarea
             label="Business Description"
             placeholder="We are a premium gym offering personal training and group classes."
             value={description}
-            onChange={(e:any)=>setDescription(e.target.value)}
+            onChange={(e)=>setDescription(e.currentTarget.value)}
           />
         </Section>
 
@@ -143,19 +148,19 @@ export default function SetupPage() {
             label="Tone"
             options={["Friendly", "Professional", "Sales-focused"]}
             value={tone}
-            onChange={(e:any)=>setTone(e.target.value)}
+            onChange={(e)=>setTone(e.currentTarget.value)}
           />
           <Textarea
             label="Things the assistant SHOULD do"
             placeholder="Encourage booking, ask follow-up questions"
             value={dos}
-            onChange={(e:any)=>setDos(e.target.value)}
+            onChange={(e)=>setDos(e.currentTarget.value)}
           />
           <Textarea
             label="Things the assistant should NOT do"
             placeholder="Negotiate price, promise discounts"
             value={donts}
-            onChange={(e:any)=>setDonts(e.target.value)}
+            onChange={(e)=>setDonts(e.currentTarget.value)}
           />
         </Section>
 
@@ -189,7 +194,7 @@ export default function SetupPage() {
 
 /* ---------- Components ---------- */
 
-function Section({ title, children }: any) {
+function Section({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
     <section className="space-y-4">
       <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
@@ -198,7 +203,7 @@ function Section({ title, children }: any) {
   );
 }
 
-function Input({ label, ...props }: any) {
+function Input({ label, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
     <div className="space-y-1">
       <label className="text-xs text-gray-600">{label}</label>
@@ -207,7 +212,7 @@ function Input({ label, ...props }: any) {
   );
 }
 
-function Textarea({ label, ...props }: any) {
+function Textarea({ label, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
   return (
     <div className="space-y-1">
       <label className="text-xs text-gray-600">{label}</label>
@@ -216,7 +221,7 @@ function Textarea({ label, ...props }: any) {
   );
 }
 
-function Select({ label, options, ...props }: any) {
+function Select({ label, options, ...props }: { label: string; options: string[] } & React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <div className="space-y-1">
       <label className="text-xs text-gray-600">{label}</label>

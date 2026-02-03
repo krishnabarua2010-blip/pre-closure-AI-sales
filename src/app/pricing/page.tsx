@@ -16,7 +16,7 @@ export default function PricingPage() {
         subscription_id,
         name: "AI Chat App",
         description: `Subscribe to the ${plan} plan`,
-        handler: function (response: any) {
+        handler: (response: unknown) => {
           router.push("/onboarding");
         },
         theme: { color: "#6366f1" },

@@ -1,4 +1,4 @@
-export async function sendMessageToBackend(message: string) {
+export async function sendMessageToBackend(message: string): Promise<unknown> {
   const response = await fetch(
     "https://x8ki-letl-twmt.n7.xano.io/api:3qxYwR_i/generate_reply",
     {
@@ -19,7 +19,7 @@ export async function sendMessageToBackend(message: string) {
   return response.json();
 }
 
-export async function saveBusinessProfile(payload: any) {
+export async function saveBusinessProfile(payload: Record<string, unknown>): Promise<unknown> {
   const response = await fetch(
     "https://x8ki-letl-twmt.n7.xano.io/api:4Brqmmks/business",
     {
