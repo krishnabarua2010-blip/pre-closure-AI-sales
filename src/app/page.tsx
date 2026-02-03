@@ -1,15 +1,10 @@
+"use client";
+
 export default function Home() {
+  alert("Home component executed");
   return (
-    <div
-      style={{
-        position: "relative",
-        zIndex: 9999,
-        color: "white",
-        padding: "40px",
-      }}
-    >
-      <h1>Auto Closure</h1>
-      <p>If you can read this, content is rendering.</p>
+    <div style={{ color: "white", padding: "50px" }}>
+      <h1>REACT IS RUNNING</h1>
     </div>
   );
 }
