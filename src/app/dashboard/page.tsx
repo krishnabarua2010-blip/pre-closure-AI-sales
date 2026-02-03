@@ -39,12 +39,12 @@ export default function Dashboard() {
     fetchProfile();
   }, []);
 
-  async function fetchDailySummary(businessId?: string | number) {
-    if (businessId === undefined || businessId === null) return;
+  async function fetchDailySummary(businessId: string) {
+    const id = String(businessId);
+    if (!id) return;
     setSummaryLoading(true);
     setSummaryError(false);
     try {
-      const id = typeof businessId === 'number' ? String(businessId) : businessId;
       const res = await fetch(`${XANO_BASE}/api:t4vcaTEd/generate_daily_summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,7 +70,7 @@ export default function Dashboard() {
     if (!businessId) return;
     if (fetchedSummaryRef.current) return;
     fetchedSummaryRef.current = true;
-    fetchDailySummary(businessId);
+    fetchDailySummary(String(businessId));
   }, [profile]);
 
   let usageWarning = null;
@@ -96,7 +96,7 @@ export default function Dashboard() {
         <div>
           <button className="btn btn-ghost" onClick={() => {
             const businessId = profile?.id || profile?.business_id;
-            fetchDailySummary(businessId);
+            fetchDailySummary(String(businessId));
           }}>Refresh</button>
         </div>
       </div>
