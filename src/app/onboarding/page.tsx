@@ -54,6 +54,7 @@ export default function OnboardingPage() {
     }
   };
 
+  // Render: Onboarding form always available (no data guard needed)
   return (
     <div className="container" style={{paddingTop:28,paddingBottom:28}}>
       <div className="stage" aria-hidden />

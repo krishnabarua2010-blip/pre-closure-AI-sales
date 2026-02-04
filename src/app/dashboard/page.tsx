@@ -73,6 +73,23 @@ export default function Dashboard() {
     fetchDailySummary(String(businessId));
   }, [profile]);
 
+  // Guard: Show loading if data not yet available
+  if (loading || !profile) {
+    return (
+      <section className="container" style={{ paddingTop: 60, paddingBottom: 60, textAlign: 'center' }}>
+        <p style={{ fontSize: '1.1rem', color: '#d1d1d6' }}>Loading your workspace…</p>
+      </section>
+    );
+  }
+
+  if (error && !profile) {
+    return (
+      <section className="container" style={{ paddingTop: 60, paddingBottom: 60, textAlign: 'center' }}>
+        <p style={{ fontSize: '1.1rem', color: '#ff6b6b' }}>{error}</p>
+      </section>
+    );
+  }
+
   let usageWarning = null;
   let usageExceeded = false;
   if (profile) {

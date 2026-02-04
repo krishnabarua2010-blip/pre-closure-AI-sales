@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Profile } from "@/lib/types";
 
 const tones = [
   { label: "Friendly", value: "friendly" },
@@ -10,7 +11,7 @@ const tones = [
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({
     description: "",
@@ -60,15 +61,30 @@ export default function ProfilePage() {
       if (!res.ok) throw new Error("Failed to update profile");
       setEditMode(false);
       router.refresh();
-    } catch (err: any) {
-      setError(err.message || "Error updating profile");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || "Error updating profile");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading && !profile) return <div className="container" style={{padding:28}}>Loading...</div>;
-  if (error && !profile) return <div className="container" style={{padding:28,color:'#ff6b6b'}}>{error}</div>;
+  // Guard: Show loading if profile not yet available
+  if (loading || !profile) {
+    return (
+      <div className="container" style={{ padding: 60, textAlign: 'center' }}>
+        <p style={{ fontSize: '1.1rem', color: '#d1d1d6' }}>Loading your profile…</p>
+      </div>
+    );
+  }
+
+  if (error && !profile) {
+    return (
+      <div className="container" style={{ padding: 60, textAlign: 'center', color: '#ff6b6b' }}>
+        <p style={{ fontSize: '1.1rem' }}>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container" style={{paddingTop:28,paddingBottom:28}}>
