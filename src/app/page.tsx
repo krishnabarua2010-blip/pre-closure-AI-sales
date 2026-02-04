@@ -2,8 +2,10 @@
 
 export default function Home() {
   return (
-    <div style={{ padding: 40, color: "black", background: "white" }}>
-      <h1>APP ROUTER IS WORKING</h1>
+    <div style={{ padding: 40 }}>
+      <h1>Auto Closure</h1>
+      <p>AI that closes your leads while you sleep.</p>
+      <button>Get Started</button>
     </div>
   );
 }
