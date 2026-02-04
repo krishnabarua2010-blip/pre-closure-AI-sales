@@ -1,18 +1,17 @@
-"use client";
+﻿"use client";
 
 export default function Home() {
   return (
     <div className="page">
-      
       {/* HERO */}
-      <section style={{ marginBottom: 120 }}>
+      <section style={{ marginBottom: 80 }}>
         <h1>
           Never Lose Another Lead.
           <br />
           <span style={{ color: "#7c3aed" }}>Auto Closure</span> Closes While You Sleep.
         </h1>
 
-        <p style={{ maxWidth: 600, marginTop: 20 }}>
+        <p style={{ maxWidth: 640, marginTop: 18 }}>
           Auto Closure AI replies instantly like a real human, qualifies buyers,
           and converts conversations into revenue — 24/7.
         </p>
@@ -20,59 +19,106 @@ export default function Home() {
         <a className="cta" href="/pricing">
           Get Your Free AI Link
         </a>
-
-        <p style={{ marginTop: 12, fontSize: 14, opacity: 0.6 }}>
-          No credit card • Setup in 2 minutes • Works today
-        </p>
       </section>
 
       {/* TRUST METRICS */}
-      <section className="glass" style={{ padding: 40, marginBottom: 100 }}>
-        <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
+      <section className="glass" style={{ padding: 28, marginBottom: 40 }}>
+        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
           <div>
-            <h2>24/7</h2>
-            <p>Instant Replies</p>
-          </div>
-          <div>
-            <h2>Human</h2>
-            <p>Sales Conversations</p>
-          </div>
-          <div>
-            <h2>$1M+</h2>
-            <p>Revenue Closed</p>
+            <h2>Trusted by 500+ businesses</h2>
+            <p style={{ marginTop: 6 }}>$1.2M+ revenue generated</p>
           </div>
         </div>
       </section>
 
       {/* HOW IT WORKS */}
-      <section style={{ marginBottom: 120 }}>
+      <section style={{ marginBottom: 40 }}>
         <h2>How Auto Closure Works</h2>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 24, marginTop: 32 }}>
-          <div className="glass" style={{ padding: 28 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginTop: 24 }}>
+          <div className="glass" style={{ padding: 20 }}>
             <h3>1. Create Your Profile</h3>
             <p>Tell us what you sell, pricing, and tone. One-time setup.</p>
           </div>
-
-          <div className="glass" style={{ padding: 28 }}>
+          <div className="glass" style={{ padding: 20 }}>
             <h3>2. Share Your Link</h3>
             <p>Put it in bio, WhatsApp, website — anywhere.</p>
           </div>
-
-          <div className="glass" style={{ padding: 28 }}>
+          <div className="glass" style={{ padding: 20 }}>
             <h3>3. AI Closes for You</h3>
             <p>Replies, qualifies, and flags hot buyers automatically.</p>
           </div>
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="glass" style={{ padding: 48, textAlign: "center" }}>
-        <h2>Let AI Handle Your DMs</h2>
-        <p>Focus on growth while Auto Closure handles conversations.</p>
-        <a className="cta" href="/pricing">
-          Start Free Now
-        </a>
+      {/* TESTIMONIALS */}
+      <section className="testimonials" style={{ marginBottom: 40 }}>
+        <h2>What customers say</h2>
+        <div className="testimonial-grid" style={{ marginTop: 16 }}>
+          <div className="glass testimonial-card">
+            <strong>Maria Lopez</strong>
+            <div style={{ fontSize: 13, opacity: 0.8 }}>Ecommerce manager</div>
+            <p style={{ marginTop: 10 }}>Auto Closure handled our busiest weekends and kept lead response under 30s. Our conversion rates improved noticeably.</p>
+          </div>
+          <div className="glass testimonial-card">
+            <strong>Omar Khan</strong>
+            <div style={{ fontSize: 13, opacity: 0.8 }}>Digital agency</div>
+            <p style={{ marginTop: 10 }}>The AI mirrors our tone and filters real opportunities — saves our team hours every week.</p>
+          </div>
+          <div className="glass testimonial-card">
+            <strong>Sarah Nguyen</strong>
+            <div style={{ fontSize: 13, opacity: 0.8 }}>Course creator</div>
+            <p style={{ marginTop: 10 }}>We closed deals overnight that would otherwise be lost. Setup was quick and results were immediate.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section style={{ marginBottom: 40 }}>
+        <h2>Plans</h2>
+        <div className="pricing-grid" style={{ marginTop: 16 }}>
+          <div className="glass price-card">
+            <div className="price-badge">Anchor</div>
+            <h3>$49</h3>
+            <p style={{ opacity: 0.8 }}>Business — Unlimited</p>
+            <ul style={{ textAlign: 'left' }}>
+              <li>Priority routing and human handoff</li>
+              <li>Unlimited conversations</li>
+              <li>Custom integrations</li>
+            </ul>
+            <a className="cta" href="/signup">Start Business</a>
+          </div>
+          <div className="glass price-card most-popular">
+            <div className="price-badge">Most popular</div>
+            <h3>$29</h3>
+            <p style={{ opacity: 0.85 }}>Pro — Best for growing teams</p>
+            <ul style={{ textAlign: 'left' }}>
+              <li>Up to 10k messages / month</li>
+              <li>Priority replies and templates</li>
+              <li>Performance reporting</li>
+            </ul>
+            <a className="cta" href="/signup">Choose Pro</a>
+          </div>
+          <div className="glass price-card">
+            <div className="price-badge">Limited</div>
+            <h3>$19</h3>
+            <p style={{ opacity: 0.85 }}>Starter — Small teams</p>
+            <ul style={{ textAlign: 'left' }}>
+              <li>Up to 1k messages / month</li>
+              <li>Basic templates</li>
+              <li>Email support</li>
+            </ul>
+            <a className="cta" href="/signup">Get Starter</a>
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA + SCARCITY */}
+      <section className="final-cta glass" style={{ textAlign: 'center' }}>
+        <h2>Limited beta access</h2>
+        <p style={{ marginTop: 8 }}>Free today, upgrade anytime — spots are limited to keep onboarding personal.</p>
+        <div style={{ marginTop: 16 }}>
+          <a className="big-cta" href="/signup">Join the Beta — Free</a>
+        </div>
       </section>
 
     </div>
