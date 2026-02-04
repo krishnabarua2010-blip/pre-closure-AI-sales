@@ -6,11 +6,16 @@ export default function Home() {
       {/* HERO */}
       <section style={{ marginBottom: 80 }} className="fade-up">
         <h1 style={{ fontSize: 'clamp(2rem,4.5vw,3.4rem)', margin: 0 }} className="gradient-text">Auto Closure</h1>
-        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginTop: 12 }}>The world’s most human AI sales assistant for businesses</h2>
+        <div className="hero-tagline">Your best salesperson, available 24/7.</div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginTop: 12 }}>The world's most human AI sales assistant for businesses</h2>
 
         <p style={{ maxWidth: 720, marginTop: 18, fontSize: '1.05rem' }}>
           Replies instantly, sounds real, qualifies buyers, and closes deals for you — 24/7.
         </p>
+
+        <div className="gradient-text" style={{ fontSize: '1.1rem', marginTop: 20, fontStyle: 'italic' }}>
+          Not a chatbot. A real conversation engine.
+        </div>
 
         <a className="cta" href="/pricing">
           View Pricing
@@ -26,6 +31,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <div className="quote fade-up" style={{ marginBottom: 60 }}>Missed messages are missed money. Auto Closure never sleeps.</div>
 
       {/* HOW IT WORKS (4 STEPS) */}
       <section style={{ marginBottom: 40 }} className="fade-up">
@@ -74,6 +81,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <div className="quote fade-up" style={{ marginBottom: 60 }}>Speed wins deals. Humans buy from humans — Auto Closure sounds human.</div>
 
       {/* PRICING */}
       <section style={{ marginBottom: 40 }} className="fade-up">
