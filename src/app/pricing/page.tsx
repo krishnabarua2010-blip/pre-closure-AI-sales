@@ -8,7 +8,7 @@ export default function PricingPage() {
       </h1>
 
       <p style={{ textAlign: "center", opacity: 0.7, marginBottom: 60 }}>
-        Start free. Upgrade only when Auto Closure makes you money.
+        Start now. Upgrade only when Auto Closure makes you money.
       </p>
 
       <div
@@ -50,14 +50,7 @@ export default function PricingPage() {
             <li>✔ Hot lead detection</li>
             <li>✔ Daily summaries</li>
           </ul>
-          <button
-            className="cta"
-            onClick={() =>
-              alert("Payments are being enabled. Try again shortly.")
-            }
-          >
-            Get Started
-          </button>
+          <a className="cta" href="/signup">Get Started</a>
         </div>
 
         {/* BUSINESS */}

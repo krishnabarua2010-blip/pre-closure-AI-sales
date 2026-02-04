@@ -7,6 +7,8 @@ export default function BackgroundOrbs() {
       <span />
       <span />
       <span />
+      <span />
+      <span />
     </div>
   );
 }

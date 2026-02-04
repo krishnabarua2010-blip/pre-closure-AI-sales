@@ -5,19 +5,15 @@ export default function Home() {
     <div className="page">
       {/* HERO */}
       <section style={{ marginBottom: 80 }}>
-        <h1>
-          Never Lose Another Lead.
-          <br />
-          <span style={{ color: "#7c3aed" }}>Auto Closure</span> Closes While You Sleep.
-        </h1>
+        <h1 style={{ fontSize: 'clamp(2rem,4.5vw,3.4rem)', margin: 0 }}>Auto Closure</h1>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginTop: 12 }}>The world’s most human AI sales assistant for businesses</h2>
 
-        <p style={{ maxWidth: 640, marginTop: 18 }}>
-          Auto Closure AI replies instantly like a real human, qualifies buyers,
-          and converts conversations into revenue — 24/7.
+        <p style={{ maxWidth: 720, marginTop: 18, fontSize: '1.05rem' }}>
+          Replies instantly, sounds real, qualifies buyers, and closes deals for you — 24/7.
         </p>
 
         <a className="cta" href="/pricing">
-          Get Your Free AI Link
+          View Pricing
         </a>
       </section>
 
@@ -31,21 +27,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
+      {/* HOW IT WORKS (4 STEPS) */}
       <section style={{ marginBottom: 40 }}>
-        <h2>How Auto Closure Works</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24, marginTop: 24 }}>
-          <div className="glass" style={{ padding: 20 }}>
-            <h3>1. Create Your Profile</h3>
-            <p>Tell us what you sell, pricing, and tone. One-time setup.</p>
+        <h2>How It Works</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginTop: 24 }}>
+          <div className="glass" style={{ padding: 28 }}>
+            <h3 style={{ fontSize: '1.15rem' }}>1. Choose a plan</h3>
+            <p style={{ marginTop: 8 }}>Select a monthly plan that matches your business size and traffic.</p>
           </div>
-          <div className="glass" style={{ padding: 20 }}>
-            <h3>2. Share Your Link</h3>
-            <p>Put it in bio, WhatsApp, website — anywhere.</p>
+
+          <div className="glass" style={{ padding: 28 }}>
+            <h3 style={{ fontSize: '1.15rem' }}>2. Set up your business profile</h3>
+            <p style={{ marginTop: 8 }}>Tell Auto Closure what you sell, pricing, FAQs, and the tone you want it to use.</p>
           </div>
-          <div className="glass" style={{ padding: 20 }}>
-            <h3>3. AI Closes for You</h3>
-            <p>Replies, qualifies, and flags hot buyers automatically.</p>
+
+          <div className="glass" style={{ padding: 28 }}>
+            <h3 style={{ fontSize: '1.15rem' }}>3. Get your private chat link</h3>
+            <p style={{ marginTop: 8 }}>We generate a unique, private link you can add to your site, bio, or messaging apps.</p>
+          </div>
+
+          <div className="glass" style={{ padding: 28 }}>
+            <h3 style={{ fontSize: '1.15rem' }}>4. AI handles conversations & closes leads</h3>
+            <p style={{ marginTop: 8 }}>The AI replies like a human, qualifies buyers, and flags hot leads for your team.</p>
           </div>
         </div>
       </section>
@@ -115,9 +118,9 @@ export default function Home() {
       {/* FINAL CTA + SCARCITY */}
       <section className="final-cta glass" style={{ textAlign: 'center' }}>
         <h2>Limited beta access</h2>
-        <p style={{ marginTop: 8 }}>Free today, upgrade anytime — spots are limited to keep onboarding personal.</p>
+        <p style={{ marginTop: 8 }}>Apply for limited access — spots are limited to keep onboarding personal.</p>
         <div style={{ marginTop: 16 }}>
-          <a className="big-cta" href="/signup">Join the Beta — Free</a>
+          <a className="big-cta" href="/signup">Apply for Beta</a>
         </div>
       </section>
 
