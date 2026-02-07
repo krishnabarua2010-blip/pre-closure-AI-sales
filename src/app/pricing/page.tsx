@@ -1,72 +1,229 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 export default function PricingPage() {
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      // Set expiration to 7 days from now (arbitrary founders deal duration)
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 7);
+
+      const now = new Date();
+      const difference = expirationDate.getTime() - now.getTime();
+
+      if (difference > 0) {
+        setTimeLeft({
+          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+          minutes: Math.floor((difference / (1000 * 60)) % 60),
+          seconds: Math.floor((difference / 1000) % 60),
+        });
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="page">
       <h1 style={{ textAlign: "center", marginBottom: 16 }}>
         Simple Pricing. Real Results.
       </h1>
 
-      <p style={{ textAlign: "center", opacity: 0.7, marginBottom: 60 }}>
+      <p style={{ textAlign: "center", opacity: 0.7, marginBottom: 20 }}>
         Start now. Upgrade only when Auto Closure makes you money.
       </p>
+
+      {/* FOMO TIMER */}
+      <div
+        style={{
+          textAlign: "center",
+          marginBottom: 40,
+          padding: "16px 24px",
+          background: "rgba(139, 92, 246, 0.1)",
+          borderRadius: "8px",
+          border: "1px solid rgba(139, 92, 246, 0.3)",
+          maxWidth: "400px",
+          margin: "0 auto 40px",
+        }}
+      >
+        <p style={{ margin: "0 0 8px 0", fontSize: "14px", opacity: 0.8 }}>
+          🔥 Founders deal expires in
+        </p>
+        <div
+          style={{
+            fontSize: "24px",
+            fontWeight: "bold",
+            color: "#8b5cf6",
+            letterSpacing: "2px",
+          }}
+        >
+          {String(timeLeft.hours).padStart(2, "0")}h{" "}
+          {String(timeLeft.minutes).padStart(2, "0")}m{" "}
+          {String(timeLeft.seconds).padStart(2, "0")}s
+        </div>
+      </div>
 
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
           gap: 32,
+          maxWidth: "1200px",
+          margin: "0 auto",
         }}
       >
-        {/* STARTER */}
-        <div className="glass" style={{ padding: 32 }}>
-          <h2>$19</h2>
-          <p>Starter</p>
-          <ul>
+        {/* STARTER - UNATTRACTIVE BUT VALID */}
+        <div className="glass" style={{ padding: 32, opacity: 0.8 }}>
+          <h2 style={{ color: "#9ca3af" }}>$19</h2>
+          <p style={{ color: "#6b7280", marginBottom: 16 }}>Starter</p>
+          <p style={{ fontSize: "12px", color: "#9ca3af", marginBottom: 16 }}>
+            For testing only
+          </p>
+          <ul style={{ marginBottom: 24 }}>
             <li>✔ 200 chats / month</li>
-            <li>✔ AI replies</li>
+            <li>✔ Basic AI replies</li>
             <li>✔ Lead classification</li>
+            <li style={{ opacity: 0.5 }}>✗ No advanced lead handling</li>
           </ul>
-          <button className="cta" disabled>
-            Coming Soon
-          </button>
+          <a
+            className="cta"
+            href="/signup?plan=starter"
+            style={{
+              display: "block",
+              textAlign: "center",
+              opacity: 0.7,
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
+          >
+            Choose Starter
+          </a>
         </div>
 
-        {/* PRO */}
+        {/* PRO - BEST DEAL, VISUALLY DOMINANT */}
         <div
           className="glass"
           style={{
             padding: 36,
-            transform: "scale(1.05)",
-            border: "2px solid #7c3aed",
+            transform: "scale(1.08)",
+            border: "2px solid #8b5cf6",
+            background: "rgba(139, 92, 246, 0.05)",
+            boxShadow: "0 0 40px rgba(139, 92, 246, 0.2)",
+            position: "relative",
+            zIndex: 10,
           }}
         >
-          <p style={{ color: "#7c3aed" }}>MOST POPULAR</p>
-          <h2>$29</h2>
-          <p>Pro</p>
-          <ul>
+          <div
+            style={{
+              position: "absolute",
+              top: "-12px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "#8b5cf6",
+              color: "white",
+              padding: "4px 16px",
+              borderRadius: "20px",
+              fontSize: "12px",
+              fontWeight: "bold",
+              letterSpacing: "0.5px",
+            }}
+          >
+            ⭐ MOST POPULAR
+          </div>
+
+          <h2 style={{ color: "#8b5cf6", marginTop: 16 }}>$29</h2>
+          <p style={{ marginBottom: 8 }}>Pro</p>
+          <p style={{ fontSize: "14px", color: "#10b981", marginBottom: 16 }}>
+            Best for growing businesses
+          </p>
+          <ul style={{ marginBottom: 24 }}>
             <li>✔ 1,500 chats / month</li>
-            <li>✔ Human-style AI</li>
+            <li>✔ Human-like AI replies</li>
             <li>✔ Hot lead detection</li>
-            <li>✔ Daily summaries</li>
+            <li>✔ Daily performance summary</li>
+            <li>✔ Smart automations</li>
           </ul>
-          <a className="cta" href="/signup">Get Started</a>
+          <a
+            className="cta"
+            href="/signup?plan=pro"
+            style={{
+              display: "block",
+              textAlign: "center",
+              background: "#8b5cf6",
+              fontWeight: "bold",
+            }}
+          >
+            Start Pro Plan
+          </a>
         </div>
 
-        {/* BUSINESS */}
+        {/* BUSINESS - PREMIUM POSITIONING */}
         <div className="glass" style={{ padding: 32 }}>
           <h2>$49</h2>
-          <p>Business</p>
-          <ul>
+          <p style={{ marginBottom: 8 }}>Business</p>
+          <p style={{ fontSize: "14px", color: "#f59e0b", marginBottom: 16 }}>
+            For high-volume businesses
+          </p>
+          <ul style={{ marginBottom: 24 }}>
             <li>✔ Unlimited chats</li>
-            <li>✔ Priority AI</li>
-            <li>✔ Full automation</li>
+            <li>✔ Priority AI handling</li>
+            <li>✔ Full automation suite</li>
+            <li>✔ Advanced analytics</li>
+            <li>✔ Dedicated support</li>
           </ul>
-          <button className="cta" disabled>
-            Coming Soon
-          </button>
+          <a
+            className="cta"
+            href="/signup?plan=business"
+            style={{
+              display: "block",
+              textAlign: "center",
+            }}
+          >
+            Upgrade to Business
+          </a>
         </div>
       </div>
+
+      {/* MOBILE OPTIMIZATION STYLES */}
+      <style>{`
+        @media (max-width: 768px) {
+          .glass {
+            padding: 24px !important;
+          }
+
+          div[style*="scale(1.08)"] {
+            transform: scale(1.04) !important;
+          }
+
+          button, a[class*="cta"] {
+            padding: 12px 20px !important;
+            font-size: 16px !important;
+          }
+
+          h2 {
+            font-size: 28px !important;
+          }
+
+          div[style*="1200px"] {
+            gap: 16px !important;
+          }
+
+          div[style*="400px"] {
+            margin: 0 16px 40px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
