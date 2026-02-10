@@ -1,12 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChatLayout from "@/components/chat/ChatLayout";
 import ChatHeader from "@/components/chat/ChatHeader";
 import MessageBubble from "@/components/chat/MessageBubble";
 import ChatInput from "@/components/chat/ChatInput";
 import TypingIndicator from "@/components/chat/TypingIndicator";
 import WelcomeState from "@/components/chat/WelcomeState";
+import { PreviewPaywall } from "@/components/chat/PreviewPaywall";
 import { sendMessageToBackend } from "@/lib/api";
+import {
+  isPreviewMode,
+  hasReachedPreviewLimit,
+  incrementPreviewMessageCount,
+  getRemainingPreviewMessages,
+  PREVIEW_LIMIT,
+} from "@/lib/previewMode";
 
 type Message = {
   role: "user" | "assistant";
@@ -17,8 +25,22 @@ type Message = {
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [inPreviewMode, setInPreviewMode] = useState(false);
+  const [previewLimitReached, setPreviewLimitReached] = useState(false);
+
+  // Initialize preview mode on mount
+  useEffect(() => {
+    setInPreviewMode(isPreviewMode());
+    setPreviewLimitReached(hasReachedPreviewLimit());
+  }, []);
 
   async function handleSend(text: string) {
+    // If preview limit reached, don't allow more messages
+    if (inPreviewMode && hasReachedPreviewLimit()) {
+      setPreviewLimitReached(true);
+      return;
+    }
+
     const time = new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -28,6 +50,11 @@ export default function ChatPage() {
       ...prev,
       { role: "user", content: text, timestamp: time },
     ]);
+
+    // Increment preview message count if in preview mode
+    if (inPreviewMode) {
+      incrementPreviewMessageCount();
+    }
 
     setIsTyping(true);
 
@@ -57,17 +84,24 @@ export default function ChatPage() {
         }
       }
 
+      const responseTime = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
           content: reply,
-          timestamp: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
+          timestamp: responseTime,
         },
       ]);
+
+      // Check if limit reached after response
+      if (inPreviewMode && hasReachedPreviewLimit()) {
+        setPreviewLimitReached(true);
+      }
     } catch (e) {
       setMessages((prev) => [
         ...prev,
@@ -81,11 +115,35 @@ export default function ChatPage() {
     }
   }
 
+  // Show preview paywall if limit reached
+  if (previewLimitReached) {
+    return <PreviewPaywall />;
+  }
+
   return (
     <ChatLayout>
-      <ChatHeader title="Official Assistant" />
+      <ChatHeader 
+        title={inPreviewMode ? "Preview Mode - Official Assistant" : "Official Assistant"}
+      />
 
       <div className="flex-1 overflow-y-auto p-4">
+        {/* Preview Mode Banner */}
+        {inPreviewMode && (
+          <div
+            style={{
+              background: "rgba(139, 92, 246, 0.1)",
+              border: "1px solid rgba(139, 92, 246, 0.3)",
+              borderRadius: "8px",
+              padding: "12px 16px",
+              marginBottom: "16px",
+              color: "#d1d1d6",
+              fontSize: "0.9rem",
+              textAlign: "center",
+            }}
+          >
+            📊 Preview Mode: {getRemainingPreviewMessages()} / {PREVIEW_LIMIT} messages remaining
+          </div>
+        )}
         {messages.length === 0 && <WelcomeState />}
 
         {messages.map((msg, i) => (
@@ -100,7 +158,7 @@ export default function ChatPage() {
         {isTyping && <TypingIndicator />}
       </div>
 
-      <ChatInput onSend={handleSend} />
+      {!previewLimitReached && <ChatInput onSend={handleSend} />}
     </ChatLayout>
   );
 }

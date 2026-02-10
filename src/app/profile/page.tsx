@@ -78,6 +78,17 @@ export default function ProfilePage() {
     );
   }
 
+  // Guard: Check if profile has required fields
+  if (!profile.business_name || !profile.plan_name) {
+    return (
+      <div className="container" style={{ padding: 60, textAlign: 'center' }}>
+        <h2 style={{ fontSize: '1.3rem', color: '#d1d1d6', marginBottom: 16 }}>Complete setup to continue</h2>
+        <p style={{ fontSize: '1.1rem', color: '#a0a0a6', marginBottom: 24 }}>Please finish payment or onboarding.</p>
+        <a href="/onboarding" style={{ color: '#8b5cf6', textDecoration: 'underline' }}>← Complete onboarding</a>
+      </div>
+    );
+  }
+
   if (error && !profile) {
     return (
       <div className="container" style={{ padding: 60, textAlign: 'center', color: '#ff6b6b' }}>

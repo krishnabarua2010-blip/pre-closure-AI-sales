@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { startPreviewMode } from "@/lib/previewMode";
 
 export default function PricingPage() {
+  const router = useRouter();
   const [timeLeft, setTimeLeft] = useState({
     hours: 0,
     minutes: 0,
     seconds: 0,
   });
+
+  const handleTryPreview = () => {
+    startPreviewMode();
+    router.push("/chat");
+  };
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -57,20 +65,50 @@ export default function PricingPage() {
         }}
       >
         <p style={{ margin: "0 0 8px 0", fontSize: "14px", opacity: 0.8 }}>
-          🔥 Founders deal expires in
+          🔥 Early access pricing expires in
         </p>
         <div
           style={{
-            fontSize: "24px",
+            fontSize: "28px",
             fontWeight: "bold",
             color: "#8b5cf6",
-            letterSpacing: "2px",
+            letterSpacing: "3px",
+            fontFamily: "monospace",
           }}
         >
-          {String(timeLeft.hours).padStart(2, "0")}h{" "}
-          {String(timeLeft.minutes).padStart(2, "0")}m{" "}
-          {String(timeLeft.seconds).padStart(2, "0")}s
+          {String(timeLeft.hours).padStart(2, "0")}:{String(timeLeft.minutes).padStart(2, "0")}:{String(timeLeft.seconds).padStart(2, "0")}
         </div>
+      </div>
+
+      {/* TRY PREVIEW BUTTON */}
+      <div style={{ textAlign: "center", marginBottom: 48 }}>
+        <button
+          onClick={handleTryPreview}
+          style={{
+            background: "rgba(139, 92, 246, 0.2)",
+            border: "1px solid rgba(139, 92, 246, 0.5)",
+            color: "#8b5cf6",
+            padding: "12px 32px",
+            borderRadius: "8px",
+            fontSize: "1rem",
+            fontWeight: "bold",
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            (e.target as HTMLButtonElement).style.background = "rgba(139, 92, 246, 0.3)";
+            (e.target as HTMLButtonElement).style.borderColor = "#8b5cf6";
+          }}
+          onMouseLeave={(e) => {
+            (e.target as HTMLButtonElement).style.background = "rgba(139, 92, 246, 0.2)";
+            (e.target as HTMLButtonElement).style.borderColor = "rgba(139, 92, 246, 0.5)";
+          }}
+        >
+          ← Try Preview (15 messages)
+        </button>
+        <p style={{ fontSize: "0.9rem", color: "#6b7280", marginTop: 12 }}>
+          See how Auto Closure works. No credit card required.
+        </p>
       </div>
 
       <div

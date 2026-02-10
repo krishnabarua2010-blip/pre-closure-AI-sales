@@ -54,7 +54,17 @@ export default function OnboardingPage() {
     }
   };
 
-  // Render: Onboarding form always available (no data guard needed)
+  // Guard: Validate form has required fields before rendering
+  const isFormValid = form.business_name && form.description;
+
+  if (error && !isFormValid) {
+    return (
+      <div className="container" style={{ paddingTop: 60, paddingBottom: 60, textAlign: 'center' }}>
+        <p style={{ fontSize: '1.1rem', color: '#ff6b6b' }}>Error: {error}</p>
+        <a href="/" style={{ marginTop: 20, display: 'inline-block', color: '#8b5cf6' }}>← Back to home</a>
+      </div>
+    );
+  }
   return (
     <div className="container" style={{paddingTop:28,paddingBottom:28}}>
       <div className="stage" aria-hidden />
