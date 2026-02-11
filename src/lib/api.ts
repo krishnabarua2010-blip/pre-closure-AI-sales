@@ -1,39 +1,32 @@
-export async function sendMessageToBackend(message: string): Promise<unknown> {
-  const response = await fetch(
-    "https://x8ki-letl-twmt.n7.xano.io/api:3qxYwR_i/generate_reply",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: message,
-      }),
-    }
-  );
+export const XANO_BASE = "https://x8ki-letl-twmt.n7.xano.io/api:3qxYwR_i";
 
-  if (!response.ok) {
-    throw new Error("Failed to get response from server");
+export async function apiRequest(
+  endpoint: string,
+  method: string = "POST",
+  body?: any,
+  auth: boolean = false
+) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (auth) {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
-  return response.json();
-}
+  const res = await fetch(`${XANO_BASE}${endpoint}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
 
-export async function saveBusinessProfile(payload: Record<string, unknown>): Promise<unknown> {
-  const response = await fetch(
-    "https://x8ki-letl-twmt.n7.xano.io/api:4Brqmmks/business",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to save business profile");
+  let data: any;
+  try {
+    data = await res.json();
+  } catch (e) {
+    data = null;
   }
 
-  return response.json();
+  return { ok: res.ok, status: res.status, data };
 }

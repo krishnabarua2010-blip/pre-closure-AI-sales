@@ -26,15 +26,20 @@ export default function ProfilePage() {
     async function fetchProfile() {
       setLoading(true);
       try {
-        const res = await fetch("https://xano.example.com/business/profile");
-        const data = await res.json();
-        setProfile(data);
-        setForm({
-          description: data.description || "",
-          services: data.services || "",
-          faqs: data.faqs || "",
-          tone: data.tone || tones[0].value,
-        });
+        const { apiRequest } = await import("@/lib/api");
+        const resp = await apiRequest("/business_profile", "GET", undefined, true);
+        if (resp.ok) {
+          const data = resp.data;
+          setProfile(data);
+          setForm({
+            description: data.description || "",
+            services: data.services || "",
+            faqs: data.faqs || "",
+            tone: data.tone || tones[0].value,
+          });
+        } else {
+          setError("Failed to load profile");
+        }
       } catch {
         setError("Failed to load profile");
       } finally {
@@ -53,13 +58,13 @@ export default function ProfilePage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("https://xano.example.com/business/profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error("Failed to update profile");
+      const { apiRequest } = await import("@/lib/api");
+      const resp = await apiRequest("/update_profile", "POST", form, true);
+      console.log("update_profile response:", resp);
+      if (!resp.ok) throw new Error(resp.data?.message || "Failed to update profile");
       setEditMode(false);
+      // Update local cache
+      try { localStorage.setItem("profile", JSON.stringify(resp.data)); } catch {}
       router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

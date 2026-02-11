@@ -16,8 +16,25 @@ export default function PricingPage() {
   };
 
   const handleSelectPlan = (planId: string) => {
-    localStorage.setItem("selected_plan", planId);
-    router.push("/checkout");
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      // Not logged in — store choice and redirect to signup
+      localStorage.setItem("selected_plan", planId);
+      router.push("/signup");
+      return;
+    }
+
+    // Logged in — activate plan via API
+    (async () => {
+      const { apiRequest } = await import("@/lib/api");
+      const resp = await apiRequest("/activate_plan", "POST", { plan: planId }, true);
+      console.log("activate_plan response:", resp);
+      if (resp.ok) {
+        router.push("/dashboard");
+      } else {
+        alert(resp.data?.message || "Failed to activate plan");
+      }
+    })();
   };
 
   useEffect(() => {

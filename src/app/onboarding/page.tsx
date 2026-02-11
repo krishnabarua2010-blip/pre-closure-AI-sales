@@ -41,20 +41,26 @@ export default function OnboardingPage() {
     try {
       // Get selected plan from localStorage
       const selectedPlan = localStorage.getItem("selected_plan") || "pro";
-      
-      const res = await fetch("https://xano.example.com/business/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          plan_name: selectedPlan,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to submit");
-      
-      // Clear selected plan after successful submission
+      const { apiRequest } = await import("@/lib/api");
+      const payload = {
+        what_business_does: form.description || form.business_type,
+        what_you_sell: form.services,
+        pricing_range: form.faqs || "",
+        tone: form.tone,
+        extra_instructions: "",
+        plan_name: selectedPlan,
+        business_name: form.business_name,
+      };
+
+      const resp = await apiRequest("/update_profile", "POST", payload, true);
+      console.log("update_profile response:", resp);
+      if (!resp.ok) throw new Error(resp.data?.message || `Failed to submit: ${resp.status}`);
+
+      // Save basic profile info locally for dashboard display
+      const profile = resp.data || {};
       localStorage.removeItem("selected_plan");
-      router.push("/dashboard");
+      try { localStorage.setItem("profile", JSON.stringify(profile)); } catch {}
+      router.push("/product");
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message || "Error submitting form");

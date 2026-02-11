@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { sendMessageToAssistant } from "@/lib/chatApi";
 
 export default function ChatPage({ params }: { params: { slug: string } }) {
   const [messages, setMessages] = useState<
@@ -23,9 +22,9 @@ export default function ChatPage({ params }: { params: { slug: string } }) {
       }
       
       try {
-        // Try to fetch business profile to validate slug
-        const res = await fetch(`https://xano.example.com/business/${params.slug}`);
-        if (!res.ok) {
+        const { apiRequest } = await import("@/lib/api");
+        const resp = await apiRequest(`/business/${params.slug}`, "GET");
+        if (!resp.ok) {
           setError("Business not found or access expired.");
         }
       } catch (err) {
@@ -89,18 +88,24 @@ export default function ChatPage({ params }: { params: { slug: string } }) {
     setLoading(true);
 
     try {
-      const data = await sendMessageToAssistant({
-        businessSlug: params.slug,
-        message: userText,
-      });
+      const { apiRequest } = await import("@/lib/api");
+      const resp = await apiRequest("/generate_reply", "POST", { message: userText, businessSlug: params.slug }, true);
+      console.log("generate_reply response:", resp);
+      const data = resp.data || {};
+      if (resp.status === 200 && data.status === "LIMIT_REACHED") {
+        setError("Your free preview has ended. Upgrade to continue.");
+        setLoading(false);
+        return;
+      }
 
       setMessages((m) => [
         ...m,
-        { role: "assistant", text: data.reply },
+        { role: "assistant", text: data.reply || "Something went wrong." },
       ]);
 
       console.log("LEAD STATUS:", data.lead_status);
-    } catch {
+    } catch (e) {
+      console.error(e);
       setMessages((m) => [
         ...m,
         { role: "assistant", text: "Something went wrong." },

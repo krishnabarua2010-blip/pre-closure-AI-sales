@@ -24,17 +24,26 @@ export default function SignupPage() {
     setError("");
 
     try {
-      // Call backend to create account
-      const res = await fetch("https://xano.example.com/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      const { apiRequest } = await import("@/lib/api");
+      const resp = await apiRequest("/signup_custom", "POST", {
+        email: form.email,
+        password: form.password,
+        business_name: form.business_name,
       });
 
-      if (!res.ok) throw new Error("Signup failed");
+      console.log("signup response:", resp);
 
-      // On success, redirect to /product
-      router.push("/product");
+      if (!resp.ok) {
+        const errMsg = resp.data?.message || `Signup failed: ${resp.status}`;
+        throw new Error(errMsg);
+      }
+
+      // If token present, store it
+      const token = resp.data?.token || resp.data?.access_token;
+      if (token) localStorage.setItem("token", token);
+
+      // Redirect to onboarding
+      router.push("/onboarding");
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message || "Error creating account");

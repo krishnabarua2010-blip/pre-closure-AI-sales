@@ -44,20 +44,12 @@ export default function TrialSetupPage() {
 
     try {
       // Call backend to create preview business
-      const res = await fetch("https://xano.example.com/business/preview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          preview_mode: true,
-        }),
-      });
-
-      if (!res.ok) throw new Error("Failed to create preview");
-
-      const data = await res.json();
+      const { apiRequest } = await import("@/lib/api");
+      const resp = await apiRequest("/start_preview", "POST", { ...form, preview_mode: true });
+      console.log("start_preview response:", resp);
+      if (!resp.ok) throw new Error(resp.data?.message || "Failed to create preview");
+      const data = resp.data || {};
       const slug = data.slug || data.business_slug || "preview";
-
       // Redirect to chat with preview slug
       router.push(`/chat/${slug}`);
     } catch (err) {

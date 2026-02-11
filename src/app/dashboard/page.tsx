@@ -31,10 +31,23 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const res = await fetch("https://xano.example.com/business/profile");
-        const data = await res.json();
-        setProfile(data);
-      } catch {
+        // Try local cache first
+        const cached = typeof window !== "undefined" ? localStorage.getItem("profile") : null;
+        if (cached) {
+          setProfile(JSON.parse(cached));
+          setLoading(false);
+          return;
+        }
+
+        const { apiRequest } = await import("@/lib/api");
+        const resp = await apiRequest("/business_profile", "GET", undefined, true);
+        if (resp.ok) {
+          setProfile(resp.data);
+          try { localStorage.setItem("profile", JSON.stringify(resp.data)); } catch {}
+        } else {
+          setError("Failed to load usage info");
+        }
+      } catch (err) {
         setError("Failed to load usage info");
       } finally {
         setLoading(false);
@@ -49,16 +62,10 @@ export default function Dashboard() {
     setSummaryLoading(true);
     setSummaryError(false);
     try {
-      const res = await fetch(`${XANO_BASE}/api:t4vcaTEd/generate_daily_summary`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ business_id: id }),
-      });
-
-      if (!res.ok) throw new Error("summary request failed");
-
-      const data = await res.json();
-      setSummary(data);
+      const { apiRequest } = await import("@/lib/api");
+      const resp = await apiRequest("/api:t4vcaTEd/generate_daily_summary", "POST", { business_id: id }, true);
+      if (!resp.ok) throw new Error("summary request failed");
+      setSummary(resp.data);
     } catch (err) {
       console.error("Daily summary error", err);
       setSummaryError(true);
@@ -70,15 +77,12 @@ export default function Dashboard() {
 
   async function fetchFeatures(planName: string) {
     try {
-      const res = await fetch(`${XANO_BASE}/api:features-check`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planName }),
-      });
+      const { apiRequest } = await import("@/lib/api");
+      const resp = await apiRequest("/api:features-check", "POST", { plan: planName }, true);
 
-      if (!res.ok) throw new Error("features request failed");
+      if (!resp.ok) throw new Error("features request failed");
 
-      const data = await res.json();
+      const data = resp.data;
       
       // Check which features are newly unlocked (were not in localStorage)
       const previousFeaturesStr = localStorage.getItem("previous-features");

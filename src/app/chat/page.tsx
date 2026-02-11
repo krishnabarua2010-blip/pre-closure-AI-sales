@@ -7,7 +7,6 @@ import ChatInput from "@/components/chat/ChatInput";
 import TypingIndicator from "@/components/chat/TypingIndicator";
 import WelcomeState from "@/components/chat/WelcomeState";
 import { PreviewPaywall } from "@/components/chat/PreviewPaywall";
-import { sendMessageToBackend } from "@/lib/api";
 import {
   isPreviewMode,
   hasReachedPreviewLimit,
@@ -59,7 +58,16 @@ export default function ChatPage() {
     setIsTyping(true);
 
     try {
-      const data = await sendMessageToBackend(text);
+        const { apiRequest } = await import("@/lib/api");
+        const resp = await apiRequest("/generate_reply", "POST", { message: text }, true);
+        console.log("generate_reply response:", resp);
+
+        const data = resp.data;
+
+        if (resp.status === 200 && data && data.status === "LIMIT_REACHED") {
+          setPreviewLimitReached(true);
+          return;
+        }
 
       function extractReply(d: unknown): string | undefined {
         if (!d || typeof d !== 'object') return undefined;
