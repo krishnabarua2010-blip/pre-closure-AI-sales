@@ -1,249 +1,223 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [form, setForm] = useState({
+    business_name: "",
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    // Check URL first, then localStorage
-    const planFromUrl = searchParams.get("plan");
-    const planFromStorage = localStorage.getItem("selected_plan");
-    const plan = planFromUrl || planFromStorage;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-    setSelectedPlan(plan || null);
-    setIsLoading(false);
-  }, [searchParams]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  // If still loading, show loading state
-  if (isLoading) {
-    return (
-      <div style={{ padding: "40px", textAlign: "center", color: "#d1d1d6" }}>
-        <div style={{ fontSize: "1.2rem", marginBottom: "20px" }}>Loading...</div>
-      </div>
-    );
-  }
+    try {
+      // Call backend to create account
+      const res = await fetch("https://xano.example.com/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-  // If no plan selected, show plan selector
-  if (!selectedPlan) {
-    return (
-      <section
-        style={{
-          padding: "40px 20px",
-          textAlign: "center",
-          maxWidth: "600px",
-          margin: "0 auto",
-        }}
-      >
-        <h2 style={{ fontSize: "1.3rem", marginBottom: "16px", color: "#d1d1d6" }}>
-          Please choose a plan to continue
-        </h2>
-        <p style={{ fontSize: "1rem", color: "#a0a0a6", marginBottom: "32px" }}>
-          Select a plan that matches your needs:
-        </p>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "16px",
-            marginBottom: "32px",
-          }}
-        >
-          <button
-            onClick={() => {
-              localStorage.setItem("selected_plan", "basic");
-              setSelectedPlan("basic");
-            }}
-            style={{
-              padding: "12px 20px",
-              fontSize: "1rem",
-              background: "#8b5cf6",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            Basic Plan ($9/mo)
-          </button>
-          <button
-            onClick={() => {
-              localStorage.setItem("selected_plan", "pro");
-              setSelectedPlan("pro");
-            }}
-            style={{
-              padding: "12px 20px",
-              fontSize: "1rem",
-              background: "#8b5cf6",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            Pro Plan ($29/mo)
-          </button>
-          <button
-            onClick={() => {
-              localStorage.setItem("selected_plan", "business");
-              setSelectedPlan("business");
-            }}
-            style={{
-              padding: "12px 20px",
-              fontSize: "1rem",
-              background: "#8b5cf6",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-            }}
-          >
-            Business Plan ($49/mo)
-          </button>
-        </div>
-        <a
-          href="/pricing"
-          style={{
-            color: "#8b5cf6",
-            textDecoration: "underline",
-            fontSize: "1rem",
-          }}
-        >
-          ← Back to pricing
-        </a>
-      </section>
-    );
-  }
+      if (!res.ok) throw new Error("Signup failed");
 
-  // Plan is selected - show signup form
+      // On success, redirect to /product
+      router.push("/product");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message || "Error creating account");
+      setLoading(false);
+    }
+  };
+
   return (
-    <section
-      style={{
-        padding: "40px 20px",
-        textAlign: "center",
-        maxWidth: "500px",
-        margin: "0 auto",
-      }}
-    >
-      <h1 style={{ fontSize: "1.8rem", marginBottom: "8px", color: "#d1d1d6" }}>
-        Create Your Auto Closure Account
-      </h1>
-      <p style={{ fontSize: "0.95rem", color: "#a0a0a6", marginBottom: "32px" }}>
-        Selected plan:{" "}
-        <strong style={{ color: "#8b5cf6", textTransform: "capitalize" }}>
-          {selectedPlan}
-        </strong>
-      </p>
+    <div className="page">
+      <section style={{ maxWidth: 450, margin: "0 auto", marginBottom: 60 }} className="fade-up">
+        <h1 style={{ fontSize: "clamp(2rem, 4.5vw, 2.8rem)", marginBottom: 8 }}>
+          Create Your Account
+        </h1>
+        <p style={{ fontSize: "1rem", color: "#a0a0a6", marginBottom: 32 }}>
+          Join 12,000+ businesses using Auto Closure to close deals faster.
+        </p>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          router.push("/onboarding");
-        }}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-        }}
-      >
-        <div>
-          <label
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* Business Name */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              Business Name
+            </label>
+            <input
+              type="text"
+              name="business_name"
+              value={form.business_name}
+              onChange={handleChange}
+              placeholder="Your business name"
+              required
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: 8,
+                color: "#d1d1d6",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="you@example.com"
+              required
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: 8,
+                color: "#d1d1d6",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              Password
+            </label>
+            <div style={{ position: "relative" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Min 8 characters"
+                required
+                minLength={8}
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  fontSize: "1rem",
+                  background: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  borderRadius: 8,
+                  color: "#d1d1d6",
+                  boxSizing: "border-box",
+                  paddingRight: "40px",
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "#a0a0a6",
+                  cursor: "pointer",
+                  fontSize: "0.9rem",
+                }}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div style={{ color: "#ff6b6b", fontSize: "0.9rem", padding: "12px", background: "rgba(255, 107, 107, 0.1)", borderRadius: 8 }}>
+              {error}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
             style={{
-              display: "block",
-              marginBottom: "8px",
-              color: "#d1d1d6",
-              fontSize: "0.95rem",
-              textAlign: "left",
+              padding: "12px 20px",
+              fontSize: "1rem",
+              fontWeight: 700,
+              background: loading ? "rgba(124, 58, 237, 0.5)" : "linear-gradient(135deg, #7c3aed, #00ffff)",
+              color: "#000",
+              border: "none",
+              borderRadius: 999,
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.3s ease",
+              opacity: loading ? 0.6 : 1,
+              marginTop: 8,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.transform = "translateY(-3px) scale(1.02)";
+                e.currentTarget.style.boxShadow = "0 8px 24px rgba(124, 58, 237, 0.35)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0) scale(1)";
+              e.currentTarget.style.boxShadow = "none";
             }}
           >
-            Business Name
-          </label>
-          <input
-            type="text"
-            placeholder="Your business name"
-            required
-            style={{
-              width: "100%",
-              padding: "12px",
-              fontSize: "1rem",
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: "8px",
-              color: "#d1d1d6",
-              boxSizing: "border-box",
-            }}
-          />
-        </div>
+            {loading ? "Creating account..." : "Create Account"}
+          </button>
 
-        <div>
-          <label
-            style={{
-              display: "block",
-              marginBottom: "8px",
-              color: "#d1d1d6",
-              fontSize: "0.95rem",
-              textAlign: "left",
-            }}
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            placeholder="your@email.com"
-            required
-            style={{
-              width: "100%",
-              padding: "12px",
-              fontSize: "1rem",
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: "8px",
-              color: "#d1d1d6",
-              boxSizing: "border-box",
-            }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            padding: "12px 20px",
-            fontSize: "1rem",
-            fontWeight: "bold",
-            background: "#8b5cf6",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            marginTop: "12px",
-          }}
-        >
-          Continue
-        </button>
-      </form>
-
-      <div style={{ marginTop: "24px" }}>
-        <button
-          onClick={() => {
-            localStorage.removeItem("selected_plan");
-            setSelectedPlan(null);
-          }}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#8b5cf6",
-            textDecoration: "underline",
-            cursor: "pointer",
-            fontSize: "0.95rem",
-          }}
-        >
-          Choose a different plan
-        </button>
-      </div>
-    </section>
+          <p style={{ textAlign: "center", fontSize: "0.85rem", color: "#808086", marginTop: 12 }}>
+            Already have an account?{" "}
+            <a href="/login" style={{ color: "#7c3aed", textDecoration: "none", fontWeight: 600 }}>
+              Sign in
+            </a>
+          </p>
+        </form>
+      </section>
+    </div>
   );
 }

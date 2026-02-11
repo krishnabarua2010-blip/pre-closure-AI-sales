@@ -17,8 +17,8 @@ export default function Home() {
           Not a chatbot. A real conversation engine.
         </div>
 
-        <a className="cta" href="/pricing">
-          View Pricing
+        <a className="cta" href="/signup">
+          Create Account
         </a>
       </section>
 

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { startPreviewMode } from "@/lib/previewMode";
 
 export default function PricingPage() {
   const router = useRouter();
@@ -13,13 +12,12 @@ export default function PricingPage() {
   });
 
   const handleTryPreview = () => {
-    startPreviewMode();
-    router.push("/chat");
+    router.push("/trial-setup");
   };
 
   const handleSelectPlan = (planId: string) => {
     localStorage.setItem("selected_plan", planId);
-    router.push("/signup");
+    router.push("/checkout");
   };
 
   useEffect(() => {
