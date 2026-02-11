@@ -1,12 +1,14 @@
-import "./globals.css";
-import BackgroundOrbs from "@/components/BackgroundOrbs";
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>
-        <div id="bg-gradient" />
-        <BackgroundOrbs />
+    <html>
+      <body style={{ background: "black", color: "white" }}>
+        <div style={{ fontSize: "40px", padding: "40px" }}>
+          ROOT LAYOUT WORKING
+        </div>
         {children}
       </body>
     </html>
