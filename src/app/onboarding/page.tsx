@@ -1,36 +1,32 @@
-"use client"
-import { useState } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-const businessTypes = [
-  "Restaurant",
-  "Retail",
-  "Service",
-  "Healthcare",
-  "Education",
-  "Other",
-];
-
-const tones = [
-  { label: "Friendly", value: "friendly" },
-  { label: "Professional", value: "professional" },
-  { label: "Salesy", value: "salesy" },
-];
+import { apiRequest } from "@/lib/api";
 
 export default function OnboardingPage() {
   const router = useRouter();
+
   const [form, setForm] = useState({
-    business_name: "",
-    business_type: businessTypes[0],
+    business_type: "",
     description: "",
     services: "",
-    faqs: "",
-    tone: tones[0].value,
+    price_range: "",
+    tone: "",
+    extra_instructions: ""
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signup");
+    }
+  }, [router]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -38,142 +34,287 @@ export default function OnboardingPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
-      // Get selected plan from localStorage
-      const selectedPlan = localStorage.getItem("selected_plan") || "pro";
-      const { apiRequest } = await import("@/lib/api");
-      const payload = {
-        what_business_does: form.description || form.business_type,
-        what_you_sell: form.services,
-        pricing_range: form.faqs || "",
-        tone: form.tone,
-        extra_instructions: "",
-        plan_name: selectedPlan,
-        business_name: form.business_name,
-      };
+      const res = await apiRequest(
+        "/update_profile",
+        "POST",
+        form,
+        true
+      );
 
-      const resp = await apiRequest("/update_profile", "POST", payload, true);
-      console.log("update_profile response:", resp);
-      if (!resp.ok) throw new Error(resp.data?.message || `Failed to submit: ${resp.status}`);
+      console.log("update_profile response:", res);
 
-      // Save basic profile info locally for dashboard display
-      const profile = resp.data || {};
-      localStorage.removeItem("selected_plan");
-      try { localStorage.setItem("profile", JSON.stringify(profile)); } catch {}
-      router.push("/product");
+      if (res?.ok) {
+        router.push("/product");
+      } else {
+        const errMsg = res?.data?.message || "Something went wrong";
+        setError(errMsg);
+        console.log(res);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setError(message || "Error submitting form");
+      setError(message || "Error updating profile");
     } finally {
       setLoading(false);
     }
   };
 
-  if (error) {
-    return (
-      <div className="container" style={{ paddingTop: 60, paddingBottom: 60, textAlign: 'center' }}>
-        <h2 style={{ fontSize: '1.3rem', color: '#ff6b6b', marginBottom: 16 }}>Error</h2>
-        <p style={{ fontSize: '1.1rem', color: '#a0a0a6', marginBottom: 24 }}>{error}</p>
-        <a href="/" style={{ color: '#8b5cf6', textDecoration: 'underline' }}>← Back to home</a>
-      </div>
-    );
-  }
   return (
-    <div className="container" style={{paddingTop:28,paddingBottom:28}}>
-      <div className="stage" aria-hidden />
-      <div className="glass" style={{maxWidth:720,margin:'0 auto',padding:20}}>
-        <h1 style={{margin:0}}>Tell us about your business</h1>
-        <p className="muted">We’ll train the assistant to match your voice. One step at a time.</p>
+    <div className="page">
+      <section style={{ maxWidth: 600, margin: "0 auto", marginBottom: 60 }} className="fade-up">
+        <h1 style={{ fontSize: "clamp(2rem, 4.5vw, 2.8rem)", marginBottom: 16 }}>
+          Configure Your AI Sales Agent
+        </h1>
+        <p style={{ fontSize: "1rem", color: "#a0a0a6", marginBottom: 32 }}>
+          Tell us about your business so your AI can sound like you.
+        </p>
 
-        <form onSubmit={handleSubmit} style={{display:'flex',flexDirection:'column',gap:12,marginTop:12}}>
-          <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            <label className="kicker">Business Name</label>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* Business Type */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              What type of business are you?
+            </label>
             <input
               type="text"
-              name="business_name"
-              value={form.business_name}
-              onChange={handleChange}
-              className="glass"
-              style={{padding:12,borderRadius:10,border:'none'}}
-              required
-            />
-          </div>
-
-          <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            <label className="kicker">Business Type</label>
-            <select
               name="business_type"
               value={form.business_type}
               onChange={handleChange}
-              className="glass"
-              style={{padding:12,borderRadius:10,border:'none'}}
+              placeholder="e.g., Digital Agency, SaaS, E-commerce"
               required
-            >
-              {businessTypes.map((type) => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: 8,
+                color: "#d1d1d6",
+                boxSizing: "border-box",
+              }}
+            />
           </div>
 
-          <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            <label className="kicker">Short description</label>
+          {/* Description */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              Describe your business in detail
+            </label>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
-              className="glass"
-              style={{padding:12,borderRadius:10,border:'none'}}
-              rows={3}
+              placeholder="What makes your business unique? What problems do you solve?"
               required
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: 8,
+                color: "#d1d1d6",
+                boxSizing: "border-box",
+                fontFamily: "inherit",
+                minHeight: "100px",
+                resize: "vertical",
+              }}
             />
           </div>
 
-          <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            <label className="kicker">Services (comma separated)</label>
+          {/* Services */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              What products or services do you sell?
+            </label>
             <textarea
               name="services"
               value={form.services}
               onChange={handleChange}
-              className="glass"
-              style={{padding:12,borderRadius:10,border:'none'}}
-              rows={2}
+              placeholder="List your main offerings"
               required
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: 8,
+                color: "#d1d1d6",
+                boxSizing: "border-box",
+                fontFamily: "inherit",
+                minHeight: "80px",
+                resize: "vertical",
+              }}
             />
           </div>
 
-          <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            <label className="kicker">FAQs</label>
-            <textarea
-              name="faqs"
-              value={form.faqs}
+          {/* Price Range */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              Typical pricing range
+            </label>
+            <input
+              type="text"
+              name="price_range"
+              value={form.price_range}
               onChange={handleChange}
-              className="glass"
-              style={{padding:12,borderRadius:10,border:'none'}}
-              rows={2}
+              placeholder="e.g., $50-$200 per project"
               required
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: 8,
+                color: "#d1d1d6",
+                boxSizing: "border-box",
+              }}
             />
           </div>
 
-          <div style={{display:'flex',flexDirection:'column',gap:6}}>
-            <label className="kicker">Tone of Assistant</label>
-            <select
+          {/* Tone */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              What tone should your assistant use?
+            </label>
+            <input
+              type="text"
               name="tone"
               value={form.tone}
               onChange={handleChange}
-              className="glass"
-              style={{padding:12,borderRadius:10,border:'none'}}
+              placeholder="e.g., Friendly, Professional, Casual, Luxury"
               required
-            >
-              {tones.map((tone) => (
-                <option key={tone.value} value={tone.value}>{tone.label}</option>
-              ))}
-            </select>
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: 8,
+                color: "#d1d1d6",
+                boxSizing: "border-box",
+              }}
+            />
           </div>
 
-          {error && <div style={{color:'#ff6b6b',fontSize:13}}>{error}</div>}
-          <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</button>
+          {/* Extra Instructions */}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: 8,
+                color: "#d1d1d6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+              }}
+            >
+              Any additional instructions? (Optional)
+            </label>
+            <textarea
+              name="extra_instructions"
+              value={form.extra_instructions}
+              onChange={handleChange}
+              placeholder="e.g., Always mention our 30-day guarantee, promote our premium plan..."
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                fontSize: "1rem",
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: 8,
+                color: "#d1d1d6",
+                boxSizing: "border-box",
+                fontFamily: "inherit",
+                minHeight: "80px",
+                resize: "vertical",
+              }}
+            />
+          </div>
+
+          {error && (
+            <div style={{ color: "#ff6b6b", fontSize: "0.9rem", padding: "12px", background: "rgba(255, 107, 107, 0.1)", borderRadius: 8 }}>
+              {error}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              padding: "14px 20px",
+              fontSize: "1rem",
+              fontWeight: 700,
+              background: loading ? "rgba(124, 58, 237, 0.5)" : "linear-gradient(135deg, #7c3aed, #00ffff)",
+              color: "#000",
+              border: "none",
+              borderRadius: 999,
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.3s ease",
+              opacity: loading ? 0.6 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.transform = "translateY(-3px) scale(1.02)";
+                e.currentTarget.style.boxShadow = "0 8px 24px rgba(124, 58, 237, 0.35)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0) scale(1)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            {loading ? "Configuring..." : "Launch My AI Agent"}
+          </button>
+
+          <p style={{ textAlign: "center", fontSize: "0.85rem", color: "#808086", marginTop: 12 }}>
+            This usually takes 30-60 seconds.
+          </p>
         </form>
-      </div>
+      </section>
     </div>
   );
 }
