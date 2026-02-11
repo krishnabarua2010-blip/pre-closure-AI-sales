@@ -19,7 +19,7 @@ export default function PricingPage() {
 
   const handleSelectPlan = (planId: string) => {
     localStorage.setItem("selected_plan", planId);
-    router.push("/onboarding");
+    router.push("/signup");
   };
 
   useEffect(() => {
