@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { XANO_BASE } from "@/lib/apiConfig";
-import { Profile, DailySummary } from "@/lib/types";
+import { Profile, DailySummary, Features } from "@/lib/types";
+import { saveFeaturestoStorage } from "@/lib/useFeaturesStore";
 
 function getLimitText(plan: string) {
   if (plan === "Basic") return "200 / month";
@@ -22,7 +23,10 @@ export default function Dashboard() {
   const [summary, setSummary] = useState<DailySummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryError, setSummaryError] = useState(false);
+  const [features, setFeatures] = useState<Features | null>(null);
+  const [newlyUnlockedFeatures, setNewlyUnlockedFeatures] = useState<string[]>([]);
   const fetchedSummaryRef = useRef(false);
+  const fetchedFeaturesRef = useRef(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -64,6 +68,46 @@ export default function Dashboard() {
     }
   }
 
+  async function fetchFeatures(planName: string) {
+    try {
+      const res = await fetch(`${XANO_BASE}/api:features-check`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: planName }),
+      });
+
+      if (!res.ok) throw new Error("features request failed");
+
+      const data = await res.json();
+      
+      // Check which features are newly unlocked (were not in localStorage)
+      const previousFeaturesStr = localStorage.getItem("previous-features");
+      const previousFeatures = previousFeaturesStr ? JSON.parse(previousFeaturesStr) : {};
+      
+      const newlyUnlocked = Object.keys(data).filter(
+        (key) => data[key] && !previousFeatures[key]
+      );
+      
+      setFeatures(data);
+      setNewlyUnlockedFeatures(newlyUnlocked);
+      saveFeaturestoStorage(data);
+      
+      // Store current features for next comparison
+      localStorage.setItem("previous-features", JSON.stringify(data));
+    } catch (err) {
+      console.error("Features fetch error", err);
+      // Fallback: set basic features based on plan
+      const basicFeatures: Features = {
+        memory_v2: planName === "Pro" || planName === "Business",
+        advanced_analytics: planName === "Business",
+        priority_support: planName === "Business",
+        custom_automations: planName === "Pro" || planName === "Business",
+      };
+      setFeatures(basicFeatures);
+      saveFeaturestoStorage(basicFeatures);
+    }
+  }
+
   // Fetch summary once after profile loads (do not call on every render)
   useEffect(() => {
     const businessId = profile?.id || profile?.business_id;
@@ -71,6 +115,15 @@ export default function Dashboard() {
     if (fetchedSummaryRef.current) return;
     fetchedSummaryRef.current = true;
     fetchDailySummary(String(businessId));
+  }, [profile]);
+
+  // Fetch features once after profile loads
+  useEffect(() => {
+    const planName = profile?.plan_name;
+    if (!planName) return;
+    if (fetchedFeaturesRef.current) return;
+    fetchedFeaturesRef.current = true;
+    fetchFeatures(planName);
   }, [profile]);
 
   // Guard: Show loading if data not yet available
@@ -86,9 +139,9 @@ export default function Dashboard() {
   if (!profile.business_name || !profile.plan_name) {
     return (
       <section className="container" style={{ paddingTop: 60, paddingBottom: 60, textAlign: 'center' }}>
-        <h2 style={{ fontSize: '1.3rem', color: '#d1d1d6', marginBottom: 16 }}>Complete setup to continue</h2>
-        <p style={{ fontSize: '1.1rem', color: '#a0a0a6', marginBottom: 24 }}>Please finish payment or onboarding.</p>
-        <a href="/onboarding" style={{ color: '#8b5cf6', textDecoration: 'underline' }}>← Complete onboarding</a>
+        <h2 style={{ fontSize: '1.3rem', color: '#d1d1d6', marginBottom: 16 }}>Please complete setup or payment to continue.</h2>
+        <p style={{ fontSize: '1.1rem', color: '#a0a0a6', marginBottom: 24 }}>Set up your business profile and choose a plan to access your dashboard.</p>
+        <a href="/onboarding" style={{ color: '#8b5cf6', textDecoration: 'underline', fontSize: '1rem' }}>← Complete onboarding</a>
       </section>
     );
   }
@@ -128,6 +181,36 @@ export default function Dashboard() {
           }}>Refresh</button>
         </div>
       </div>
+
+      {/* NEWLY UNLOCKED FEATURES BANNER */}
+      {newlyUnlockedFeatures.length > 0 && (
+        <div
+          style={{
+            background: "linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%)",
+            border: "1px solid rgba(16, 185, 129, 0.3)",
+            borderRadius: "12px",
+            padding: "16px 20px",
+            marginBottom: "24px",
+            color: "#d1d1d6",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+          <span style={{ fontSize: "1.4rem" }}>✨</span>
+          <div>
+            <div style={{ fontWeight: "bold", marginBottom: "4px" }}>
+              New feature unlocked!
+            </div>
+            <div style={{ fontSize: "0.9rem", color: "#a0a0a6" }}>
+              {newlyUnlockedFeatures
+                .map((f) => f.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()))
+                .join(", ")}{" "}
+              is now available on your {profile?.plan_name} plan.
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="cards" style={{marginBottom:16}}>
         <div className="glass" style={{padding:16}}>

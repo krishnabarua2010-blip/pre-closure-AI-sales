@@ -19,3 +19,11 @@ export type DailySummary = {
   ai_closed_count: number;
   note?: string;
 };
+
+export type Features = {
+  memory_v2: boolean;
+  advanced_analytics: boolean;
+  priority_support: boolean;
+  custom_automations: boolean;
+  [key: string]: boolean;
+};

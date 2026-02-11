@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { sendMessageToAssistant } from "@/lib/chatApi";
 
 export default function ChatPage({ params }: { params: { slug: string } }) {
@@ -10,6 +10,74 @@ export default function ChatPage({ params }: { params: { slug: string } }) {
   >([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [validating, setValidating] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Validate business exists on mount
+  useEffect(() => {
+    async function validateBusiness() {
+      if (!params.slug) {
+        setError("Invalid or expired preview.");
+        setValidating(false);
+        return;
+      }
+      
+      try {
+        // Try to fetch business profile to validate slug
+        const res = await fetch(`https://xano.example.com/business/${params.slug}`);
+        if (!res.ok) {
+          setError("Business not found or access expired.");
+        }
+      } catch (err) {
+        console.error("Validation error:", err);
+        setError("Unable to verify access. Please try again.");
+      } finally {
+        setValidating(false);
+      }
+    }
+    
+    validateBusiness();
+  }, [params.slug]);
+
+  if (validating) {
+    return (
+      <section className="container" style={{ paddingTop: 60, paddingBottom: 60, textAlign: "center" }}>
+        <p style={{ fontSize: "1.1rem", color: "#d1d1d6" }}>Loading conversation…</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="container" style={{ paddingTop: 60, paddingBottom: 60, textAlign: "center" }}>
+        <div className="glass" style={{ maxWidth: 500, margin: "0 auto", padding: 40 }}>
+          <h2 style={{ fontSize: "1.3rem", color: "#ff6b6b", marginBottom: 16 }}>
+            {error}
+          </h2>
+          <p style={{ fontSize: "1rem", color: "#a0a0a6", marginBottom: 24 }}>
+            This preview may have expired or been removed.
+          </p>
+          <a
+            href="/pricing"
+            style={{
+              display: "inline-block",
+              background: "#8b5cf6",
+              color: "white",
+              padding: "12px 32px",
+              borderRadius: "8px",
+              textDecoration: "none",
+              fontWeight: "bold",
+              transition: "background 0.2s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#a78bfa")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#8b5cf6")}
+          >
+            Try Preview Again
+          </a>
+        </div>
+      </section>
+    );
+  }
 
   async function send() {
     if (!input.trim()) return;

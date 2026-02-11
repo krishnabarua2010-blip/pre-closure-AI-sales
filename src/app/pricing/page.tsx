@@ -17,6 +17,11 @@ export default function PricingPage() {
     router.push("/chat");
   };
 
+  const handleSelectPlan = (planId: string) => {
+    localStorage.setItem("selected_plan", planId);
+    router.push("/onboarding");
+  };
+
   useEffect(() => {
     const calculateTimeLeft = () => {
       // Set expiration to 7 days from now (arbitrary founders deal duration)
@@ -135,12 +140,13 @@ export default function PricingPage() {
           </ul>
           <a
             className="cta"
-            href="/signup?plan=starter"
+            onClick={() => handleSelectPlan("starter")}
             style={{
               display: "block",
               textAlign: "center",
               opacity: 0.7,
               transition: "opacity 0.2s",
+              cursor: "pointer",
             }}
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
@@ -194,12 +200,13 @@ export default function PricingPage() {
           </ul>
           <a
             className="cta"
-            href="/signup?plan=pro"
+            onClick={() => handleSelectPlan("pro")}
             style={{
               display: "block",
               textAlign: "center",
               background: "#8b5cf6",
               fontWeight: "bold",
+              cursor: "pointer",
             }}
           >
             Start Pro Plan
@@ -222,10 +229,11 @@ export default function PricingPage() {
           </ul>
           <a
             className="cta"
-            href="/signup?plan=business"
+            onClick={() => handleSelectPlan("business")}
             style={{
               display: "block",
               textAlign: "center",
+              cursor: "pointer",
             }}
           >
             Upgrade to Business

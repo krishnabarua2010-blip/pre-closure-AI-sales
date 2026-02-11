@@ -39,12 +39,21 @@ export default function OnboardingPage() {
     setLoading(true);
     setError("");
     try {
+      // Get selected plan from localStorage
+      const selectedPlan = localStorage.getItem("selected_plan") || "pro";
+      
       const res = await fetch("https://xano.example.com/business/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          plan_name: selectedPlan,
+        }),
       });
       if (!res.ok) throw new Error("Failed to submit");
+      
+      // Clear selected plan after successful submission
+      localStorage.removeItem("selected_plan");
       router.push("/dashboard");
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -54,14 +63,12 @@ export default function OnboardingPage() {
     }
   };
 
-  // Guard: Validate form has required fields before rendering
-  const isFormValid = form.business_name && form.description;
-
-  if (error && !isFormValid) {
+  if (error) {
     return (
       <div className="container" style={{ paddingTop: 60, paddingBottom: 60, textAlign: 'center' }}>
-        <p style={{ fontSize: '1.1rem', color: '#ff6b6b' }}>Error: {error}</p>
-        <a href="/" style={{ marginTop: 20, display: 'inline-block', color: '#8b5cf6' }}>← Back to home</a>
+        <h2 style={{ fontSize: '1.3rem', color: '#ff6b6b', marginBottom: 16 }}>Error</h2>
+        <p style={{ fontSize: '1.1rem', color: '#a0a0a6', marginBottom: 24 }}>{error}</p>
+        <a href="/" style={{ color: '#8b5cf6', textDecoration: 'underline' }}>← Back to home</a>
       </div>
     );
   }
