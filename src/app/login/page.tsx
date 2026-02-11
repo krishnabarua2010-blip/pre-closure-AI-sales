@@ -2,47 +2,70 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiRequest } from "@/lib/api";
 
-export default function Login() {
+export default function LoginPage() {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const { apiRequest } = await import("@/lib/api");
-      const resp = await apiRequest("/auth/login", "POST", { email, password });
-      console.log("login response:", resp);
-      if (!resp.ok) throw new Error(resp.data?.message || `Login failed: ${resp.status}`);
-      const token = resp.data?.token || resp.data?.access_token;
-      if (token) localStorage.setItem("token", token);
-      router.push("/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-      setLoading(false);
+
+    const res = await apiRequest(
+      "/auth/login",
+      "POST",
+      { email, password },
+      false
+    );
+
+    if (res?.ok && res?.data) {
+      const token = res.data.token || res.data.authToken || res.data.access_token;
+      if (token) {
+        localStorage.setItem("token", token);
+        router.push("/dashboard");
+      } else {
+        alert("Login failed: No token in response");
+        console.log(res);
+      }
+    } else {
+      alert("Login failed");
+      console.log(res);
     }
   };
 
   return (
-    <section className="container">
-      <h2 className="title">Welcome back</h2>
-      <p className="sub">Log in to manage your assistant</p>
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="glass-card max-w-md w-full p-8">
+        <h1 className="text-3xl font-bold mb-6 text-center">
+          Welcome Back
+        </h1>
 
-      <div className="grid">
-        <div className="card">
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            <input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            {error && <div style={{ color: "#ff6b6b" }}>{error}</div>}
-            <button className="btn primary" type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Login'}</button>
-          </form>
-        </div>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            className="input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button className="btn-primary w-full">
+            Sign In
+          </button>
+        </form>
       </div>
-    </section>
+    </div>
   );
 }
