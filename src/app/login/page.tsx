@@ -20,18 +20,15 @@ export default function LoginPage() {
       false
     );
 
-    if (res?.ok && res?.data) {
-      const token = res.data.token || res.data.authToken || res.data.access_token;
-      if (token) {
-        localStorage.setItem("token", token);
-        router.push("/dashboard");
-      } else {
-        alert("Login failed: No token in response");
-        console.log(res);
-      }
+    console.log("Login response:", res);
+
+    const token = res?.authToken || res?.token;
+
+    if (token) {
+      localStorage.setItem("token", token);
+      router.push("/dashboard");
     } else {
-      alert("Login failed");
-      console.log(res);
+      alert("Invalid email or password");
     }
   };
 

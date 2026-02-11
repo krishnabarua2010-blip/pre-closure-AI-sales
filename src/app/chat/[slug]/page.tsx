@@ -24,7 +24,7 @@ export default function ChatPage({ params }: { params: { slug: string } }) {
       try {
         const { apiRequest } = await import("@/lib/api");
         const resp = await apiRequest(`/business/${params.slug}`, "GET");
-        if (!resp.ok) {
+        if (!resp) {
           setError("Business not found or access expired.");
         }
       } catch (err) {
@@ -91,8 +91,12 @@ export default function ChatPage({ params }: { params: { slug: string } }) {
       const { apiRequest } = await import("@/lib/api");
       const resp = await apiRequest("/generate_reply", "POST", { message: userText, businessSlug: params.slug }, true);
       console.log("generate_reply response:", resp);
-      const data = resp.data || {};
-      if (resp.status === 200 && data.status === "LIMIT_REACHED") {
+      if (!resp) {
+        setError("Failed to get response");
+        setLoading(false);
+        return;
+      }
+      if (resp.status === "LIMIT_REACHED") {
         setError("Your free preview has ended. Upgrade to continue.");
         setLoading(false);
         return;
@@ -100,10 +104,10 @@ export default function ChatPage({ params }: { params: { slug: string } }) {
 
       setMessages((m) => [
         ...m,
-        { role: "assistant", text: data.reply || "Something went wrong." },
+        { role: "assistant", text: resp.reply || "Something went wrong." },
       ]);
 
-      console.log("LEAD STATUS:", data.lead_status);
+      console.log("LEAD STATUS:", resp.lead_status);
     } catch (e) {
       console.error(e);
       setMessages((m) => [

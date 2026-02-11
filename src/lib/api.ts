@@ -6,13 +6,15 @@ export async function apiRequest(
   body?: any,
   auth: boolean = false
 ) {
-  const headers: Record<string, string> = {
+  const headers: any = {
     "Content-Type": "application/json",
   };
 
   if (auth) {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+    const token = localStorage.getItem("token");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
   }
 
   const res = await fetch(`${XANO_BASE}${endpoint}`, {
@@ -21,12 +23,12 @@ export async function apiRequest(
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  let data: any;
-  try {
-    data = await res.json();
-  } catch (e) {
-    data = null;
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.error("API Error:", data);
+    return null;
   }
 
-  return { ok: res.ok, status: res.status, data };
+  return data;
 }

@@ -29,10 +29,10 @@ export default function PricingPage() {
       const { apiRequest } = await import("@/lib/api");
       const resp = await apiRequest("/activate_plan", "POST", { plan: planId }, true);
       console.log("activate_plan response:", resp);
-      if (resp.ok) {
+      if (resp) {
         router.push("/dashboard");
       } else {
-        alert(resp.data?.message || "Failed to activate plan");
+        alert("Failed to activate plan");
       }
     })();
   };

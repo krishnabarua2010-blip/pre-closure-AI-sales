@@ -33,17 +33,16 @@ export default function SignupPage() {
 
       console.log("signup response:", resp);
 
-      if (!resp.ok) {
-        const errMsg = resp.data?.message || `Signup failed: ${resp.status}`;
-        throw new Error(errMsg);
+      const token = resp?.authToken || resp?.token;
+
+      if (token) {
+        localStorage.setItem("token", token);
+        router.push("/onboarding");
+      } else {
+        alert("Signup failed");
+        console.log(resp);
+        setLoading(false);
       }
-
-      // If token present, store it
-      const token = resp.data?.token || resp.data?.access_token;
-      if (token) localStorage.setItem("token", token);
-
-      // Redirect to onboarding
-      router.push("/onboarding");
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       setError(message || "Error creating account");

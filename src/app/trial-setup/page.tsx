@@ -47,9 +47,8 @@ export default function TrialSetupPage() {
       const { apiRequest } = await import("@/lib/api");
       const resp = await apiRequest("/start_preview", "POST", { ...form, preview_mode: true });
       console.log("start_preview response:", resp);
-      if (!resp.ok) throw new Error(resp.data?.message || "Failed to create preview");
-      const data = resp.data || {};
-      const slug = data.slug || data.business_slug || "preview";
+      if (!resp) throw new Error("Failed to create preview");
+      const slug = resp.slug || resp.business_slug || "preview";
       // Redirect to chat with preview slug
       router.push(`/chat/${slug}`);
     } catch (err) {

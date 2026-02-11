@@ -62,9 +62,7 @@ export default function ChatPage() {
         const resp = await apiRequest("/generate_reply", "POST", { message: text }, true);
         console.log("generate_reply response:", resp);
 
-        const data = resp.data;
-
-        if (resp.status === 200 && data && data.status === "LIMIT_REACHED") {
+        if (resp && resp.status === "LIMIT_REACHED") {
           setPreviewLimitReached(true);
           return;
         }
@@ -82,11 +80,11 @@ export default function ChatPage() {
         return undefined;
       }
 
-      const reply = extractReply(data) ?? "Thanks! We’ll get back to you shortly.";
+      const reply = extractReply(resp) ?? "Thanks! We'll get back to you shortly.";
 
       // If Xano returns lead classification, keep it for later (no UI yet)
-      if (data && typeof data === 'object') {
-        const obj = data as Record<string, unknown>;
+      if (resp && typeof resp === 'object') {
+        const obj = resp as Record<string, unknown>;
         if ('lead_type' in obj) {
           console.log('Lead type:', obj['lead_type']);
         }

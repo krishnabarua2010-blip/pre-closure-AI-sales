@@ -36,15 +36,12 @@ export default function SetupPage() {
       const resp = await apiRequest("/update_profile", "POST", payload, true);
       console.log("setup response:", resp);
 
-      if (resp.ok && resp.data) {
-        const result = resp.data as Record<string, unknown>;
-        if (typeof result.slug === 'string') {
-          setGeneratedLink(`/b/${result.slug}`);
-        } else {
-          setGeneratedLink(null);
-        }
+      if (resp && typeof resp.slug === 'string') {
+        setGeneratedLink(`/b/${resp.slug}`);
+      } else if (resp) {
+        setGeneratedLink(null);
       } else {
-        alert(resp.data?.message || "Something went wrong. Please try again.");
+        alert("Something went wrong. Please try again.");
       }
     } catch (e) {
       alert("Something went wrong. Please try again.");

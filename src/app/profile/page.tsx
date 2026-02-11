@@ -28,14 +28,13 @@ export default function ProfilePage() {
       try {
         const { apiRequest } = await import("@/lib/api");
         const resp = await apiRequest("/business_profile", "GET", undefined, true);
-        if (resp.ok) {
-          const data = resp.data;
-          setProfile(data);
+        if (resp) {
+          setProfile(resp);
           setForm({
-            description: data.description || "",
-            services: data.services || "",
-            faqs: data.faqs || "",
-            tone: data.tone || tones[0].value,
+            description: resp.description || "",
+            services: resp.services || "",
+            faqs: resp.faqs || "",
+            tone: resp.tone || tones[0].value,
           });
         } else {
           setError("Failed to load profile");
@@ -61,10 +60,10 @@ export default function ProfilePage() {
       const { apiRequest } = await import("@/lib/api");
       const resp = await apiRequest("/update_profile", "POST", form, true);
       console.log("update_profile response:", resp);
-      if (!resp.ok) throw new Error(resp.data?.message || "Failed to update profile");
+      if (!resp) throw new Error("Failed to update profile");
       setEditMode(false);
       // Update local cache
-      try { localStorage.setItem("profile", JSON.stringify(resp.data)); } catch {}
+      try { localStorage.setItem("profile", JSON.stringify(resp)); } catch {}
       router.refresh();
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

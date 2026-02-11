@@ -45,12 +45,10 @@ export default function OnboardingPage() {
 
       console.log("update_profile response:", res);
 
-      if (res?.ok) {
+      if (res) {
         router.push("/product");
       } else {
-        const errMsg = res?.data?.message || "Something went wrong";
-        setError(errMsg);
-        console.log(res);
+        setError("Something went wrong");
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

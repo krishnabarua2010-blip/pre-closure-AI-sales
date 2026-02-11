@@ -41,9 +41,9 @@ export default function Dashboard() {
 
         const { apiRequest } = await import("@/lib/api");
         const resp = await apiRequest("/business_profile", "GET", undefined, true);
-        if (resp.ok) {
-          setProfile(resp.data);
-          try { localStorage.setItem("profile", JSON.stringify(resp.data)); } catch {}
+        if (resp) {
+          setProfile(resp);
+          try { localStorage.setItem("profile", JSON.stringify(resp)); } catch {}
         } else {
           setError("Failed to load usage info");
         }
@@ -64,8 +64,8 @@ export default function Dashboard() {
     try {
       const { apiRequest } = await import("@/lib/api");
       const resp = await apiRequest("/api:t4vcaTEd/generate_daily_summary", "POST", { business_id: id }, true);
-      if (!resp.ok) throw new Error("summary request failed");
-      setSummary(resp.data);
+      if (!resp) throw new Error("summary request failed");
+      setSummary(resp);
     } catch (err) {
       console.error("Daily summary error", err);
       setSummaryError(true);
@@ -80,9 +80,9 @@ export default function Dashboard() {
       const { apiRequest } = await import("@/lib/api");
       const resp = await apiRequest("/api:features-check", "POST", { plan: planName }, true);
 
-      if (!resp.ok) throw new Error("features request failed");
+      if (!resp) throw new Error("features request failed");
 
-      const data = resp.data;
+      const data = resp;
       
       // Check which features are newly unlocked (were not in localStorage)
       const previousFeaturesStr = localStorage.getItem("previous-features");
