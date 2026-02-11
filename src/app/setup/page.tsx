@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { saveBusinessProfile } from "../../lib/api";
 
 export default function SetupPage() {
   const [faqs, setFaqs] = useState([{ q: "", a: "" }]);
@@ -33,13 +32,19 @@ export default function SetupPage() {
         cold_criteria,
       };
 
-      const res = await saveBusinessProfile(payload);
+      const { apiRequest } = await import("@/lib/api");
+      const resp = await apiRequest("/update_profile", "POST", payload, true);
+      console.log("setup response:", resp);
 
-      const result = res as Record<string, unknown>;
-      if (typeof result.slug === 'string') {
-        setGeneratedLink(`/b/${result.slug}`);
+      if (resp.ok && resp.data) {
+        const result = resp.data as Record<string, unknown>;
+        if (typeof result.slug === 'string') {
+          setGeneratedLink(`/b/${result.slug}`);
+        } else {
+          setGeneratedLink(null);
+        }
       } else {
-        setGeneratedLink(null);
+        alert(resp.data?.message || "Something went wrong. Please try again.");
       }
     } catch (e) {
       alert("Something went wrong. Please try again.");
