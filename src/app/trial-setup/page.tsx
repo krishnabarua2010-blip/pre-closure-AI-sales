@@ -37,25 +37,10 @@ export default function TrialSetupPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      // Call backend to create preview business
-      const { apiRequest } = await import("@/lib/api");
-      const resp = await apiRequest("/start_preview", "POST", { ...form, preview_mode: true });
-      console.log("start_preview response:", resp);
-      if (!resp) throw new Error("Failed to create preview");
-      const slug = resp.slug || resp.business_slug || "preview";
-      // Redirect to chat with preview slug
-      router.push(`/chat/${slug}`);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message || "Error starting trial");
-      setLoading(false);
-    }
+    // no server call - just open chat
+    router.push("/chat");
   };
 
   return (

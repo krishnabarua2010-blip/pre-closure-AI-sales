@@ -12,9 +12,7 @@ export async function apiRequest(
 
   if (auth) {
     const token = localStorage.getItem("token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   const res = await fetch(`${XANO_BASE}${endpoint}`, {
@@ -25,10 +23,8 @@ export async function apiRequest(
 
   const data = await res.json();
 
-  if (!res.ok) {
-    console.error("API Error:", data);
-    return null;
-  }
+  console.log("API STATUS:", res.status);
+  console.log("API RESPONSE:", data);
 
   return data;
 }

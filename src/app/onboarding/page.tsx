@@ -26,14 +26,12 @@ export default function OnboardingPage() {
     }
   }, [router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
 
     try {
       const res = await apiRequest(
@@ -43,18 +41,16 @@ export default function OnboardingPage() {
         true
       );
 
-      console.log("update_profile response:", res);
+      console.log("Update profile response:", res);
 
-      if (res) {
+      if (res && !res.error) {
         router.push("/product");
       } else {
-        setError("Something went wrong");
+        alert("Server error. Check console.");
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message || "Error updating profile");
-    } finally {
-      setLoading(false);
+      console.error("Update profile crash:", err);
+      alert("Unexpected error occurred");
     }
   };
 
@@ -218,12 +214,11 @@ export default function OnboardingPage() {
             >
               What tone should your assistant use?
             </label>
-            <input
-              type="text"
+            <select
               name="tone"
+              className="input"
               value={form.tone}
               onChange={handleChange}
-              placeholder="e.g., Friendly, Professional, Casual, Luxury"
               required
               style={{
                 width: "100%",
@@ -235,7 +230,13 @@ export default function OnboardingPage() {
                 color: "#d1d1d6",
                 boxSizing: "border-box",
               }}
-            />
+            >
+              <option value="">Select tone</option>
+              <option value="friendly">Friendly</option>
+              <option value="professional">Professional</option>
+              <option value="casual">Casual</option>
+              <option value="confident">Confident</option>
+            </select>
           </div>
 
           {/* Extra Instructions */}

@@ -1,15 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function ProductPage() {
   const router = useRouter();
-  const [trialLoading, setTrialLoading] = useState(false);
 
-  const handleStartTrial = async () => {
-    setTrialLoading(true);
-    router.push("/trial-setup");
+  const handleStartTrial = () => {
+    // skip backend call, just jump to chat directly
+    router.push("/chat");
   };
 
   const handleSelectPlan = (planId: string) => {
