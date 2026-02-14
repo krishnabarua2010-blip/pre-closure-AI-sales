@@ -1,30 +1,33 @@
 export const XANO_BASE = "https://x8ki-letl-twmt.n7.xano.io/api:3qxYwR_i";
 
 export async function apiRequest(
-  endpoint: string,
-  method: string = "POST",
-  body?: any,
+  path: string,
+  method: string = "GET",
+  body: any = null,
   auth: boolean = false
 ) {
-  const headers: any = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
   if (auth) {
     const token = localStorage.getItem("token");
-    headers["Authorization"] = `Bearer ${token}`;
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
   }
 
-  const res = await fetch(`${XANO_BASE}${endpoint}`, {
+  const res = await fetch(`${XANO_BASE}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? JSON.stringify(body) : null,
   });
 
-  const data = await res.json();
+  if (!res.ok) {
+    const error = await res.json();
+    console.error("API Error:", error);
+    return null;
+  }
 
-  console.log("API STATUS:", res.status);
-  console.log("API RESPONSE:", data);
-
-  return data;
+  return res.json();
 }
