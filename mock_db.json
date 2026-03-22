@@ -1,0 +1,65 @@
+{
+  "leads": [
+    {
+      "id": "lead_1773785322523",
+      "name": "Potential Buyer",
+      "email": "lead_conv_1773785256979@example.com",
+      "score": 94,
+      "status": "qualified",
+      "last_interaction": "2026-03-17T22:08:42.523Z"
+    }
+  ],
+  "conversations": {
+    "conv_1773785256979": {
+      "slug": "growth-marketing-agency",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Hi"
+        },
+        {
+          "role": "assistant",
+          "content": "That's interesting. What are your specific revenue goals?"
+        },
+        {
+          "role": "user",
+          "content": "I want to grow my revenue"
+        },
+        {
+          "role": "assistant",
+          "content": "Got it. And what budget have you allocated for this solution?"
+        },
+        {
+          "role": "user",
+          "content": "I have $5000 budget"
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. Are you the primary decision-maker for this project?"
+        },
+        {
+          "role": "user",
+          "content": "Yes I am the decision maker"
+        },
+        {
+          "role": "assistant",
+          "content": "Perfect. Based on this, I strongly recommend we schedule a brief 15-minute call. Does tomorrow work for you?"
+        },
+        {
+          "role": "user",
+          "content": "Sure tomorrow works"
+        },
+        {
+          "role": "assistant",
+          "content": "Perfect. Based on this, I strongly recommend we schedule a brief 15-minute call. Does tomorrow work for you?"
+        }
+      ]
+    }
+  },
+  "business_profiles": {
+    "growth-marketing-agency": {
+      "name": "Growth Marketing Agency",
+      "industry": "Facebook Ads for ecom brands"
+    }
+  }
+}

@@ -1,33 +1,50 @@
-export const XANO_BASE = "https://x8ki-letl-twmt.n7.xano.io/api:3qxYwR_i";
+import axios from 'axios';
 
-export async function apiRequest(
-  path: string,
-  method: string = "GET",
-  body: any = null,
-  auth: boolean = false
-) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+const api = axios.create({
+  baseURL: 'http://localhost:8080',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-  if (auth) {
-    const token = localStorage.getItem("token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+api.interceptors.request.use(
+  (config) => {
+    // Map legacy frontend paths to the exact backend routes
+    if (config.url === '/init_public_conversation' && config.data?.slug) {
+      config.url = `/conversation/init/${config.data.slug}`;
+    } else if (config.url === '/ai_message') {
+      config.url = '/conversation/ai_message';
+    } else if (config.url === '/get_leads') {
+      config.url = '/analytics/leads';
     }
+
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      // Intentionally pass the token directly if present
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  const res = await fetch(`${XANO_BASE}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : null,
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    console.error("API Error:", error);
-    return null;
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
   }
+);
 
-  return res.json();
-}
+export default api;

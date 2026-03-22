@@ -1,290 +1,189 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from 'next/link';
+import { useRef, useEffect, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { formatPrice } from '@/lib/currencyUtils';
+
+gsap.registerPlugin(ScrollTrigger);
+
+const STARTER_FEATURES = [
+  '500 AI messages / month',
+  'AI lead qualification',
+  'Lead dashboard',
+  'Lead scoring',
+  'Public AI assistant link',
+  'Deal probability scoring',
+  'Basic objection tracking',
+];
+
+const GROWTH_FEATURES = [
+  'Unlimited AI messages',
+  'AI revenue advisor',
+  'Lead intelligence summaries',
+  'Close strategy generator',
+  'Proposal generator',
+  'Client onboarding AI',
+  'Call booking automation',
+  'Follow-up automation',
+  'Funnel analytics',
+  'Sales coaching',
+  'Deal probability engine',
+  'Objection intelligence library',
+  'Funnel leak detector',
+  'Buyer intent timeline',
+  'AI follow-up writer',
+  'Conversation pattern learning',
+];
 
 export default function PricingPage() {
-  const router = useRouter();
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
-
-  const handleTryPreview = () => {
-    router.push("/trial-setup");
-  };
-
-  const handleSelectPlan = (planId: string) => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    if (!token) {
-      // Not logged in — store choice and redirect to signup
-      localStorage.setItem("selected_plan", planId);
-      router.push("/signup");
-      return;
-    }
-
-    // Logged in — activate plan via API
-    (async () => {
-      const { apiRequest } = await import("@/lib/api");
-      const resp = await apiRequest("/activate_plan", "POST", { plan: planId }, true);
-      console.log("activate_plan response:", resp);
-      if (resp) {
-        router.push("/dashboard");
-      } else {
-        alert("Failed to activate plan");
-      }
-    })();
-  };
+  const pageRef = useRef<HTMLDivElement>(null);
+  const [prices, setPrices] = useState({ starter: '$99', growth: '$199', starterOld: '$199', growthOld: '$399' });
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      // Set expiration to 7 days from now (arbitrary founders deal duration)
-      const expirationDate = new Date();
-      expirationDate.setDate(expirationDate.getDate() + 7);
+    setPrices({
+      starter: formatPrice(99),
+      growth: formatPrice(199),
+      starterOld: formatPrice(199),
+      growthOld: formatPrice(399),
+    });
+  }, []);
 
-      const now = new Date();
-      const difference = expirationDate.getTime() - now.getTime();
-
-      if (difference > 0) {
-        setTimeLeft({
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / (1000 * 60)) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-        });
+  useEffect(() => {
+    gsap.fromTo('[data-reveal]',
+      { opacity: 0, y: 40 },
+      {
+        opacity: 1, y: 0,
+        duration: 0.8, ease: 'power2.out', stagger: 0.15,
+        delay: 0.2,
       }
-    };
-
-    calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 1000);
-
-    return () => clearInterval(timer);
+    );
   }, []);
 
   return (
-    <div className="page">
-      <h1 style={{ textAlign: "center", marginBottom: 16 }}>
-        Simple Pricing. Real Results.
-      </h1>
+    <div ref={pageRef} className="min-h-screen bg-[#000000] text-white overflow-x-hidden relative z-[1]">
+      {/* Nav */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4 bg-[#000000]/80 backdrop-blur-xl border-b border-[#1F2937]/60">
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/30">
+            <svg width="14" height="14" viewBox="0 0 18 18" fill="none">
+              <path d="M9 2L15.5 12H2.5L9 2Z" fill="white"/>
+              <circle cx="9" cy="13.5" r="2.5" fill="white" fillOpacity="0.6"/>
+            </svg>
+          </div>
+          <span className="text-white font-semibold tracking-tight text-sm">Pre-Closer AI</span>
+        </Link>
+        <Link href="/login" className="text-sm text-gray-400 hover:text-white transition-colors">Sign in</Link>
+      </nav>
 
-      <p style={{ textAlign: "center", opacity: 0.7, marginBottom: 20 }}>
-        Start now. Upgrade only when Auto Closure makes you money.
-      </p>
+      <div className="pt-32 pb-24 px-6 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#6366F1]/6 rounded-full blur-[120px] pointer-events-none" />
+        <div className="max-w-5xl mx-auto relative z-10">
 
-      {/* FOMO TIMER */}
-      <div
-        style={{
-          textAlign: "center",
-          marginBottom: 40,
-          padding: "16px 24px",
-          background: "rgba(139, 92, 246, 0.1)",
-          borderRadius: "8px",
-          border: "1px solid rgba(139, 92, 246, 0.3)",
-          maxWidth: "400px",
-          margin: "0 auto 40px",
-        }}
-      >
-        <p style={{ margin: "0 0 8px 0", fontSize: "14px", opacity: 0.8 }}>
-          🔥 Early access pricing expires in
-        </p>
-        <div
-          style={{
-            fontSize: "28px",
-            fontWeight: "bold",
-            color: "#8b5cf6",
-            letterSpacing: "3px",
-            fontFamily: "monospace",
-          }}
-        >
-          {String(timeLeft.hours).padStart(2, "0")}:{String(timeLeft.minutes).padStart(2, "0")}:{String(timeLeft.seconds).padStart(2, "0")}
-        </div>
-      </div>
-
-      {/* TRY PREVIEW BUTTON */}
-      <div style={{ textAlign: "center", marginBottom: 48 }}>
-        <button
-          onClick={handleTryPreview}
-          style={{
-            background: "rgba(139, 92, 246, 0.2)",
-            border: "1px solid rgba(139, 92, 246, 0.5)",
-            color: "#8b5cf6",
-            padding: "12px 32px",
-            borderRadius: "8px",
-            fontSize: "1rem",
-            fontWeight: "bold",
-            cursor: "pointer",
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            (e.target as HTMLButtonElement).style.background = "rgba(139, 92, 246, 0.3)";
-            (e.target as HTMLButtonElement).style.borderColor = "#8b5cf6";
-          }}
-          onMouseLeave={(e) => {
-            (e.target as HTMLButtonElement).style.background = "rgba(139, 92, 246, 0.2)";
-            (e.target as HTMLButtonElement).style.borderColor = "rgba(139, 92, 246, 0.5)";
-          }}
-        >
-          ← Try Preview (15 messages)
-        </button>
-        <p style={{ fontSize: "0.9rem", color: "#6b7280", marginTop: 12 }}>
-          See how Auto Closure works. No credit card required.
-        </p>
-      </div>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: 32,
-          maxWidth: "1200px",
-          margin: "0 auto",
-        }}
-      >
-        {/* STARTER - UNATTRACTIVE BUT VALID */}
-        <div className="glass" style={{ padding: 32, opacity: 0.8 }}>
-          <h2 style={{ color: "#9ca3af" }}>$19</h2>
-          <p style={{ color: "#6b7280", marginBottom: 16 }}>Starter</p>
-          <p style={{ fontSize: "12px", color: "#9ca3af", marginBottom: 16 }}>
-            For testing only
-          </p>
-          <ul style={{ marginBottom: 24 }}>
-            <li>✔ 200 chats / month</li>
-            <li>✔ Basic AI replies</li>
-            <li>✔ Lead classification</li>
-            <li style={{ opacity: 0.5 }}>✗ No advanced lead handling</li>
-          </ul>
-          <a
-            className="cta"
-            onClick={() => handleSelectPlan("starter")}
-            style={{
-              display: "block",
-              textAlign: "center",
-              opacity: 0.7,
-              transition: "opacity 0.2s",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
-          >
-            Choose Starter
-          </a>
-        </div>
-
-        {/* PRO - BEST DEAL, VISUALLY DOMINANT */}
-        <div
-          className="glass"
-          style={{
-            padding: 36,
-            transform: "scale(1.08)",
-            border: "2px solid #8b5cf6",
-            background: "rgba(139, 92, 246, 0.05)",
-            boxShadow: "0 0 40px rgba(139, 92, 246, 0.2)",
-            position: "relative",
-            zIndex: 10,
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: "-12px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              background: "#8b5cf6",
-              color: "white",
-              padding: "4px 16px",
-              borderRadius: "20px",
-              fontSize: "12px",
-              fontWeight: "bold",
-              letterSpacing: "0.5px",
-            }}
-          >
-            ⭐ MOST POPULAR
+          {/* Header */}
+          <div className="text-center mb-4" data-reveal>
+            <div className="inline-flex items-center gap-2 bg-[#6366F1]/10 border border-[#6366F1]/20 text-[#a5b4fc] text-xs font-medium px-4 py-2 rounded-full mb-6">
+              🚀 50% lifetime discount for the first 200 beta users
+            </div>
+            <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-4">Simple pricing</h1>
+            <p className="text-gray-400 text-lg">Choose the plan that fits your sales team. Cancel anytime.</p>
           </div>
 
-          <h2 style={{ color: "#8b5cf6", marginTop: 16 }}>$29</h2>
-          <p style={{ marginBottom: 8 }}>Pro</p>
-          <p style={{ fontSize: "14px", color: "#10b981", marginBottom: 16 }}>
-            Best for growing businesses
-          </p>
-          <ul style={{ marginBottom: 24 }}>
-            <li>✔ 1,500 chats / month</li>
-            <li>✔ Human-like AI replies</li>
-            <li>✔ Hot lead detection</li>
-            <li>✔ Daily performance summary</li>
-            <li>✔ Smart automations</li>
-          </ul>
-          <a
-            className="cta"
-            onClick={() => handleSelectPlan("pro")}
-            style={{
-              display: "block",
-              textAlign: "center",
-              background: "#8b5cf6",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
-            Start Pro Plan
-          </a>
-        </div>
+          {/* Free Preview */}
+          <div className="mt-12 mb-8 bg-gradient-to-r from-[#6366F1]/10 to-[#8b5cf6]/10 border border-[#6366F1]/20 rounded-2xl p-6 text-center" data-reveal>
+            <div className="inline-flex items-center gap-2 mb-3">
+              <span className="text-2xl">🎁</span>
+              <h3 className="text-lg font-bold text-white">Try All Features Free</h3>
+            </div>
+            <p className="text-sm text-gray-400 mb-4">Experience the full Pre-Closer AI with 15 free messages. No credit card required.</p>
+            <Link href="/signup" className="btn-glow inline-block bg-[#6366F1] hover:bg-[#5558e3] text-white px-6 py-3 rounded-xl font-semibold text-sm transition-all shadow-lg shadow-[#6366F1]/30">
+              Start Your Free Preview →
+            </Link>
+          </div>
 
-        {/* BUSINESS - PREMIUM POSITIONING */}
-        <div className="glass" style={{ padding: 32 }}>
-          <h2>$49</h2>
-          <p style={{ marginBottom: 8 }}>Business</p>
-          <p style={{ fontSize: "14px", color: "#f59e0b", marginBottom: 16 }}>
-            For high-volume businesses
-          </p>
-          <ul style={{ marginBottom: 24 }}>
-            <li>✔ Unlimited chats</li>
-            <li>✔ Priority AI handling</li>
-            <li>✔ Full automation suite</li>
-            <li>✔ Advanced analytics</li>
-            <li>✔ Dedicated support</li>
-          </ul>
-          <a
-            className="cta"
-            onClick={() => handleSelectPlan("business")}
-            style={{
-              display: "block",
-              textAlign: "center",
-              cursor: "pointer",
-            }}
-          >
-            Upgrade to Business
-          </a>
+          {/* Plans */}
+          <div className="grid md:grid-cols-2 gap-6 mt-8">
+            {/* Starter */}
+            <div data-reveal className="feature-card bg-[#0a0a0a] border border-[#1F2937] rounded-2xl p-8">
+              <div className="mb-6">
+                <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-4">Starter</p>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-5xl font-black text-white">{prices.starter}</span>
+                  <span className="text-gray-500">/month</span>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-sm text-gray-600 line-through">{prices.starterOld}/month</span>
+                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">50% beta off</span>
+                </div>
+              </div>
+              <p className="text-sm text-gray-400 mb-6">Perfect for solo founders qualifying leads on autopilot.</p>
+              <ul className="space-y-3 mb-8">
+                {STARTER_FEATURES.map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
+                    <svg className="w-4 h-4 text-[#6366F1] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/signup" className="block text-center border border-[#374151] hover:border-[#6366F1]/50 hover:bg-[#6366F1]/5 text-white py-3.5 rounded-xl font-semibold transition-all text-sm">
+                Get Started with Starter
+              </Link>
+            </div>
+
+            {/* Growth */}
+            <div data-reveal className="relative">
+              <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-[#6366F1] to-[#6366F1]/30" />
+              <div className="relative bg-[#0a0a0a] rounded-2xl p-8">
+                <div className="flex items-start justify-between mb-4">
+                  <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase">Growth</p>
+                  <span className="text-xs bg-[#6366F1] text-white px-2.5 py-1 rounded-full font-semibold shadow-lg shadow-[#6366F1]/30">⭐ Recommended</span>
+                </div>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-5xl font-black text-white">{prices.growth}</span>
+                  <span className="text-gray-500">/month</span>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-sm text-gray-600 line-through">{prices.growthOld}/month</span>
+                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">50% beta off</span>
+                </div>
+                <p className="text-sm text-gray-400 mt-4 mb-6">The complete AI sales floor. Unlimited AI-powered selling.</p>
+                <ul className="space-y-3 mb-8">
+                  {GROWTH_FEATURES.map((f, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
+                      <svg className="w-4 h-4 text-[#6366F1] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
+                      </svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/signup" className="btn-glow block text-center bg-[#6366F1] hover:bg-[#5558e3] text-white py-3.5 rounded-xl font-bold transition-all text-sm shadow-xl shadow-[#6366F1]/30">
+                  Get Growth Plan →
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment methods + Guarantee */}
+          <div data-reveal className="mt-12 text-center">
+            <div className="inline-flex items-center gap-6 bg-[#0a0a0a] border border-[#1F2937] rounded-2xl px-8 py-5 text-sm text-gray-400 flex-wrap justify-center">
+              <div className="flex items-center gap-2"><span>💳</span> Cards</div>
+              <div className="hidden md:block w-px h-4 bg-[#1F2937]" />
+              <div className="flex items-center gap-2"><span>🏦</span> UPI</div>
+              <div className="hidden md:block w-px h-4 bg-[#1F2937]" />
+              <div className="flex items-center gap-2"><span>🔒</span> No contracts</div>
+              <div className="hidden md:block w-px h-4 bg-[#1F2937]" />
+              <div className="flex items-center gap-2"><span>✨</span> 15 free messages</div>
+              <div className="hidden md:block w-px h-4 bg-[#1F2937]" />
+              <div className="flex items-center gap-2"><span>💸</span> Cancel anytime</div>
+            </div>
+          </div>
+
         </div>
       </div>
-
-      {/* MOBILE OPTIMIZATION STYLES */}
-      <style>{`
-        @media (max-width: 768px) {
-          .glass {
-            padding: 24px !important;
-          }
-
-          div[style*="scale(1.08)"] {
-            transform: scale(1.04) !important;
-          }
-
-          button, a[class*="cta"] {
-            padding: 12px 20px !important;
-            font-size: 16px !important;
-          }
-
-          h2 {
-            font-size: 28px !important;
-          }
-
-          div[style*="1200px"] {
-            gap: 16px !important;
-          }
-
-          div[style*="400px"] {
-            margin: 0 16px 40px !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

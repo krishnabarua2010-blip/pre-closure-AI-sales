@@ -1,231 +1,154 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import api from '@/lib/api';
+import Link from 'next/link';
+import { gsap } from 'gsap';
 
 export default function SignupPage() {
-  const router = useRouter();
-  const [form, setForm] = useState({
-    business_name: "",
-    email: "",
-    password: "",
-  });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(cardRef.current,
+        { opacity: 0, y: 30, scale: 0.97 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'power3.out' }
+      );
+    });
+    return () => ctx.revert();
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
-    setError("");
 
     try {
-      const { apiRequest } = await import("@/lib/api");
-      const resp = await apiRequest("/signup_custom", "POST", {
-        email: form.email,
-        password: form.password,
-        business_name: form.business_name,
-      });
-
-      console.log("signup response:", resp);
-
-      const token = resp?.authToken || resp?.token;
-
-      if (token) {
-        localStorage.setItem("token", token);
-        router.push("/onboarding");
-      } else {
-        alert("Signup failed");
-        console.log(resp);
-        setLoading(false);
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message || "Error creating account");
+      await api.post('/auth/signup', { company_name: name, email, password });
+      setSuccess(true);
+      setTimeout(() => router.push('/login'), 1500);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.response?.data?.error || err.message || 'Signup failed';
+      setError(msg);
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="page">
-      <section style={{ maxWidth: 450, margin: "0 auto", marginBottom: 60 }} className="fade-up">
-        <h1 style={{ fontSize: "clamp(2rem, 4.5vw, 2.8rem)", marginBottom: 8 }}>
-          Create Your Account
-        </h1>
-        <p style={{ fontSize: "1rem", color: "#a0a0a6", marginBottom: 32 }}>
-          Join 12,000+ businesses using Auto Closure to close deals faster.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-[#000000] px-4 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#6366F1]/12 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          {/* Business Name */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: 8,
-                color: "#d1d1d6",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-              }}
-            >
-              Business Name
-            </label>
-            <input
-              type="text"
-              name="business_name"
-              value={form.business_name}
-              onChange={handleChange}
-              placeholder="Your business name"
-              required
-              style={{
-                width: "100%",
-                padding: "12px 14px",
-                fontSize: "1rem",
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: 8,
-                color: "#d1d1d6",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: 8,
-                color: "#d1d1d6",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-              }}
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="you@example.com"
-              required
-              style={{
-                width: "100%",
-                padding: "12px 14px",
-                fontSize: "1rem",
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: 8,
-                color: "#d1d1d6",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label
-              style={{
-                display: "block",
-                marginBottom: 8,
-                color: "#d1d1d6",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-              }}
-            >
-              Password
-            </label>
-            <div style={{ position: "relative" }}>
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Min 8 characters"
-                required
-                minLength={8}
-                style={{
-                  width: "100%",
-                  padding: "12px 14px",
-                  fontSize: "1rem",
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  borderRadius: 8,
-                  color: "#d1d1d6",
-                  boxSizing: "border-box",
-                  paddingRight: "40px",
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  right: "12px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  color: "#a0a0a6",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                }}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
+      <div ref={cardRef} className="w-full max-w-md relative z-10">
+        <div className="flex justify-center mb-8">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/30 group-hover:shadow-[#6366F1]/50 transition-shadow">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M9 2L15.5 12H2.5L9 2Z" fill="white"/>
+                <circle cx="9" cy="13.5" r="2.5" fill="white" fillOpacity="0.6"/>
+              </svg>
             </div>
-          </div>
+            <span className="text-white font-semibold tracking-tight text-sm">Pre-Closer AI</span>
+          </Link>
+        </div>
 
-          {error && (
-            <div style={{ color: "#ff6b6b", fontSize: "0.9rem", padding: "12px", background: "rgba(255, 107, 107, 0.1)", borderRadius: 8 }}>
-              {error}
+        <div className="bg-[#111827]/80 backdrop-blur-2xl border border-[#1F2937] rounded-2xl p-8 shadow-2xl">
+          <h1 className="text-2xl font-bold text-white text-center mb-1 tracking-tight">Create your account</h1>
+          <p className="text-gray-500 text-center mb-8 text-sm">Join 100+ sales teams using AI to close faster</p>
+
+          {success && (
+            <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-4 rounded-xl mb-6 text-sm flex items-center gap-3">
+              <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+              </svg>
+              Account created! Redirecting to login...
             </div>
           )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              padding: "12px 20px",
-              fontSize: "1rem",
-              fontWeight: 700,
-              background: loading ? "rgba(124, 58, 237, 0.5)" : "linear-gradient(135deg, #7c3aed, #00ffff)",
-              color: "#000",
-              border: "none",
-              borderRadius: 999,
-              cursor: loading ? "not-allowed" : "pointer",
-              transition: "all 0.3s ease",
-              opacity: loading ? 0.6 : 1,
-              marginTop: 8,
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) {
-                e.currentTarget.style.transform = "translateY(-3px) scale(1.02)";
-                e.currentTarget.style.boxShadow = "0 8px 24px rgba(124, 58, 237, 0.35)";
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0) scale(1)";
-              e.currentTarget.style.boxShadow = "none";
-            }}
-          >
-            {loading ? "Creating account..." : "Create Account"}
-          </button>
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl mb-6 text-sm flex items-start gap-3">
+              <svg className="w-4 h-4 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
 
-          <p style={{ textAlign: "center", fontSize: "0.85rem", color: "#808086", marginTop: 12 }}>
-            Already have an account?{" "}
-            <a href="/login" style={{ color: "#7c3aed", textDecoration: "none", fontWeight: 600 }}>
-              Sign in
-            </a>
+          <form onSubmit={handleSignup} className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2 tracking-wide uppercase">Full Name</label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="w-full bg-[#0B0F19]/60 border border-[#1F2937] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#6366F1] focus:border-[#6366F1] transition-all duration-200 text-sm"
+                placeholder="Alex Johnson"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2 tracking-wide uppercase">Email</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="w-full bg-[#0B0F19]/60 border border-[#1F2937] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#6366F1] focus:border-[#6366F1] transition-all duration-200 text-sm"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-2 tracking-wide uppercase">Password</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full bg-[#0B0F19]/60 border border-[#1F2937] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#6366F1] focus:border-[#6366F1] transition-all duration-200 text-sm"
+                placeholder="Create a strong password"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading || success}
+              className="btn-glow w-full bg-[#6366F1] hover:bg-[#5558e3] text-white rounded-xl px-4 py-3 font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mt-2 shadow-lg shadow-[#6366F1]/20 flex items-center justify-center gap-2 text-sm"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  </svg>
+                  Creating Account...
+                </>
+              ) : 'Create Account →'}
+            </button>
+          </form>
+
+          <p className="text-[10px] text-gray-600 text-center mt-4">
+            By signing up, you agree to our{' '}
+            <Link href="/terms" className="text-gray-500 hover:text-gray-400 underline">Terms</Link>
+            {' '}and{' '}
+            <Link href="/privacy" className="text-gray-500 hover:text-gray-400 underline">Privacy Policy</Link>
           </p>
-        </form>
-      </section>
+
+          <p className="text-gray-500 text-center mt-6 text-sm">
+            Already have an account?{' '}
+            <Link href="/login" className="text-[#a5b4fc] hover:text-white transition-colors font-medium">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
