@@ -12,7 +12,7 @@ const server = Fastify({
 });
 
 server.register(cors, {
-  origin: '*' // Configure properly in production
+  origin: true
 });
 
 import authRoutes from './modules/auth/auth.routes';
