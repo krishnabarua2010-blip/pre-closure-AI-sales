@@ -1,5 +1,7 @@
 "use client";
 
+import { handleUpgrade } from '@/lib/razorpay';
+
 export function PreviewPaywall() {
   return (
     <div
@@ -26,7 +28,7 @@ export function PreviewPaywall() {
           Preview Limit Reached
         </h2>
         <p style={{ fontSize: "1.1rem", color: "#a0a0a6", marginBottom: "24px" }}>
-          You've seen how Auto Closure works with 15 sample messages.
+          You’ve reached your free limit. Upgrade to continue capturing leads.
         </p>
 
         <div
@@ -57,34 +59,40 @@ export function PreviewPaywall() {
           </ul>
         </div>
 
-        <a
-          href="/pricing"
+        <button
+          onClick={() => handleUpgrade('growth', () => { window.location.href = '/onboarding'; })}
           style={{
             display: "inline-block",
             background: "#8b5cf6",
             color: "white",
-            padding: "14px 40px",
+            padding: "16px 40px",
             borderRadius: "8px",
             textDecoration: "none",
             fontWeight: "bold",
-            marginBottom: "16px",
-            fontSize: "1rem",
+            fontSize: "1.1rem",
             cursor: "pointer",
-            transition: "background 0.2s",
+            transition: "all 0.2s ease-in-out",
+            border: "none",
+            boxShadow: "0 0 20px rgba(139, 92, 246, 0.3)",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = "#a78bfa")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = "#8b5cf6")
-          }
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "#a78bfa";
+            e.currentTarget.style.transform = "scale(1.02)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "#8b5cf6";
+            e.currentTarget.style.transform = "scale(1)";
+          }}
         >
-          Upgrade Now
-        </a>
+          Upgrade / Capture Leads
+        </button>
 
-        <p style={{ color: "#6b7280", fontSize: "0.9rem" }}>
-          Choose a plan that fits your business. Start at just $19/month.
-        </p>
+        <div style={{ marginTop: "24px", lineHeight: "1.5" }}>
+          <p style={{ color: "#34d399", fontSize: "0.85rem", margin: "0", fontWeight: "bold" }}>✨ No setup needed — works instantly</p>
+          <p style={{ color: "#6b7280", fontSize: "0.75rem", margin: "6px 0 0 0" }}>Test it live immediately after upgrade</p>
+        </div>
+
+
       </div>
     </div>
   );

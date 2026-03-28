@@ -11,7 +11,7 @@ export const requireGrowthPlan = async (request: FastifyRequest, reply: FastifyR
   }
 
   // @ts-ignore: Workspace typescript resolves to root Prisma client instead of backend's Prisma client
-  if (user.plan !== 'GROWTH') {
+  if (user.plan === 'FREE') {
     return reply.code(403).send({ 
       error: 'Upgrade required',
       message: 'This feature is only available on the Growth plan.',
@@ -35,5 +35,5 @@ export const trialFeatureLimit = async (request: FastifyRequest, reply: FastifyR
   // Inject a readOnly flag into the request context we can use later in the controller
   // Since we can't easily modify fastify types dynamically here without declaring,
   // we attach it directly if they are not growth.
-  request.headers['x-is-trial-mode'] = user.plan !== 'GROWTH' ? 'true' : 'false';
+  request.headers['x-is-trial-mode'] = user.plan === 'FREE' ? 'true' : 'false';
 };

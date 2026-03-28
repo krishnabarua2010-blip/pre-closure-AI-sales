@@ -21,7 +21,10 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
     }
 
     const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || 'super_secret_jwt_key_for_development';
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is required");
+    }
+    const secret = process.env.JWT_SECRET;
     
     const decoded = jwt.verify(token, secret) as DecodedUser;
 

@@ -20,6 +20,7 @@ import conversationRoutes from './modules/conversation/conversation.routes';
 import aiRoutes from './modules/ai/ai.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
 import advisorRoutes from './modules/advisor/advisor.routes';
+import paymentRoutes from './modules/payment/payment.routes';
 
 // Health check
 server.get('/health', async (request, reply) => {
@@ -31,6 +32,7 @@ server.register(conversationRoutes, { prefix: '/conversation' });
 server.register(aiRoutes, { prefix: '/ai' });
 server.register(analyticsRoutes, { prefix: '/analytics' });
 server.register(advisorRoutes, { prefix: '/advisor' });
+server.register(paymentRoutes, { prefix: '/payment' });
 
 const start = async () => {
   try {

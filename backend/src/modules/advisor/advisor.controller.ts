@@ -21,7 +21,19 @@ export class AdvisorController {
   static async suggestAction(request: FastifyRequest, reply: FastifyReply) {
     try {
       const parsed = actionSchema.parse(request.body);
+      const user = request.user as any;
       
+      const businessProfile = await prisma.businessProfile.findFirst({
+        where: {
+          id: parsed.business_profile_id,
+          user_id: user.id,
+        },
+      });
+
+      if (!businessProfile) {
+        return reply.code(403).send({ error: "Unauthorized" });
+      }
+
       const action = await prisma.advisorAction.create({
         data: {
           business_profile_id: parsed.business_profile_id,
@@ -41,9 +53,17 @@ export class AdvisorController {
   static async confirmAction(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { action_id, approved } = confirmSchema.parse(request.body);
+      const user = request.user as any;
 
-      const action = await prisma.advisorAction.findUnique({ where: { id: action_id } });
+      const action = await prisma.advisorAction.findUnique({ 
+        where: { id: action_id },
+        include: { BusinessProfile: true },
+      });
       if (!action) return reply.code(404).send({ error: 'Action not found' });
+      
+      if (action.BusinessProfile.user_id !== user.id) {
+        return reply.code(403).send({ error: "Unauthorized" });
+      }
 
       if (!approved) {
         await prisma.advisorAction.update({

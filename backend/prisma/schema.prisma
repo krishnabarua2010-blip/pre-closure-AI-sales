@@ -9,8 +9,15 @@ datasource db {
 }
 
 enum PlanTier {
-  STARTER
+  FREE
   GROWTH
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
 }
 
 enum ConversationStatus {
@@ -37,13 +44,15 @@ model User {
   id               Int               @id @default(autoincrement())
   email            String            @unique
   password_hash    String
-  plan             PlanTier          @default(STARTER)
-  message_limit    Int               @default(500)
-  messages_used    Int               @default(0)
-  created_at       DateTime          @default(now())
-  updated_at       DateTime          @updatedAt
-  BusinessProfiles BusinessProfile[]
-  Conversations    Conversation[]    // Direct link to easily aggregate usage per user
+  plan               PlanTier            @default(FREE)
+  subscriptionId     String?
+  subscriptionStatus SubscriptionStatus?
+  message_limit      Int                 @default(500)
+  messages_used      Int                 @default(0)
+  created_at         DateTime            @default(now())
+  updated_at         DateTime            @updatedAt
+  BusinessProfiles   BusinessProfile[]
+  Conversations      Conversation[]    // Direct link to easily aggregate usage per user
 }
 
 model BusinessProfile {

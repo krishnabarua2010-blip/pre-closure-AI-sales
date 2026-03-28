@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { handleUpgrade } from '@/lib/razorpay';
 import { ArrowLeft, BrainCircuit, Target, ShieldAlert, PhoneCall, Clock, Mail, Zap } from 'lucide-react';
 
 /* ─── Simulated buyer intent timeline events ─── */
@@ -59,6 +60,7 @@ export default function LeadDetailPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isLocked, setIsLocked] = useState(false);
   const [followUpLoading, setFollowUpLoading] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
 
@@ -70,10 +72,10 @@ export default function LeadDetailPage() {
         const payload = { lead_id: leadId, id: leadId };
         
         const [intel, strat, brief, coach] = await Promise.all([
-          api.post('/lead_intelligence', payload).catch(() => ({ data: {} })),
-          api.post('/generate_close_strategy', payload).catch(() => ({ data: {} })),
-          api.post('/conversation_id_brief', payload).catch(() => ({ data: {} })),
-          api.post('/get_coaching_advice', payload).catch(() => ({ data: {} }))
+          api.post('/lead_intelligence', payload).catch((e) => { if(e?.response?.status === 403) throw e; return { data: {} }; }),
+          api.post('/generate_close_strategy', payload).catch((e) => { if(e?.response?.status === 403) throw e; return { data: {} }; }),
+          api.post('/conversation_id_brief', payload).catch((e) => { if(e?.response?.status === 403) throw e; return { data: {} }; }),
+          api.post('/get_coaching_advice', payload).catch((e) => { if(e?.response?.status === 403) throw e; return { data: {} }; })
         ]);
 
         setData({
@@ -84,7 +86,17 @@ export default function LeadDetailPage() {
           followups: null,
         });
       } catch (err: any) {
-        setError('Failed to load deep lead insights.');
+        if (err?.response?.status === 403) {
+          setIsLocked(true);
+          setData({
+             intelligence: { pain_points: ["Struggling with scalability"], summary: "High buying intent detected based on recent interactions." },
+             strategy: { strategy: "Target specific objections immediately to close." },
+             brief: { brief: "Strong prospect. Decision maker status confirmed." },
+             coaching: { advice: "Push for a live demo to capitalize on urgency." }
+          });
+        } else {
+          setError('Failed to load deep lead insights.');
+        }
       } finally {
         setLoading(false);
       }
@@ -148,7 +160,26 @@ export default function LeadDetailPage() {
       {/* ═══════════════════════════════════════════════════ */}
       {/* BUYER INTENT TIMELINE */}
       {/* ═══════════════════════════════════════════════════ */}
-      <div className="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-sm">
+      {isLocked && (
+        <div className="absolute inset-x-0 top-[180px] bottom-0 z-20 flex flex-col items-center pt-24 bg-gradient-to-t from-[#000000] via-[#000000]/80 to-transparent backdrop-blur-[2px]">
+           <div className="bg-[#111827] border border-[#f59e0b]/40 p-8 rounded-2xl max-w-lg text-center shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden">
+             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#f59e0b] to-transparent" />
+             <h3 className="text-xl sm:text-2xl font-black mb-2 text-white flex items-center justify-center gap-2"><span className="animate-pulse">🔥</span> This visitor is READY to convert</h3>
+             <p className="text-lg font-black text-emerald-400 mb-4 bg-emerald-400/10 inline-block px-4 py-1.5 rounded-full border border-emerald-400/20">Estimated value: $800–$2,000</p>
+             <p className="text-sm text-gray-300 font-semibold mb-2 leading-relaxed">Unlock full details + auto follow-up before they leave</p>
+             <p className="text-xs text-red-400 font-bold mb-6 animate-pulse">⏳ This lead may go cold in the next few minutes</p>
+             <button onClick={() => handleUpgrade('growth', () => { window.location.href = '/onboarding'; })} className="bg-[#f59e0b] hover:bg-[#d97706] text-black px-6 py-4 rounded-xl font-black text-lg transition-all w-full shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-[1.02]">
+               Capture This Lead Now
+             </button>
+             <div className="mt-4 space-y-1">
+               <p className="text-xs text-gray-400 font-medium">✨ No setup needed — works instantly on your website</p>
+               <p className="text-[10px] text-gray-500">You can test it live immediately after upgrade</p>
+             </div>
+           </div>
+        </div>
+      )}
+      <div className={`space-y-6 ${isLocked ? 'blur-md pointer-events-none select-none opacity-60' : ''}`}>
+        <div className="bg-card border border-border rounded-xl p-5 sm:p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-5 pb-5 border-b border-border/50">
           <div className="w-8 h-8 rounded-lg bg-[#6366F1]/10 flex items-center justify-center border border-[#6366F1]/20">
             <Clock size={16} className="text-[#6366F1]" />
@@ -340,6 +371,7 @@ export default function LeadDetailPage() {
           </pre>
         </div>
       </div>
+    </div>
     </div>
   );
 }

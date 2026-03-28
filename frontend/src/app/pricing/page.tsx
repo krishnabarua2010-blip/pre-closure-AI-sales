@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useRef, useEffect, useState } from 'react';
-import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { formatPrice } from '@/lib/currencyUtils';
+import { handleUpgrade } from '@/lib/razorpay';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,9 +37,19 @@ const GROWTH_FEATURES = [
   'Conversation pattern learning',
 ];
 
+const ACTIVITY_MESSAGES = [
+  'Someone just captured a lead 2 mins ago',
+  'A founder just automated their follow-ups',
+  'An agency just upgraded to Growth plan',
+  'Someone just booked a call via AI',
+  'A website visitor just converted into a hot lead'
+];
+
 export default function PricingPage() {
   const pageRef = useRef<HTMLDivElement>(null);
   const [prices, setPrices] = useState({ starter: '$99', growth: '$199', starterOld: '$199', growthOld: '$399' });
+  const [activityIdx, setActivityIdx] = useState(0);
+  const [toastVisible, setToastVisible] = useState(false);
 
   useEffect(() => {
     setPrices({
@@ -60,6 +70,34 @@ export default function PricingPage() {
       }
     );
   }, []);
+
+  useEffect(() => {
+    // Rotating activity toast logic
+    const interval = setInterval(() => {
+      setToastVisible(false);
+      setTimeout(() => {
+        setActivityIdx((prev) => (prev + 1) % ACTIVITY_MESSAGES.length);
+        setToastVisible(true);
+      }, 500); // Wait for fade out
+    }, 8000); // Change message every 8 seconds
+    
+    // Initial show
+    setTimeout(() => setToastVisible(true), 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const handlePricingClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) {
+       handleUpgrade('growth', () => {
+          window.location.href = '/onboarding';
+       });
+    } else {
+       window.location.href = '/signup';
+    }
+  };
 
   return (
     <div ref={pageRef} className="min-h-screen bg-[#000000] text-white overflow-x-hidden relative z-[1]">
@@ -86,8 +124,8 @@ export default function PricingPage() {
             <div className="inline-flex items-center gap-2 bg-[#6366F1]/10 border border-[#6366F1]/20 text-[#a5b4fc] text-xs font-medium px-4 py-2 rounded-full mb-6">
               🚀 50% lifetime discount for the first 200 beta users
             </div>
-            <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-4">Simple pricing</h1>
-            <p className="text-gray-400 text-lg">Choose the plan that fits your sales team. Cancel anytime.</p>
+            <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-4">Turn your website visitors into qualified leads automatically</h1>
+            <p className="text-gray-400 text-lg">Most businesses recover cost with 1–2 extra clients.</p>
           </div>
 
           {/* Free Preview */}
@@ -160,9 +198,14 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="btn-glow block text-center bg-[#6366F1] hover:bg-[#5558e3] text-white py-3.5 rounded-xl font-bold transition-all text-sm shadow-xl shadow-[#6366F1]/30">
+                <button onClick={handlePricingClick} className="btn-glow w-full block text-center bg-[#6366F1] hover:bg-[#5558e3] text-white py-4 rounded-xl font-black transition-all shadow-xl shadow-[#6366F1]/40 hover:scale-[1.02]">
                   Get Growth Plan →
-                </Link>
+                </button>
+                <div className="mt-5 space-y-1">
+                  <p className="text-[10px] text-center text-[#f59e0b] font-bold tracking-wide mb-3">🔥 Early access pricing — this will increase as we add more features</p>
+                  <p className="text-xs text-center text-emerald-400 font-semibold tracking-wide">✨ No setup needed — works instantly on your website</p>
+                  <p className="text-[10px] text-center text-gray-500">You can test it live immediately after upgrade</p>
+                </div>
               </div>
             </div>
           </div>
@@ -183,6 +226,16 @@ export default function PricingPage() {
           </div>
 
         </div>
+      </div>
+      
+      {/* Live Activity Toast */}
+      <div 
+        className={`fixed bottom-6 left-6 z-50 bg-[#111827] border border-[#1F2937] shadow-2xl rounded-xl p-3 flex items-center gap-3 transition-all duration-500 transform ${
+          toastVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse hidden sm:block" />
+        <span className="text-xs font-medium text-gray-300 pr-2">{ACTIVITY_MESSAGES[activityIdx]}</span>
       </div>
     </div>
   );

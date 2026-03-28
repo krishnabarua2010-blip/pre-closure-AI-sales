@@ -42,9 +42,12 @@ export class AuthController {
         include: { BusinessProfiles: true }
       });
 
+      if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is required");
+      }
       const token = jwt.sign(
         { id: user.id },
-        process.env.JWT_SECRET || 'super_secret_jwt_key_for_development',
+        process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
 
@@ -85,9 +88,12 @@ export class AuthController {
         return reply.code(401).send({ error: 'Invalid credentials' });
       }
 
+      if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is required");
+      }
       const token = jwt.sign(
         { id: user.id },
-        process.env.JWT_SECRET || 'super_secret_jwt_key_for_development',
+        process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
 
@@ -138,9 +144,10 @@ export class AuthController {
         include: { BusinessProfiles: true }
       });
 
+      if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET is required");
       const token = jwt.sign(
         { id: user.id },
-        process.env.JWT_SECRET || 'super_secret_jwt_key_for_development',
+        process.env.JWT_SECRET,
         { expiresIn: '1d' }
       );
 

@@ -11,7 +11,7 @@ export default async function advisorRoutes(fastify: FastifyInstance) {
   fastify.post('/execute_action', { preHandler: [authenticate, requireGrowthPlan] }, AdvisorController.confirmAction);
   
   // Chat is limited for trial users
-  fastify.post('/chat', { preHandler: [authenticate, trialFeatureLimit] }, AdvisorController.chat);
+  fastify.post('/chat', { preHandler: [authenticate, requireGrowthPlan] }, AdvisorController.chat);
 
   // Deep Scan
   fastify.post('/scan', { preHandler: [authenticate, requireGrowthPlan] }, AdvisorController.scan);

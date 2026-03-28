@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
+import { handleUpgrade } from '@/lib/razorpay';
 
 interface Metrics {
   funnelHealth: any;
@@ -63,6 +64,7 @@ export default function DashboardPage() {
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isLocked, setIsLocked] = useState(false);
   const [advisorLoading, setAdvisorLoading] = useState(false);
   const [advisorInsight, setAdvisorInsight] = useState<any>(null);
   const router = useRouter();
@@ -92,9 +94,9 @@ export default function DashboardPage() {
     const fetchDashboardData = async () => {
       try {
         const [funnelRes, revenueRes, leadsRes] = await Promise.all([
-          api.get('/funnel_health').catch(() => ({ data: {} })),
-          api.get('/revenue_metrics').catch(() => ({ data: {} })),
-          api.get('/get_leads').catch(() => ({ data: [] })),
+          api.get('/analytics/funnel_health').catch((e) => { if(e?.response?.status === 403) throw e; return { data: {} }; }),
+          api.get('/analytics/revenue_metrics').catch((e) => { if(e?.response?.status === 403) throw e; return { data: {} }; }),
+          api.get('/analytics/leads').catch((e) => { if(e?.response?.status === 403) throw e; return { data: [] }; }),
         ]);
         setMetrics({
           funnelHealth: funnelRes.data,
@@ -102,7 +104,16 @@ export default function DashboardPage() {
           leads: Array.isArray(leadsRes.data?.leads) ? leadsRes.data.leads : (Array.isArray(leadsRes.data) ? leadsRes.data : []),
         });
       } catch (err: any) {
-        setError('Failed to load dashboard metrics.');
+        if (err?.response?.status === 403) {
+          setIsLocked(true);
+          setMetrics({
+            funnelHealth: { total_leads: 145, rql_count: 52, win_rate: 18 },
+            revenue: { expected_revenue: 45000, active_pipeline_size: 24, revenue_leakage: 12000 },
+            leads: [] 
+          });
+        } else {
+          setError('Failed to load dashboard metrics.');
+        }
       } finally {
         setLoading(false);
       }
@@ -215,7 +226,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Metric cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`grid grid-cols-2 lg:grid-cols-4 gap-4 ${isLocked ? 'blur-md pointer-events-none select-none relative' : ''}`}>
             {statCards.map((card, i) => (
               <div
                 key={i}
@@ -234,7 +245,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Deal Probability Engine */}
-          <div className="bg-[#0B0F19] border border-[#1F2937] rounded-2xl p-5 sm:p-6 shadow-sm" data-metric>
+          <div className={`bg-[#0B0F19] border border-[#1F2937] rounded-2xl p-5 sm:p-6 shadow-sm relative ${isLocked ? 'blur-md pointer-events-none select-none' : ''}`} data-metric>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-9 h-9 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-lg">💰</span>
@@ -296,7 +307,22 @@ export default function DashboardPage() {
           </div>
 
           {/* Pipeline Graph */}
-          <div className="bg-[#0B0F19] border border-[#1F2937] rounded-2xl p-5 sm:p-6 shadow-sm">
+          {isLocked && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl mt-48">
+               <div className="bg-[#111827] border border-[#1F2937] p-8 rounded-2xl max-w-md text-center shadow-2xl">
+                 <h3 className="text-xl font-bold mb-2 text-white">See which visitors are converting and why</h3>
+                 <p className="text-sm text-gray-400 mb-6">Unlock complete funnel visibility, deal scoring, and real-time revenue analytics.</p>
+                 <button onClick={() => handleUpgrade('growth', () => { window.location.href = '/onboarding'; })} className="bg-[#6366F1] hover:bg-[#5558e3] text-white px-6 py-4 rounded-xl font-black transition-all w-full shadow-xl shadow-[#6366F1]/30 hover:scale-[1.02]">
+                   Get Full Analytics Access
+                 </button>
+                 <div className="mt-5 space-y-1">
+                   <p className="text-xs text-center text-emerald-400 font-semibold tracking-wide">✨ No setup needed — works instantly on your website</p>
+                   <p className="text-[10px] text-center text-gray-500">You can test it live immediately after upgrade</p>
+                 </div>
+               </div>
+            </div>
+          )}
+          <div className={`bg-[#0B0F19] border border-[#1F2937] rounded-2xl p-5 sm:p-6 shadow-sm relative ${isLocked ? 'blur-md pointer-events-none select-none' : ''}`}>
             <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <div>
                 <h2 className="text-sm font-semibold text-white">Pipeline Activity</h2>
