@@ -166,3 +166,11 @@ model AdvisorAction {
   updated_at          DateTime        @updatedAt
   BusinessProfile     BusinessProfile @relation(fields: [business_profile_id], references: [id])
 }
+
+model EventLog {
+  id         Int      @id @default(autoincrement())
+  user_id    Int?     // nullable for anonymous previews
+  event_name String
+  metadata   Json     @default("{}") @db.JsonB
+  created_at DateTime @default(now())
+}

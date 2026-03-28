@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { handleUpgrade } from '@/lib/razorpay';
+import { trackEvent } from '@/lib/tracking';
 import { ArrowLeft, BrainCircuit, Target, ShieldAlert, PhoneCall, Clock, Mail, Zap } from 'lucide-react';
 
 /* ─── Simulated buyer intent timeline events ─── */
@@ -88,6 +89,7 @@ export default function LeadDetailPage() {
       } catch (err: any) {
         if (err?.response?.status === 403) {
           setIsLocked(true);
+          trackEvent('paywall_shown', { source: 'lead_qualification', leadId });
           setData({
              intelligence: { pain_points: ["Struggling with scalability"], summary: "High buying intent detected based on recent interactions." },
              strategy: { strategy: "Target specific objections immediately to close." },

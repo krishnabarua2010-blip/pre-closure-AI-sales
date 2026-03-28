@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
+import { trackEvent } from '@/lib/tracking';
 
 export default function OnboardingPage() {
   const [websiteUrl, setWebsiteUrl] = useState('');
@@ -10,6 +11,7 @@ export default function OnboardingPage() {
   const router = useRouter();
 
   useEffect(() => {
+    trackEvent('onboarding_started');
     gsap.fromTo('.reveal',
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', stagger: 0.15 }
@@ -17,6 +19,7 @@ export default function OnboardingPage() {
   }, []);
 
   const handleCopy = () => {
+    trackEvent('script_copied');
     navigator.clipboard.writeText('<script src="https://custom.precloser.ai/script.js" defer></script>');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

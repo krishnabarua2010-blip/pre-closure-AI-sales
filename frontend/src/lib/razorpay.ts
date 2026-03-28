@@ -1,5 +1,5 @@
-// src/lib/razorpay.ts
 import api from './api';
+import { trackEvent } from './tracking';
 
 export const loadRazorpay = () => {
   return new Promise((resolve) => {
@@ -45,6 +45,7 @@ export const handleUpgrade = async (plan: 'growth' | 'pro', onSuccess: () => voi
              localStorage.setItem('user_data', JSON.stringify(user));
           }
           
+          await trackEvent('payment_success', { plan, subscription_id: order.subscription_id });
           onSuccess();
         } catch (err) {
           console.error("Verification failed", err);
@@ -65,6 +66,7 @@ export const handleUpgrade = async (plan: 'growth' | 'pro', onSuccess: () => voi
       if (onError) onError(response.error);
     });
 
+    await trackEvent('checkout_opened', { plan });
     rzp.open();
 
   } catch (error) {

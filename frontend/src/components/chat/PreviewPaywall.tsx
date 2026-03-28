@@ -1,8 +1,14 @@
 "use client";
 
 import { handleUpgrade } from '@/lib/razorpay';
+import { trackEvent } from '@/lib/tracking';
+import { useEffect } from 'react';
 
 export function PreviewPaywall() {
+  useEffect(() => {
+    trackEvent('paywall_shown', { source: 'chat_limit' });
+  }, []);
+
   return (
     <div
       style={{

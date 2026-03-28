@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { handleUpgrade } from '@/lib/razorpay';
+import { trackEvent } from '@/lib/tracking';
 
 interface Metrics {
   funnelHealth: any;
@@ -69,6 +70,12 @@ export default function DashboardPage() {
   const [advisorInsight, setAdvisorInsight] = useState<any>(null);
   const router = useRouter();
   const pageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isLocked) {
+      trackEvent('paywall_shown', { source: 'dashboard_analytics' });
+    }
+  }, [isLocked]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');

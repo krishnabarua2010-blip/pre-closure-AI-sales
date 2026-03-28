@@ -94,4 +94,29 @@ export class AnalyticsController {
       return reply.code(500).send({ error: 'Internal server error' });
     }
   }
+
+  static async trackEvent(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { event_name, metadata } = request.body as any;
+      let userId = null;
+      const authHeader = request.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          const jwtResult = (request.server as any).jwt.verify(token);
+          userId = (jwtResult as any).id;
+        } catch(e) {}
+      }
+      await prisma.eventLog.create({
+        data: {
+          event_name,
+          metadata: metadata || {},
+          user_id: userId
+        }
+      });
+      return reply.send({ success: true });
+    } catch (e) {
+      return reply.code(500).send({ error: 'Failed to track event' });
+    }
+  }
 }

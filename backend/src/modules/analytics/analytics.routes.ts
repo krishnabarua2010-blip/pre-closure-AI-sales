@@ -7,4 +7,5 @@ export default async function analyticsRoutes(fastify: FastifyInstance) {
   fastify.get('/funnel_health', { preHandler: [authenticate, requireGrowthPlan] }, AnalyticsController.getFunnelHealth);
   fastify.get('/revenue_metrics', { preHandler: [authenticate, requireGrowthPlan] }, AnalyticsController.getRevenueMetrics);
   fastify.get('/leads', { preHandler: [authenticate, requireGrowthPlan] }, AnalyticsController.getLeads);
+  fastify.post('/track', AnalyticsController.trackEvent);
 }
