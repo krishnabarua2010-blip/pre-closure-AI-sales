@@ -2,7 +2,10 @@ console.log("SERVER STARTING...");
 
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
+import rateLimit from '@fastify/rate-limit';
 import dotenv from 'dotenv';
+import path from 'path';
 import { prisma } from './config/prisma';
 
 dotenv.config();
@@ -15,12 +18,28 @@ server.register(cors, {
   origin: true
 });
 
+// Rate limiting for widget endpoints
+server.register(rateLimit, {
+  max: 30,
+  timeWindow: '1 minute',
+  allowList: [],
+  keyGenerator: (request) => request.ip
+});
+
+// Serve static files (widget.js) from backend/public/
+server.register(fastifyStatic, {
+  root: path.join(__dirname, '..', 'public'),
+  prefix: '/static/',
+  decorateReply: false
+});
+
 import authRoutes from './modules/auth/auth.routes';
 import conversationRoutes from './modules/conversation/conversation.routes';
 import aiRoutes from './modules/ai/ai.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
 import advisorRoutes from './modules/advisor/advisor.routes';
 import paymentRoutes from './modules/payment/payment.routes';
+import widgetRoutes from './modules/widget/widget.routes';
 
 // Health check
 server.get('/health', async (request, reply) => {
@@ -33,6 +52,7 @@ server.register(aiRoutes, { prefix: '/ai' });
 server.register(analyticsRoutes, { prefix: '/analytics' });
 server.register(advisorRoutes, { prefix: '/advisor' });
 server.register(paymentRoutes, { prefix: '/payment' });
+server.register(widgetRoutes, { prefix: '/widget' });
 
 const start = async () => {
   try {
