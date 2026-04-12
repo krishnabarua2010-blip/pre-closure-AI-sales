@@ -119,4 +119,71 @@ export class AnalyticsController {
       return reply.code(500).send({ error: 'Failed to track event' });
     }
   }
+
+  /**
+   * GET /analytics/lead-intelligence/:leadId
+   * Returns the full deep analysis for a single lead.
+   */
+  static async getLeadIntelligence(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as any;
+      const bpId = user.BusinessProfiles?.[0]?.id;
+      if (!bpId) return reply.code(403).send({ error: 'No business profile' });
+
+      const { leadId } = request.params as { leadId: string };
+
+      const lead = await prisma.lead.findFirst({
+        where: { 
+          id: parseInt(leadId),
+          business_profile_id: bpId 
+        },
+        include: {
+          Conversation: {
+            select: {
+              urgency_score: true,
+              authority_score: true,
+              budget_score: true,
+              objection_score: true,
+              revenue_probability_score: true,
+              raw_signals: true,
+              status: true,
+              Messages: {
+                orderBy: { created_at: 'asc' },
+                take: 30,
+                select: { sender: true, content: true, created_at: true }
+              }
+            }
+          }
+        }
+      });
+
+      if (!lead) return reply.code(404).send({ error: 'Lead not found' });
+
+      return reply.send({
+        lead: {
+          id: lead.id,
+          name: lead.name,
+          email: lead.email,
+          phone: lead.phone,
+          status: lead.lead_status,
+          intent_score: lead.intent_score,
+          budget_score: lead.budget_score,
+          urgency_score: lead.urgency_score,
+          conversion_probability: lead.conversion_probability,
+          lead_value_estimate: lead.lead_value_estimate,
+          qualification_level: lead.qualification_level,
+          ai_summary: lead.ai_summary,
+          ai_explanation: lead.ai_explanation,
+          recommended_action: lead.recommended_action,
+          behavioral_signals: lead.behavioral_signals,
+          collected_fields: lead.collected_fields,
+          conversation: lead.Conversation,
+          created_at: lead.created_at,
+        }
+      });
+    } catch (e: any) {
+      request.log.error(e);
+      return reply.code(500).send({ error: 'Internal server error' });
+    }
+  }
 }

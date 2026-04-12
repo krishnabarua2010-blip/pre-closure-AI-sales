@@ -56,19 +56,30 @@ model User {
 }
 
 model BusinessProfile {
-  id            Int            @id @default(autoincrement())
-  user_id       Int
-  company_name  String
-  industry      String?
-  slug          String         @unique
-  public_token  String
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
-  User          User           @relation(fields: [user_id], references: [id])
-  Conversations    Conversation[]
-  Leads            Lead[]
-  ConversationRules ConversationRule[]
-  AdvisorActions    AdvisorAction[]
+  id                    Int            @id @default(autoincrement())
+  user_id               Int
+  company_name          String
+  industry              String?
+  slug                  String         @unique
+  public_token          String
+  business_description  String?
+  ideal_customer        String?
+  services_offered      String?
+  pricing_range         String?
+  common_objections     String?
+  selling_points        String?
+  target_audience       String?
+  chatbot_tone          String?        @default("professional")
+  qualification_mode    String?        @default("balanced")
+  lead_fields_config    Json?          @db.JsonB
+  custom_questions      Json?          @db.JsonB
+  created_at            DateTime       @default(now())
+  updated_at            DateTime       @updatedAt
+  User                  User           @relation(fields: [user_id], references: [id])
+  Conversations         Conversation[]
+  Leads                 Lead[]
+  ConversationRules     ConversationRule[]
+  AdvisorActions        AdvisorAction[]
 }
 
 model Conversation {
@@ -100,20 +111,30 @@ model Message {
 }
 
 model Lead {
-  id                  Int             @id @default(autoincrement())
-  conversation_id     Int             @unique
-  business_profile_id Int
-  name                String?
-  email               String?
-  phone               String?
-  lead_status         LeadStatus      @default(ANONYMOUS)
-  collected_fields    Json            @default("{}") @db.JsonB
-  created_at          DateTime        @default(now())
-  Conversation        Conversation    @relation(fields: [conversation_id], references: [id])
-  BusinessProfile     BusinessProfile @relation(fields: [business_profile_id], references: [id])
-  CallOutcomes        CallOutcome[]
-  Proposals           Proposal[]
-  FollowUps           FollowUp[]
+  id                      Int             @id @default(autoincrement())
+  conversation_id         Int             @unique
+  business_profile_id     Int
+  name                    String?
+  email                   String?
+  phone                   String?
+  lead_status             LeadStatus      @default(ANONYMOUS)
+  collected_fields        Json            @default("{}") @db.JsonB
+  intent_score            Int?            @default(0)
+  budget_score            Int?            @default(0)
+  urgency_score           Int?            @default(0)
+  conversion_probability  Float?          @default(0)
+  lead_value_estimate     Float?          @default(0)
+  qualification_level     String?
+  ai_summary              String?
+  ai_explanation          String?
+  recommended_action      String?
+  behavioral_signals      Json?           @db.JsonB
+  created_at              DateTime        @default(now())
+  Conversation            Conversation    @relation(fields: [conversation_id], references: [id])
+  BusinessProfile         BusinessProfile @relation(fields: [business_profile_id], references: [id])
+  CallOutcomes            CallOutcome[]
+  Proposals               Proposal[]
+  FollowUps               FollowUp[]
 }
 
 model CallOutcome {
