@@ -32,6 +32,8 @@ enum LeadStatus {
   PARTIAL
   QUALIFIED
   BOOKED
+  DISCOVERED
+  CONTACTED
 }
 
 enum SenderType {
@@ -112,7 +114,7 @@ model Message {
 
 model Lead {
   id                      Int             @id @default(autoincrement())
-  conversation_id         Int             @unique
+  conversation_id         Int?            @unique
   business_profile_id     Int
   name                    String?
   email                   String?
@@ -129,12 +131,30 @@ model Lead {
   ai_explanation          String?
   recommended_action      String?
   behavioral_signals      Json?           @db.JsonB
+  source                  String?         @default("WIDGET")
+  industry                String?
+  company                 String?
+  outreach_status         String?         @default("NEW")
   created_at              DateTime        @default(now())
-  Conversation            Conversation    @relation(fields: [conversation_id], references: [id])
+  Conversation            Conversation?   @relation(fields: [conversation_id], references: [id])
   BusinessProfile         BusinessProfile @relation(fields: [business_profile_id], references: [id])
   CallOutcomes            CallOutcome[]
   Proposals               Proposal[]
   FollowUps               FollowUp[]
+  Outreaches              Outreach[]
+}
+
+model Outreach {
+  id         Int      @id @default(autoincrement())
+  lead_id    Int
+  message    String
+  hook       String?
+  cta        String?
+  platform   String   @default("EMAIL")
+  status     String   @default("GENERATED")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  Lead       Lead     @relation(fields: [lead_id], references: [id])
 }
 
 model CallOutcome {

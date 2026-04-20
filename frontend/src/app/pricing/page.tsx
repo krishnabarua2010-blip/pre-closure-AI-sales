@@ -9,32 +9,24 @@ import { handleUpgrade } from '@/lib/razorpay';
 gsap.registerPlugin(ScrollTrigger);
 
 const STARTER_FEATURES = [
-  '500 AI messages / month',
-  'AI lead qualification',
-  'Lead dashboard',
-  'Lead scoring',
+  '500 messages / month',
+  'AI chat closer',
+  'Basic lead scoring',
+  'Limited outreach messages',
   'Public AI assistant link',
-  'Deal probability scoring',
-  'Basic objection tracking',
+  'Lead dashboard',
 ];
 
 const GROWTH_FEATURES = [
-  'Unlimited AI messages',
-  'AI revenue advisor',
-  'Lead intelligence summaries',
-  'Close strategy generator',
-  'Proposal generator',
-  'Client onboarding AI',
-  'Call booking automation',
+  'Lead discovery (daily leads)',
+  'AI lead intelligence',
+  'Personalized outreach generator',
+  'CRM dashboard',
+  'Hot lead alerts',
   'Follow-up automation',
-  'Funnel analytics',
-  'Sales coaching',
+  'Unlimited AI chat closer',
+  'Close strategy generator',
   'Deal probability engine',
-  'Objection intelligence library',
-  'Funnel leak detector',
-  'Buyer intent timeline',
-  'AI follow-up writer',
-  'Conversation pattern learning',
 ];
 
 const ACTIVITY_MESSAGES = [
@@ -47,16 +39,16 @@ const ACTIVITY_MESSAGES = [
 
 export default function PricingPage() {
   const pageRef = useRef<HTMLDivElement>(null);
-  const [prices, setPrices] = useState({ starter: '$99', growth: '$199', starterOld: '$199', growthOld: '$399' });
+  const [prices, setPrices] = useState({ starter: '$99', growth: '$249', starterOld: '$199', growthOld: '$499' });
   const [activityIdx, setActivityIdx] = useState(0);
   const [toastVisible, setToastVisible] = useState(false);
 
   useEffect(() => {
     setPrices({
       starter: formatPrice(99),
-      growth: formatPrice(199),
+      growth: formatPrice(249),
       starterOld: formatPrice(199),
-      growthOld: formatPrice(399),
+      growthOld: formatPrice(499),
     });
   }, []);
 
@@ -122,7 +114,7 @@ export default function PricingPage() {
           {/* Header */}
           <div className="text-center mb-4" data-reveal>
             <div className="inline-flex items-center gap-2 bg-[#6366F1]/10 border border-[#6366F1]/20 text-[#a5b4fc] text-xs font-medium px-4 py-2 rounded-full mb-6">
-              🚀 50% lifetime discount for the first 200 beta users
+              🚀 Lifetime discount for the first 200 customers
             </div>
             <h1 className="text-5xl md:text-6xl font-black tracking-tight mb-4">Turn your website visitors into qualified leads automatically</h1>
             <p className="text-gray-400 text-lg">Most businesses recover cost with 1–2 extra clients.</p>
@@ -152,7 +144,7 @@ export default function PricingPage() {
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-sm text-gray-600 line-through">{prices.starterOld}/month</span>
-                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">50% beta off</span>
+                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">Lifetime discount</span>
                 </div>
               </div>
               <p className="text-sm text-gray-400 mb-6">Perfect for solo founders qualifying leads on autopilot.</p>
@@ -177,7 +169,7 @@ export default function PricingPage() {
               <div className="relative bg-[#0a0a0a] rounded-2xl p-8">
                 <div className="flex items-start justify-between mb-4">
                   <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase">Growth</p>
-                  <span className="text-xs bg-[#6366F1] text-white px-2.5 py-1 rounded-full font-semibold shadow-lg shadow-[#6366F1]/30">⭐ Recommended</span>
+                  <span className="text-xs bg-[#ef4444] text-white px-2.5 py-1 rounded-full font-semibold shadow-lg shadow-[#ef4444]/30 animate-pulse">⭐ Best for Businesses</span>
                 </div>
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-5xl font-black text-white">{prices.growth}</span>
@@ -185,9 +177,10 @@ export default function PricingPage() {
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-sm text-gray-600 line-through">{prices.growthOld}/month</span>
-                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">50% beta off</span>
+                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">Lifetime discount</span>
                 </div>
-                <p className="text-sm text-gray-400 mt-4 mb-6">The complete AI sales floor. Unlimited AI-powered selling.</p>
+                <p className="text-sm text-gray-200 mt-4 mb-2 font-medium">For just $50 more, get <span className="text-[#6366F1] font-bold">EVERY FEATURE</span> and UNLIMITED AI messages.</p>
+                <p className="text-sm text-gray-400 mb-6">The complete AI sales floor. Unlimited AI-powered selling.</p>
                 <ul className="space-y-3 mb-8">
                   {GROWTH_FEATURES.map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm text-gray-300">

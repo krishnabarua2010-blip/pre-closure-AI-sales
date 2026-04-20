@@ -61,7 +61,7 @@ export class PaymentController {
       try {
          const subscription = await razorpay.subscriptions.fetch(razorpay_subscription_id);
          if (subscription?.notes?.plan) {
-            newPlan = subscription.notes.plan;
+            newPlan = String(subscription.notes.plan);
          }
       } catch(e) { console.error("Could not fetch subscription notes", e); }
 

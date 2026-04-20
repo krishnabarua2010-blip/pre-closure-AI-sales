@@ -41,6 +41,7 @@ import advisorRoutes from './modules/advisor/advisor.routes';
 import paymentRoutes from './modules/payment/payment.routes';
 import widgetRoutes from './modules/widget/widget.routes';
 import setupRoutes from './modules/setup/setup.routes';
+import discoveryRoutes from './modules/discovery/discovery.routes';
 
 // Health check
 server.get('/health', async (request, reply) => {
@@ -55,6 +56,7 @@ server.register(advisorRoutes, { prefix: '/advisor' });
 server.register(paymentRoutes, { prefix: '/payment' });
 server.register(widgetRoutes, { prefix: '/widget' });
 server.register(setupRoutes, { prefix: '/setup' });
+server.register(discoveryRoutes, { prefix: '/discovery' });
 
 const start = async () => {
   try {

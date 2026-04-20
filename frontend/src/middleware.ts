@@ -24,10 +24,9 @@ const PUBLIC_ROUTES = [
 ];
 
 // Middleware disabled temporarily to allow localStorage auth flow without SSR loop
-// export function middleware(request: NextRequest) {
-//   ...
-//   return NextResponse.next();
-// }
+export function middleware(request: NextRequest) {
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [
