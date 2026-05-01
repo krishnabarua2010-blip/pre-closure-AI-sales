@@ -31,7 +31,7 @@ export class AIController {
       // BACKGROUND ASYNC PROCESSING to prevent blocking
       setImmediate(async () => {
         try {
-          const messages = lead.Conversation.Messages.map(m => `${m.sender}: ${m.content}`).join('\n');
+          const messages = lead.Conversation!.Messages.map(m => `${m.sender}: ${m.content}`).join('\n');
           
           const response = await openai.chat.completions.create({
             model: "gpt-4-turbo-preview",
@@ -40,7 +40,7 @@ export class AIController {
                 role: "system",
                 content: "You are an expert sales closer. Generate a hyper-personalized follow-up email using the lead's conversation history, urgency score, and authority signals. Respond with ONLY the email body."
               },
-              { role: "user", content: `Conversation History:\n${messages}\n\nScores: Urgency: ${lead.Conversation.urgency_score}, Authority: ${lead.Conversation.authority_score}` }
+              { role: "user", content: `Conversation History:\n${messages}\n\nScores: Urgency: ${lead.Conversation!.urgency_score}, Authority: ${lead.Conversation!.authority_score}` }
             ]
           });
 
@@ -80,7 +80,7 @@ export class AIController {
 
       setImmediate(async () => {
          try {
-           const messages = lead.Conversation.Messages.map(m => `${m.sender}: ${m.content}`).join('\n');
+           const messages = lead.Conversation!.Messages.map(m => `${m.sender}: ${m.content}`).join('\n');
            const response = await openai.chat.completions.create({
              model: "gpt-4-turbo-preview",
              messages: [

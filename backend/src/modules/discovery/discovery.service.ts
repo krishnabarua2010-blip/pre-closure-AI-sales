@@ -1,5 +1,6 @@
 import { OpenAI } from 'openai';
 import { prisma } from '../../config/prisma';
+import { ApolloService } from '../external/apollo.service';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'sk-dummy-key'
@@ -11,8 +12,8 @@ export class DiscoveryService {
     const bp = await prisma.businessProfile.findUnique({ where: { id: businessProfileId } });
     if (!bp) throw new Error("Business profile not found");
 
-    // 1. MOCK SCRAPER: Generate raw leads
-    const rawLeads = this.mockScrape(niche, location, count);
+    // 1. LEAD DISCOVERY: Fetch raw leads from Apollo Data API
+    const rawLeads = await ApolloService.searchLeads(niche, location, count);
 
     const bpContext = {
       name: bp.company_name,
@@ -21,7 +22,7 @@ export class DiscoveryService {
     };
 
     // 2. Parallel Super Prompt for each lead
-    const scoredLeadsPromises = rawLeads.map(async (rawLead) => {
+    const scoredLeadsPromises = rawLeads.map(async (rawLead: any) => {
       // Check if already in DB (to avoid dupes if ran multiple times)
       let existingLead = await prisma.lead.findFirst({
         where: { name: rawLead.name, business_profile_id: bp.id }
@@ -63,22 +64,31 @@ export class DiscoveryService {
         });
 
         // Upsert Outreach
-        await prisma.outreach.upsert({
-          where: { lead_id: existingLead.id },
-          update: {
-            message: enriched.outreach?.message || 'Hello, I noticed your business...',
-            hook: enriched.outreach?.hook || 'Quick question',
-            cta: enriched.outreach?.cta || 'Let me know',
-            status: 'GENERATED'
-          },
-          create: {
-            lead_id: existingLead.id,
-            message: enriched.outreach?.message || 'Hello, I noticed your business...',
-            hook: enriched.outreach?.hook || 'Quick question',
-            cta: enriched.outreach?.cta || 'Let me know',
-            status: 'GENERATED'
-          }
+        const existingOutreach = await prisma.outreach.findFirst({
+          where: { lead_id: existingLead.id }
         });
+
+        if (existingOutreach) {
+          await prisma.outreach.update({
+            where: { id: existingOutreach.id },
+            data: {
+              message: enriched.outreach?.message || 'Hello, I noticed your business...',
+              hook: enriched.outreach?.hook || 'Quick question',
+              cta: enriched.outreach?.cta || 'Let me know',
+              status: 'GENERATED'
+            }
+          });
+        } else {
+          await prisma.outreach.create({
+            data: {
+              lead_id: existingLead.id,
+              message: enriched.outreach?.message || 'Hello, I noticed your business...',
+              hook: enriched.outreach?.hook || 'Quick question',
+              cta: enriched.outreach?.cta || 'Let me know',
+              status: 'GENERATED'
+            }
+          });
+        }
 
         return updatedLead;
       } catch(e) {
@@ -91,20 +101,6 @@ export class DiscoveryService {
     return results;
   }
 
-  static mockScrape(niche: string, location: string, count: number) {
-    const leads = [];
-    const firstNames = ["Dr.", "Apex", "Premier", "Elite", "City", "Global", "NextGen", "Pro", "Summit", "Evergreen"];
-    const tempNiche = niche || "Dental";
-    for(let i=0; i<count; i++) {
-        leads.push({
-            name: `${firstNames[i % firstNames.length]} ${tempNiche} Group`,
-            description: `A fast growing ${tempNiche.toLowerCase()} business looking to scale operations and customer acquisition.`,
-            industry: niche,
-            location: location || "Remote"
-        });
-    }
-    return leads;
-  }
 
   static async runSuperPrompt(leadObj: any, bpCtx: any) {
     const systemPrompt = `You are an AI Sales Intelligence and Outreach Expert for ${bpCtx.name} (${bpCtx.description}).

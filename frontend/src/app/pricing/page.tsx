@@ -2,11 +2,14 @@
 
 import Link from 'next/link';
 import { useRef, useEffect, useState } from 'react';
+import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { formatPrice } from '@/lib/currencyUtils';
 import { handleUpgrade } from '@/lib/razorpay';
 
-gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const STARTER_FEATURES = [
   '500 messages / month',
