@@ -44,6 +44,10 @@ import setupRoutes from './modules/setup/setup.routes';
 import discoveryRoutes from './modules/discovery/discovery.routes';
 
 // Health check
+server.get('/', async () => {
+  return { status: 'ok' };
+});
+
 server.get('/health', async (request, reply) => {
   return { status: 'ok', timestamp: new Date() };
 });
@@ -69,6 +73,7 @@ const start = async () => {
       host: "0.0.0.0",
     });
 
+    console.log("🔥 BACKEND LIVE ON PORT:", PORT);
     server.log.info(`Server running on port ${PORT}`);
   } catch (err) {
     console.error("ERROR STARTING SERVER:", err);
