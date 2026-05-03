@@ -1,39 +1,43 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import path from 'path';
+import fastifyStatic from '@fastify/static';
 
+const server = Fastify({ logger: true });
+
+server.register(cors, { origin: true });
+
+// ✅ Serve frontend
+server.register(fastifyStatic, {
+  root: path.join(__dirname, '../public'),
+});
+
+// ✅ API routes under /api
 import authRoutes from './modules/auth/auth.routes';
 import aiRoutes from './modules/ai/ai.routes';
 import widgetRoutes from './modules/widget/widget.routes';
 
-const server = Fastify({ logger: true });
+server.register(authRoutes, { prefix: '/api/auth' });
+server.register(aiRoutes, { prefix: '/api/ai' });
+server.register(widgetRoutes, { prefix: '/api/widget' });
 
-server.addHook('onRequest', async (req) => {
-  console.log("➡️", req.method, req.url);
+// ✅ Fallback to frontend for all other routes
+server.setNotFoundHandler((req, reply) => {
+  if (!req.url.startsWith('/api')) {
+    return reply.sendFile('index.html');
+  }
+  reply.status(404).send({ error: 'Not found' });
 });
 
-server.register(authRoutes, { prefix: '/auth' });
-server.register(aiRoutes, { prefix: '/ai' });
-server.register(widgetRoutes, { prefix: '/widget' });
-
-server.get('/', async () => {
+// Health check
+server.get('/api/health', async () => {
   return { status: 'alive' };
 });
 
 const start = async () => {
-  try {
-    const PORT = process.env.PORT || 3000;
-
-    console.log("🔥 STARTING FASTIFY ON", PORT);
-
-    await server.listen({
-      port: Number(PORT),
-      host: '0.0.0.0',
-    });
-
-    console.log("🔥 FASTIFY RUNNING");
-  } catch (err) {
-    console.error("❌ ERROR:", err);
-    process.exit(1);
-  }
+  const PORT = process.env.PORT || 3000;
+  await server.listen({ port: Number(PORT), host: '0.0.0.0' });
+  console.log("🔥 FULL APP LIVE ON", PORT);
 };
 
 start();
