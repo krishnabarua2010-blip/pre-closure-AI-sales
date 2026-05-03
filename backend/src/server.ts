@@ -67,7 +67,7 @@ const start = async () => {
     console.log("🚀 START FUNCTION CALLED");
 
     const PORT = process.env.PORT || 8080;
-
+    console.log("🔥 BACKEND STARTED");
     await server.listen({ port: Number(PORT), host: "0.0.0.0" });
 
     console.log("🔥 SERVER RUNNING ON", PORT);

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AnalyticsController = void 0;
 const prisma_1 = require("../../config/prisma");
-const redis_1 = require("../../config/redis");
+// import { redis } from '../../config/redis';
 class AnalyticsController {
     static async getLeads(request, reply) {
         try {
@@ -27,9 +27,8 @@ class AnalyticsController {
             const user = request.user;
             const cacheKey = `funnel_health:${user.id}`;
             // Redis Caching Logic
-            const cached = await redis_1.redis.get(cacheKey);
-            if (cached)
-                return reply.send(JSON.parse(cached));
+            // const cached = await redis.get(cacheKey);
+            // if (cached) return reply.send(JSON.parse(cached));
             const [totalConversations, totalLeads, qualifiedLeads, convertedLeads] = await Promise.all([
                 prisma_1.prisma.conversation.count({ where: { user_id: user.id } }),
                 prisma_1.prisma.lead.count({ where: { Conversation: { user_id: user.id } } }),
@@ -46,7 +45,7 @@ class AnalyticsController {
                 win_rate
             };
             // Set Cache TTL to 60 seconds
-            await redis_1.redis.setex(cacheKey, 60, JSON.stringify(response));
+            // await redis.setex(cacheKey, 60, JSON.stringify(response));
             return reply.send(response);
         }
         catch (error) {
@@ -58,9 +57,8 @@ class AnalyticsController {
         try {
             const user = request.user;
             const cacheKey = `revenue_metrics:${user.id}`;
-            const cached = await redis_1.redis.get(cacheKey);
-            if (cached)
-                return reply.send(JSON.parse(cached));
+            // const cached = await redis.get(cacheKey);
+            // if (cached) return reply.send(JSON.parse(cached));
             // Summing strictly revenue probability thresholds over active leads
             const activeConversations = await prisma_1.prisma.conversation.findMany({
                 where: { user_id: user.id, status: 'ACTIVE' },
@@ -76,7 +74,7 @@ class AnalyticsController {
                 revenue_leakage: droppedLeads * 500, // Mock fixed leakage value
                 active_pipeline_size: activeConversations.length
             };
-            await redis_1.redis.setex(cacheKey, 60, JSON.stringify(response));
+            // await redis.setex(cacheKey, 60, JSON.stringify(response));
             return reply.send(response);
         }
         catch (error) {

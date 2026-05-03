@@ -10,7 +10,6 @@ const static_1 = __importDefault(require("@fastify/static"));
 const rate_limit_1 = __importDefault(require("@fastify/rate-limit"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
-const prisma_1 = require("./config/prisma");
 dotenv_1.default.config();
 const server = (0, fastify_1.default)({
     logger: true
@@ -41,6 +40,9 @@ const widget_routes_1 = __importDefault(require("./modules/widget/widget.routes"
 const setup_routes_1 = __importDefault(require("./modules/setup/setup.routes"));
 const discovery_routes_1 = __importDefault(require("./modules/discovery/discovery.routes"));
 // Health check
+server.get('/', async () => {
+    return { status: 'ok' };
+});
 server.get('/health', async (request, reply) => {
     return { status: 'ok', timestamp: new Date() };
 });
@@ -55,17 +57,13 @@ server.register(setup_routes_1.default, { prefix: '/setup' });
 server.register(discovery_routes_1.default, { prefix: '/discovery' });
 const start = async () => {
     try {
+        console.log("🚀 START FUNCTION CALLED");
         const PORT = process.env.PORT || 8080;
-        console.log("PORT:", PORT);
-        await server.listen({
-            port: Number(PORT),
-            host: "0.0.0.0",
-        });
-        server.log.info(`Server running on port ${PORT}`);
+        await server.listen({ port: Number(PORT), host: "0.0.0.0" });
+        console.log("🔥 SERVER RUNNING ON", PORT);
     }
     catch (err) {
-        console.error("ERROR STARTING SERVER:", err);
-        await prisma_1.prisma.$disconnect();
+        console.error("❌ SERVER CRASHED:", err);
         process.exit(1);
     }
 };
