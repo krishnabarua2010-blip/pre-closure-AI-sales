@@ -34,6 +34,8 @@ enum LeadStatus {
   BOOKED
   DISCOVERED
   CONTACTED
+  REPLIED
+  CONVERTED
 }
 
 enum SenderType {
@@ -55,6 +57,7 @@ model User {
   updated_at         DateTime            @updatedAt
   BusinessProfiles   BusinessProfile[]
   Conversations      Conversation[]    // Direct link to easily aggregate usage per user
+  Notifications      Notification[]
 }
 
 model BusinessProfile {
@@ -215,3 +218,16 @@ model EventLog {
   metadata   Json     @default("{}") @db.JsonB
   created_at DateTime @default(now())
 }
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  type       String   // HOT_LEAD, FOLLOW_UP_DUE, INACTIVITY, SYSTEM
+  title      String
+  message    String
+  metadata   Json     @default("{}") @db.JsonB
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+  User       User     @relation(fields: [user_id], references: [id])
+}
+

@@ -2,26 +2,49 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const server = Fastify({ logger: true });
 
 server.register(cors, { origin: true });
 
-// ✅ Serve frontend
+// ✅ Serve frontend static files
 server.register(fastifyStatic, {
   root: path.join(__dirname, '../public'),
 });
 
-// ✅ API routes under /api
+// ✅ API Routes
 import authRoutes from './modules/auth/auth.routes';
+import conversationRoutes from './modules/conversation/conversation.routes';
 import aiRoutes from './modules/ai/ai.routes';
+import analyticsRoutes from './modules/analytics/analytics.routes';
+import advisorRoutes from './modules/advisor/advisor.routes';
+import paymentRoutes from './modules/payment/payment.routes';
 import widgetRoutes from './modules/widget/widget.routes';
+import setupRoutes from './modules/setup/setup.routes';
+import discoveryRoutes from './modules/discovery/discovery.routes';
+import notificationRoutes from './modules/notification/notification.routes';
 
+// API routes under /api prefix
 server.register(authRoutes, { prefix: '/api/auth' });
+server.register(conversationRoutes, { prefix: '/api/conversation' });
 server.register(aiRoutes, { prefix: '/api/ai' });
+server.register(analyticsRoutes, { prefix: '/api/analytics' });
+server.register(advisorRoutes, { prefix: '/api/advisor' });
+server.register(paymentRoutes, { prefix: '/api/payment' });
 server.register(widgetRoutes, { prefix: '/api/widget' });
+server.register(setupRoutes, { prefix: '/api/setup' });
+server.register(discoveryRoutes, { prefix: '/api/discovery' });
+server.register(notificationRoutes, { prefix: '/api/notifications' });
 
-// ✅ Fallback to frontend for all other routes
+// Health check
+server.get('/api/health', async () => {
+  return { status: 'alive', timestamp: new Date().toISOString() };
+});
+
+// ✅ Fallback to frontend for all other routes (SPA support)
 server.setNotFoundHandler((req, reply) => {
   if (!req.url.startsWith('/api')) {
     return reply.sendFile('index.html');
@@ -29,15 +52,16 @@ server.setNotFoundHandler((req, reply) => {
   reply.status(404).send({ error: 'Not found' });
 });
 
-// Health check
-server.get('/api/health', async () => {
-  return { status: 'alive' };
-});
-
 const start = async () => {
-  const PORT = process.env.PORT || 3000;
-  await server.listen({ port: Number(PORT), host: '0.0.0.0' });
-  console.log("🔥 FULL APP LIVE ON", PORT);
+  try {
+    const PORT = process.env.PORT || 3000;
+    console.log("🔥 STARTING PRE-CLOSER AI SERVER");
+    await server.listen({ port: Number(PORT), host: '0.0.0.0' });
+    console.log("🔥 FULL APP LIVE ON PORT", PORT);
+  } catch (err) {
+    console.error("❌ SERVER CRASHED:", err);
+    process.exit(1);
+  }
 };
 
 start();

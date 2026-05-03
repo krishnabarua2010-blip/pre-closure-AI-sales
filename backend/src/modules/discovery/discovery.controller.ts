@@ -3,25 +3,52 @@ import { prisma } from '../../config/prisma';
 import { DiscoveryService } from './discovery.service';
 import { ResendService } from '../external/resend.service';
 import { TwilioService } from '../external/twilio.service';
+import { NotificationController } from '../notification/notification.controller';
+import { getUserUsageStats } from '../../middlewares/usage';
 
 export class DiscoveryController {
-  
+
+  /**
+   * POST /discovery/generate
+   * Full pipeline: Discover → Enrich → Score → Outreach → Follow-ups
+   */
   static async generateLeads(request: FastifyRequest, reply: FastifyReply) {
     try {
       const user = request.user as any;
       const bpId = user.BusinessProfiles?.[0]?.id;
-      if (!bpId) return reply.code(403).send({ error: 'No business profile' });
+      if (!bpId) return reply.code(403).send({ error: 'No business profile. Complete onboarding first.' });
 
       const { niche, location, count = 10 } = request.body as any;
 
-      const results = await DiscoveryService.discoverAndScorePipeline(bpId, niche, location, count);
-      return reply.send({ success: true, leads: results });
+      if (!niche || !location) {
+        return reply.code(400).send({ error: 'niche and location are required' });
+      }
+
+      const results = await DiscoveryService.discoverAndScorePipeline(bpId, niche, location, Math.min(count, 15));
+
+      // Trigger hot lead notifications
+      for (const lead of results) {
+        if ((lead as any).intent_score >= 70) {
+          await NotificationController.triggerHotLeadAlert(
+            user.id,
+            (lead as any).name || 'Unknown Lead',
+            (lead as any).intent_score,
+            lead.id
+          );
+        }
+      }
+
+      return reply.send({ success: true, leads: results, count: results.length });
     } catch (e: any) {
       request.log.error(e);
       return reply.code(500).send({ error: 'Failed to generate leads pipeline' });
     }
   }
 
+  /**
+   * POST /discovery/outreach
+   * Fetch generated outreach for specific leads
+   */
   static async generateOutreach(request: FastifyRequest, reply: FastifyReply) {
     try {
       const user = request.user as any;
@@ -29,14 +56,10 @@ export class DiscoveryController {
       if (!bpId) return reply.code(403).send({ error: 'No business profile' });
 
       const { leadIds } = request.body as any;
-      // Triggers outreach generation for these specific leads if not already done.
-      // Wait, our super prompt does scoring AND outreach together. 
-      // So if they are already scored, the outreach is already saved!
-      // But we can just fetch them representing the new messages.
       const outreaches = await prisma.outreach.findMany({
         where: { lead_id: { in: leadIds } }
       });
-      
+
       // Mark leads as outreach_status = 'GENERATED'
       await prisma.lead.updateMany({
         where: { id: { in: leadIds } },
@@ -44,19 +67,23 @@ export class DiscoveryController {
       });
 
       return reply.send({ success: true, outreaches });
-    } catch(e: any) {
+    } catch (e: any) {
       request.log.error(e);
       return reply.code(500).send({ error: 'Failed to generate outreach' });
     }
   }
 
+  /**
+   * POST /discovery/deploy
+   * Send outreach via EMAIL or WHATSAPP
+   */
   static async deployOutreach(request: FastifyRequest, reply: FastifyReply) {
     try {
       const user = request.user as any;
       const bpId = user.BusinessProfiles?.[0]?.id;
       if (!bpId) return reply.code(403).send({ error: 'No business profile' });
 
-      const { outreachId, platform } = request.body as any; // platform: 'EMAIL' | 'WHATSAPP'
+      const { outreachId, platform } = request.body as any;
 
       const outreach = await prisma.outreach.findUnique({
         where: { id: outreachId },
@@ -84,14 +111,104 @@ export class DiscoveryController {
 
       await prisma.lead.update({
         where: { id: lead.id },
-        data: { outreach_status: 'CONTACTED' }
+        data: { outreach_status: 'CONTACTED', lead_status: 'CONTACTED' }
+      });
+
+      // Increment message usage
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { messages_used: { increment: 1 } }
       });
 
       return reply.send({ success: true, outreach: updatedOutreach });
-
-    } catch(e: any) {
+    } catch (e: any) {
       request.log.error(e);
-      return reply.code(500).send({ error: 'Failed to deploy outreach via external API' });
+      return reply.code(500).send({ error: 'Failed to deploy outreach' });
+    }
+  }
+
+  /**
+   * GET /discovery/follow-ups/:leadId
+   * Get follow-up sequence for a specific lead
+   */
+  static async getFollowUps(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as any;
+      const bpId = user.BusinessProfiles?.[0]?.id;
+      if (!bpId) return reply.code(403).send({ error: 'No business profile' });
+
+      const { leadId } = request.params as { leadId: string };
+
+      const lead = await prisma.lead.findFirst({
+        where: { id: parseInt(leadId), business_profile_id: bpId }
+      });
+
+      if (!lead) return reply.code(404).send({ error: 'Lead not found' });
+
+      const followUps = await prisma.followUp.findMany({
+        where: { lead_id: lead.id },
+        orderBy: { scheduled_for: 'asc' }
+      });
+
+      return reply.send({ followUps });
+    } catch (e: any) {
+      return reply.code(500).send({ error: 'Failed to get follow-ups' });
+    }
+  }
+
+  /**
+   * POST /discovery/lead-status
+   * Update lead pipeline status: new → contacted → replied → qualified → converted
+   */
+  static async updateLeadStatus(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as any;
+      const bpId = user.BusinessProfiles?.[0]?.id;
+      if (!bpId) return reply.code(403).send({ error: 'No business profile' });
+
+      const { leadId, status } = request.body as any;
+      const validStatuses = ['DISCOVERED', 'CONTACTED', 'REPLIED', 'QUALIFIED', 'BOOKED', 'CONVERTED'];
+
+      if (!validStatuses.includes(status)) {
+        return reply.code(400).send({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+      }
+
+      const lead = await prisma.lead.findFirst({
+        where: { id: leadId, business_profile_id: bpId }
+      });
+
+      if (!lead) return reply.code(404).send({ error: 'Lead not found' });
+
+      const updated = await prisma.lead.update({
+        where: { id: leadId },
+        data: { lead_status: status as any }
+      });
+
+      // Notify on significant status changes
+      if (status === 'REPLIED') {
+        if ((lead.intent_score || 0) >= 70) {
+          await NotificationController.triggerHotLeadAlert(user.id, lead.name || 'Lead', lead.intent_score || 0, lead.id);
+        }
+      }
+
+      return reply.send({ success: true, lead: updated });
+    } catch (e: any) {
+      return reply.code(500).send({ error: 'Failed to update lead status' });
+    }
+  }
+
+  /**
+   * GET /discovery/usage
+   * Get current usage stats for the user
+   */
+  static async getUsageStats(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as any;
+      const bpId = user.BusinessProfiles?.[0]?.id;
+      const stats = await getUserUsageStats(user.id, user.plan, bpId);
+      return reply.send(stats);
+    } catch (e: any) {
+      return reply.code(500).send({ error: 'Failed to get usage stats' });
     }
   }
 }
