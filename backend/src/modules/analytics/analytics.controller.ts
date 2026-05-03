@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../../config/prisma';
-import { redis } from '../../config/redis';
+// import { redis } from '../../config/redis';
 
 export class AnalyticsController {
   
@@ -28,8 +28,8 @@ export class AnalyticsController {
       const cacheKey = `funnel_health:${user.id}`;
 
       // Redis Caching Logic
-      const cached = await redis.get(cacheKey);
-      if (cached) return reply.send(JSON.parse(cached));
+      // const cached = await redis.get(cacheKey);
+      // if (cached) return reply.send(JSON.parse(cached));
 
       const [totalConversations, totalLeads, qualifiedLeads, convertedLeads] = await Promise.all([
         prisma.conversation.count({ where: { user_id: user.id } }),
@@ -50,7 +50,7 @@ export class AnalyticsController {
       };
 
       // Set Cache TTL to 60 seconds
-      await redis.setex(cacheKey, 60, JSON.stringify(response));
+      // await redis.setex(cacheKey, 60, JSON.stringify(response));
 
       return reply.send(response);
     } catch (error) {
@@ -64,8 +64,8 @@ export class AnalyticsController {
       const user = request.user!;
       const cacheKey = `revenue_metrics:${user.id}`;
 
-      const cached = await redis.get(cacheKey);
-      if (cached) return reply.send(JSON.parse(cached));
+      // const cached = await redis.get(cacheKey);
+      // if (cached) return reply.send(JSON.parse(cached));
 
       // Summing strictly revenue probability thresholds over active leads
       const activeConversations = await prisma.conversation.findMany({
@@ -86,7 +86,7 @@ export class AnalyticsController {
         active_pipeline_size: activeConversations.length
       };
 
-      await redis.setex(cacheKey, 60, JSON.stringify(response));
+      // await redis.setex(cacheKey, 60, JSON.stringify(response));
 
       return reply.send(response);
     } catch (error) {

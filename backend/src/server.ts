@@ -64,20 +64,15 @@ server.register(discoveryRoutes, { prefix: '/discovery' });
 
 const start = async () => {
   try {
+    console.log("🚀 START FUNCTION CALLED");
+
     const PORT = process.env.PORT || 8080;
 
-    console.log("PORT:", PORT);
+    await server.listen({ port: Number(PORT), host: "0.0.0.0" });
 
-    await server.listen({
-      port: Number(PORT),
-      host: "0.0.0.0",
-    });
-
-    console.log("🔥 BACKEND LIVE ON PORT:", PORT);
-    server.log.info(`Server running on port ${PORT}`);
+    console.log("🔥 SERVER RUNNING ON", PORT);
   } catch (err) {
-    console.error("ERROR STARTING SERVER:", err);
-    await prisma.$disconnect();
+    console.error("❌ SERVER CRASHED:", err);
     process.exit(1);
   }
 };
