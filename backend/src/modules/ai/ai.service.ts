@@ -324,20 +324,28 @@ Keep it under 3 short paragraphs.
 TRANSCRIPT:
 ${transcript}`;
 
-    const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: prompt }]
-    });
+    let content = "Hey! Following up on our chat. Let me know when you're free for a quick call.";
+    try {
+      const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [{ role: "system", content: prompt }]
+      });
+      content = response.choices[0].message.content || content;
+    } catch (e) {
+      console.error("AI failed:", e);
+    }
 
-    const content = response.choices[0].message.content || "Hey! Following up on our chat. Let me know when you're free for a quick call.";
-
-    await prisma.followUp.create({
-        data: {
-            lead_id: leadId,
-            content,
-            scheduled_for: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
-            status: "DRAFT"
-        }
-    });
+    try {
+      await prisma.followUp.create({
+          data: {
+              lead_id: leadId,
+              content,
+              scheduled_for: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+              status: "DRAFT"
+          }
+      });
+    } catch(e) {
+      console.error("Prisma error:", e);
+    }
   }
 }

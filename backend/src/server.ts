@@ -44,6 +44,21 @@ server.get('/api/health', async () => {
   return { status: 'alive', timestamp: new Date().toISOString() };
 });
 
+// ✅ STEP 3 — GLOBAL ERROR SHIELD (CRITICAL)
+process.on("uncaughtException", (err) => {
+  console.error("💥 Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("💥 Unhandled Rejection:", err);
+});
+
+// ✅ STEP 4 — Wrap all routes with Fastify Global Error Handler
+server.setErrorHandler((error, request, reply) => {
+  console.error("Route error:", error);
+  reply.status(500).send({ error: "Something failed" });
+});
+
 // ✅ Fallback to frontend for all other routes (SPA support)
 server.setNotFoundHandler((req, reply) => {
   if (!req.url.startsWith('/api')) {
@@ -55,9 +70,9 @@ server.setNotFoundHandler((req, reply) => {
 const start = async () => {
   try {
     const PORT = process.env.PORT || 3000;
-    console.log("🔥 STARTING PRE-CLOSER AI SERVER");
+    console.log("🚀 Booting server...");
     await server.listen({ port: Number(PORT), host: '0.0.0.0' });
-    console.log("🔥 FULL APP LIVE ON PORT", PORT);
+    console.log("🔥 Server started on port", PORT);
   } catch (err) {
     console.error("❌ SERVER CRASHED:", err);
     process.exit(1);
