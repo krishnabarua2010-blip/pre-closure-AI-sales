@@ -1,6 +1,10 @@
 import Fastify from 'fastify';
 
+import authRoutes from './modules/auth/auth.routes';
+
 const server = Fastify({ logger: true });
+
+server.register(authRoutes, { prefix: '/auth' });
 
 server.get('/', async () => {
   return { status: 'alive' };
