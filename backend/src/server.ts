@@ -1,10 +1,14 @@
 import Fastify from 'fastify';
 
 import authRoutes from './modules/auth/auth.routes';
+import aiRoutes from './modules/ai/ai.routes';
+import widgetRoutes from './modules/widget/widget.routes';
 
 const server = Fastify({ logger: true });
 
 server.register(authRoutes, { prefix: '/auth' });
+server.register(aiRoutes, { prefix: '/ai' });
+server.register(widgetRoutes, { prefix: '/widget' });
 
 server.get('/', async () => {
   return { status: 'alive' };

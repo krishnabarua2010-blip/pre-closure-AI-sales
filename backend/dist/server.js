@@ -5,8 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
 const auth_routes_1 = __importDefault(require("./modules/auth/auth.routes"));
+const ai_routes_1 = __importDefault(require("./modules/ai/ai.routes"));
+const widget_routes_1 = __importDefault(require("./modules/widget/widget.routes"));
 const server = (0, fastify_1.default)({ logger: true });
 server.register(auth_routes_1.default, { prefix: '/auth' });
+server.register(ai_routes_1.default, { prefix: '/ai' });
+server.register(widget_routes_1.default, { prefix: '/widget' });
 server.get('/', async () => {
     return { status: 'alive' };
 });
