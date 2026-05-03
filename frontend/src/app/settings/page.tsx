@@ -119,8 +119,8 @@ export default function SettingsPage() {
     setCustomQuestions(customQuestions.filter(q => q.id !== id));
   };
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://pre-closure-ai-sales-1.onrender.com';
-  const embedSnippet = `<script>\n  window.PreCloserConfig = {\n    slug: "${slug}",\n    apiUrl: "${apiUrl}"\n  };\n</script>\n<script src="${apiUrl}/static/widget.js" defer></script>`;
+  const apiUrl = '';
+  const embedSnippet = `<script>\n  window.PreCloserConfig = {\n    slug: "${slug}",\n    apiUrl: "${typeof window !== 'undefined' ? window.location.origin : ''}"\n  };\n</script>\n<script src="${typeof window !== 'undefined' ? window.location.origin : ''}/api/static/widget.js" defer></script>`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(embedSnippet);
