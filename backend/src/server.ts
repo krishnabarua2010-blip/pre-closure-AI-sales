@@ -6,6 +6,10 @@ import widgetRoutes from './modules/widget/widget.routes';
 
 const server = Fastify({ logger: true });
 
+server.addHook('onRequest', async (req) => {
+  console.log("➡️", req.method, req.url);
+});
+
 server.register(authRoutes, { prefix: '/auth' });
 server.register(aiRoutes, { prefix: '/ai' });
 server.register(widgetRoutes, { prefix: '/widget' });

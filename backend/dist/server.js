@@ -8,6 +8,9 @@ const auth_routes_1 = __importDefault(require("./modules/auth/auth.routes"));
 const ai_routes_1 = __importDefault(require("./modules/ai/ai.routes"));
 const widget_routes_1 = __importDefault(require("./modules/widget/widget.routes"));
 const server = (0, fastify_1.default)({ logger: true });
+server.addHook('onRequest', async (req) => {
+    console.log("➡️", req.method, req.url);
+});
 server.register(auth_routes_1.default, { prefix: '/auth' });
 server.register(ai_routes_1.default, { prefix: '/ai' });
 server.register(widget_routes_1.default, { prefix: '/widget' });
