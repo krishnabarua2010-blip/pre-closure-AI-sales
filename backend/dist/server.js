@@ -43,6 +43,8 @@ const path_1 = __importDefault(require("path"));
 const static_1 = __importDefault(require("@fastify/static"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+// 🔥 TEMPORARY HARDCODE FOR DEBUGGING
+process.env.DATABASE_URL = "postgresql://postgres.sjezasjszvtrlpplxuuu:W7ZLLgOZSJley0UN@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require";
 const server = (0, fastify_1.default)({ logger: true });
 // ✅ Base plugins
 server.register(cors_1.default, { origin: true });

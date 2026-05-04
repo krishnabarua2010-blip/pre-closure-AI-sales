@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx src/server.ts",
     "build": "tsc",
-    "start": "node -e \"console.log('ENV:', process.env.DATABASE_URL)\""
+    "start": "node -e \"console.log('🔥 BACKEND STARTED'); require('./dist/server.js')\""
   },
   "keywords": [],
   "author": "",

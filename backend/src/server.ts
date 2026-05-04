@@ -7,6 +7,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// 🔥 TEMPORARY HARDCODE FOR DEBUGGING
+process.env.DATABASE_URL = "postgresql://postgres.sjezasjszvtrlpplxuuu:W7ZLLgOZSJley0UN@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require";
+
 const server = Fastify({ logger: true });
 
 // ✅ Base plugins
