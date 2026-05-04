@@ -7,8 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx src/server.ts",
     "build": "tsc",
-    "postinstall": "prisma generate",
-    "start": "node -e \"console.log('🔥 BACKEND STARTED'); require('./dist/server.js')\""
+    "start": "node -e \"console.log('ENV:', process.env.DATABASE_URL)\""
   },
   "keywords": [],
   "author": "",
