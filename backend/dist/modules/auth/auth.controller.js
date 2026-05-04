@@ -12,6 +12,7 @@ const crypto_1 = __importDefault(require("crypto"));
 class AuthController {
     static async signup(request, reply) {
         try {
+            console.log("📥 BODY:", request.body);
             if (!request.body) {
                 return reply.code(400).send({ error: 'Missing request body' });
             }
@@ -56,11 +57,14 @@ class AuthController {
             });
         }
         catch (error) {
-            console.error("🔥 SIGNUP ERROR:", error);
+            console.error("🔥 SIGNUP ERROR FULL:", error);
             if (error.code === "P2002") {
                 return reply.code(400).send({ error: 'Email already exists' });
             }
-            return reply.code(500).send({ error: 'Internal server error' });
+            return reply.code(500).send({
+                error: 'Internal server error',
+                message: String(error)
+            });
         }
     }
     static async login(request, reply) {
