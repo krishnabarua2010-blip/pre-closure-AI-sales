@@ -108,7 +108,9 @@ const start = async () => {
       server.register(routes.default, { prefix: "/api/notifications" });
     });
 
+    console.log("ENV PORT:", process.env.PORT);
     const PORT = process.env.PORT || 3000;
+    console.log("USING PORT:", PORT);
 
     await server.listen({
       port: Number(PORT),
