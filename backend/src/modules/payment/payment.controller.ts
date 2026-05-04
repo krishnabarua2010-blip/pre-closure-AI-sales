@@ -4,8 +4,8 @@ import crypto from 'crypto';
 import { prisma } from '../../config/prisma';
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_live_SWITmU11YHcu9g',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'Bq290KFHJKi7dNsY0IS4nZFz',
+  key_id: process.env.RAZORPAY_KEY_ID || '',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || '',
 });
 
 export class PaymentController {
@@ -51,7 +51,7 @@ export class PaymentController {
 
     const body = razorpay_payment_id + "|" + razorpay_subscription_id;
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'Bq290KFHJKi7dNsY0IS4nZFz')
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '')
       .update(body.toString())
       .digest('hex');
 
@@ -81,7 +81,7 @@ export class PaymentController {
   }
 
   static async webhook(request: FastifyRequest, reply: FastifyReply) {
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || 'Bq290KFHJKi7dNsY0IS4nZFz'; // Often the same as key secret or unique webhook secret
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET || ''; // Often the same as key secret or unique webhook secret
     const signature = request.headers['x-razorpay-signature'] as string;
 
     if (!signature) {

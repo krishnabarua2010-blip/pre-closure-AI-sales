@@ -8,8 +8,8 @@ const razorpay_1 = __importDefault(require("razorpay"));
 const crypto_1 = __importDefault(require("crypto"));
 const prisma_1 = require("../../config/prisma");
 const razorpay = new razorpay_1.default({
-    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_live_SWITmU11YHcu9g',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || 'Bq290KFHJKi7dNsY0IS4nZFz',
+    key_id: process.env.RAZORPAY_KEY_ID || '',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || '',
 });
 class PaymentController {
     static async createSubscription(request, reply) {
@@ -49,7 +49,7 @@ class PaymentController {
         const user = request.user;
         const body = razorpay_payment_id + "|" + razorpay_subscription_id;
         const expectedSignature = crypto_1.default
-            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'Bq290KFHJKi7dNsY0IS4nZFz')
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '')
             .update(body.toString())
             .digest('hex');
         if (expectedSignature === razorpay_signature) {
@@ -78,7 +78,7 @@ class PaymentController {
         }
     }
     static async webhook(request, reply) {
-        const secret = process.env.RAZORPAY_WEBHOOK_SECRET || 'Bq290KFHJKi7dNsY0IS4nZFz'; // Often the same as key secret or unique webhook secret
+        const secret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET || ''; // Often the same as key secret or unique webhook secret
         const signature = request.headers['x-razorpay-signature'];
         if (!signature) {
             return reply.code(400).send({ error: 'Missing signature' });

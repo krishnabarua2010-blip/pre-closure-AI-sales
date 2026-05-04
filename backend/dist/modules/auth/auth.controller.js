@@ -12,15 +12,15 @@ const crypto_1 = __importDefault(require("crypto"));
 class AuthController {
     static async signup(request, reply) {
         try {
-            const parsedBody = auth_schema_1.signupSchema.parse(request.body);
-            const existingUser = await prisma_1.prisma.user.findUnique({
-                where: { email: parsedBody.email }
-            });
-            if (existingUser) {
-                return reply.code(400).send({ error: 'Email already exists' });
+            if (!request.body) {
+                return reply.code(400).send({ error: 'Missing request body' });
             }
+            const result = auth_schema_1.signupSchema.safeParse(request.body);
+            if (!result.success) {
+                return reply.code(400).send({ error: 'Validation failed', details: result.error.format() });
+            }
+            const parsedBody = result.data;
             const password_hash = await bcryptjs_1.default.hash(parsedBody.password, 10);
-            // Auto-generate unique slug based on company name
             const baseSlug = parsedBody.company_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
             const uniqueSuffix = crypto_1.default.randomBytes(3).toString('hex');
             const slug = `${baseSlug}-${uniqueSuffix}`;
@@ -56,16 +56,23 @@ class AuthController {
             });
         }
         catch (error) {
-            if (error instanceof Error && error.name === 'ZodError') {
-                return reply.code(400).send({ error: 'Validation failed', details: JSON.parse(error.message) });
+            console.error("🔥 SIGNUP ERROR:", error);
+            if (error.code === "P2002") {
+                return reply.code(400).send({ error: 'Email already exists' });
             }
-            request.log.error(error);
             return reply.code(500).send({ error: 'Internal server error' });
         }
     }
     static async login(request, reply) {
         try {
-            const parsedBody = auth_schema_1.loginSchema.parse(request.body);
+            if (!request.body) {
+                return reply.code(400).send({ error: 'Missing request body' });
+            }
+            const result = auth_schema_1.loginSchema.safeParse(request.body);
+            if (!result.success) {
+                return reply.code(400).send({ error: 'Validation failed', details: result.error.format() });
+            }
+            const parsedBody = result.data;
             const user = await prisma_1.prisma.user.findUnique({
                 where: { email: parsedBody.email },
                 include: { BusinessProfiles: true }
@@ -94,10 +101,7 @@ class AuthController {
             });
         }
         catch (error) {
-            if (error instanceof Error && error.name === 'ZodError') {
-                return reply.code(400).send({ error: 'Validation failed', details: JSON.parse(error.message) });
-            }
-            request.log.error(error);
+            console.error("🔥 LOGIN ERROR:", error);
             return reply.code(500).send({ error: 'Internal server error' });
         }
     }

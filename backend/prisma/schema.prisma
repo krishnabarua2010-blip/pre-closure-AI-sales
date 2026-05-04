@@ -8,83 +8,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum PlanTier {
-  FREE
-  GROWTH
-  PRO
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  PAST_DUE
-  CANCELLED
-}
-
-enum ConversationStatus {
-  ACTIVE
-  QUALIFIED
-  CONVERTED
-  DROPPED
-}
-
-enum LeadStatus {
-  ANONYMOUS
-  PARTIAL
-  QUALIFIED
-  BOOKED
-  DISCOVERED
-  CONTACTED
-  REPLIED
-  CONVERTED
-}
-
-enum SenderType {
-  USER
-  AI
-  SYSTEM
-}
-
 model User {
-  id               Int               @id @default(autoincrement())
-  email            String            @unique
-  password_hash    String
+  id                 Int                 @id @default(autoincrement())
+  email              String              @unique
+  password_hash      String
   plan               PlanTier            @default(FREE)
-  subscriptionId     String?
-  subscriptionStatus SubscriptionStatus?
   message_limit      Int                 @default(500)
   messages_used      Int                 @default(0)
   created_at         DateTime            @default(now())
   updated_at         DateTime            @updatedAt
+  subscriptionId     String?
+  subscriptionStatus SubscriptionStatus?
   BusinessProfiles   BusinessProfile[]
-  Conversations      Conversation[]    // Direct link to easily aggregate usage per user
+  Conversations      Conversation[]
   Notifications      Notification[]
 }
 
 model BusinessProfile {
-  id                    Int            @id @default(autoincrement())
-  user_id               Int
-  company_name          String
-  industry              String?
-  slug                  String         @unique
-  public_token          String
-  business_description  String?
-  ideal_customer        String?
-  services_offered      String?
-  pricing_range         String?
-  common_objections     String?
-  selling_points        String?
-  target_audience       String?
-  chatbot_tone          String?        @default("professional")
-  qualification_mode    String?        @default("balanced")
-  lead_fields_config    Json?          @db.JsonB
-  custom_questions      Json?          @db.JsonB
-  created_at            DateTime       @default(now())
-  updated_at            DateTime       @updatedAt
-  User                  User           @relation(fields: [user_id], references: [id])
-  Conversations         Conversation[]
-  Leads                 Lead[]
-  ConversationRules     ConversationRule[]
-  AdvisorActions        AdvisorAction[]
+  id                   Int                @id @default(autoincrement())
+  user_id              Int
+  company_name         String
+  industry             String?
+  slug                 String             @unique
+  public_token         String
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+  business_description String?
+  chatbot_tone         String?            @default("professional")
+  common_objections    String?
+  custom_questions     Json?
+  ideal_customer       String?
+  lead_fields_config   Json?
+  pricing_range        String?
+  qualification_mode   String?            @default("balanced")
+  selling_points       String?
+  services_offered     String?
+  target_audience      String?
+  AdvisorActions       AdvisorAction[]
+  User                 User               @relation(fields: [user_id], references: [id])
+  Conversations        Conversation[]
+  ConversationRules    ConversationRule[]
+  Leads                Lead[]
 }
 
 model Conversation {
@@ -97,13 +61,13 @@ model Conversation {
   budget_score              Int                @default(0)
   objection_score           Int                @default(0)
   revenue_probability_score Float              @default(0.0)
-  raw_signals               Json?              @db.JsonB
+  raw_signals               Json?
   created_at                DateTime           @default(now())
   updated_at                DateTime           @updatedAt
   BusinessProfile           BusinessProfile    @relation(fields: [business_profile_id], references: [id])
   User                      User               @relation(fields: [user_id], references: [id])
-  Messages                  Message[]
   Lead                      Lead?
+  Messages                  Message[]
 }
 
 model Message {
@@ -116,35 +80,35 @@ model Message {
 }
 
 model Lead {
-  id                      Int             @id @default(autoincrement())
-  conversation_id         Int?            @unique
-  business_profile_id     Int
-  name                    String?
-  email                   String?
-  phone                   String?
-  lead_status             LeadStatus      @default(ANONYMOUS)
-  collected_fields        Json            @default("{}") @db.JsonB
-  intent_score            Int?            @default(0)
-  budget_score            Int?            @default(0)
-  urgency_score           Int?            @default(0)
-  conversion_probability  Float?          @default(0)
-  lead_value_estimate     Float?          @default(0)
-  qualification_level     String?
-  ai_summary              String?
-  ai_explanation          String?
-  recommended_action      String?
-  behavioral_signals      Json?           @db.JsonB
-  source                  String?         @default("WIDGET")
-  industry                String?
-  company                 String?
-  outreach_status         String?         @default("NEW")
-  created_at              DateTime        @default(now())
-  Conversation            Conversation?   @relation(fields: [conversation_id], references: [id])
-  BusinessProfile         BusinessProfile @relation(fields: [business_profile_id], references: [id])
-  CallOutcomes            CallOutcome[]
-  Proposals               Proposal[]
-  FollowUps               FollowUp[]
-  Outreaches              Outreach[]
+  id                     Int             @id @default(autoincrement())
+  conversation_id        Int?            @unique
+  business_profile_id    Int
+  name                   String?
+  email                  String?
+  phone                  String?
+  lead_status            LeadStatus      @default(ANONYMOUS)
+  collected_fields       Json            @default("{}")
+  created_at             DateTime        @default(now())
+  ai_explanation         String?
+  ai_summary             String?
+  behavioral_signals     Json?
+  budget_score           Int?            @default(0)
+  company                String?
+  conversion_probability Float?          @default(0)
+  industry               String?
+  intent_score           Int?            @default(0)
+  lead_value_estimate    Float?          @default(0)
+  outreach_status        String?         @default("NEW")
+  qualification_level    String?
+  recommended_action     String?
+  source                 String?         @default("WIDGET")
+  urgency_score          Int?            @default(0)
+  CallOutcomes           CallOutcome[]
+  FollowUps              FollowUp[]
+  BusinessProfile        BusinessProfile @relation(fields: [business_profile_id], references: [id])
+  Conversation           Conversation?   @relation(fields: [conversation_id], references: [id])
+  Outreaches             Outreach[]
+  Proposals              Proposal[]
 }
 
 model Outreach {
@@ -192,7 +156,7 @@ model ConversationRule {
   id                  Int             @id @default(autoincrement())
   business_profile_id Int
   rule_type           String
-  parameters          Json            @default("{}") @db.JsonB
+  parameters          Json            @default("{}")
   is_active           Boolean         @default(true)
   created_at          DateTime        @default(now())
   updated_at          DateTime        @updatedAt
@@ -203,8 +167,8 @@ model AdvisorAction {
   id                  Int             @id @default(autoincrement())
   business_profile_id Int
   action_type         String
-  parameters          Json            @default("{}") @db.JsonB
-  status              String          @default("PENDING") // PENDING, EXECUTED, REJECTED
+  parameters          Json            @default("{}")
+  status              String          @default("PENDING")
   reasoning           String?
   created_at          DateTime        @default(now())
   updated_at          DateTime        @updatedAt
@@ -213,21 +177,56 @@ model AdvisorAction {
 
 model EventLog {
   id         Int      @id @default(autoincrement())
-  user_id    Int?     // nullable for anonymous previews
+  user_id    Int?
   event_name String
-  metadata   Json     @default("{}") @db.JsonB
+  metadata   Json     @default("{}")
   created_at DateTime @default(now())
 }
 
 model Notification {
   id         Int      @id @default(autoincrement())
   user_id    Int
-  type       String   // HOT_LEAD, FOLLOW_UP_DUE, INACTIVITY, SYSTEM
+  type       String
   title      String
   message    String
-  metadata   Json     @default("{}") @db.JsonB
+  metadata   Json     @default("{}")
   is_read    Boolean  @default(false)
   created_at DateTime @default(now())
   User       User     @relation(fields: [user_id], references: [id])
 }
 
+enum PlanTier {
+  FREE
+  GROWTH
+  PRO
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}
+
+enum ConversationStatus {
+  ACTIVE
+  QUALIFIED
+  CONVERTED
+  DROPPED
+}
+
+enum LeadStatus {
+  ANONYMOUS
+  PARTIAL
+  QUALIFIED
+  BOOKED
+  DISCOVERED
+  CONTACTED
+  REPLIED
+  CONVERTED
+}
+
+enum SenderType {
+  USER
+  AI
+  SYSTEM
+}
