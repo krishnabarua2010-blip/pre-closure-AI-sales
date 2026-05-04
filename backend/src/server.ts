@@ -115,6 +115,11 @@ const start = async () => {
       server.register(routes.default, { prefix: "/api/notifications" });
     });
 
+    await safeRegister("user", async () => {
+      const routes = await import("./modules/user/user.routes");
+      server.register(routes.default, { prefix: "/api/user" });
+    });
+
     console.log("ENV PORT:", process.env.PORT);
     const PORT = process.env.PORT || 3000;
     console.log("USING PORT:", PORT);

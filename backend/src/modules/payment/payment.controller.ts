@@ -136,4 +136,23 @@ export class PaymentController {
       return reply.code(400).send({ error: 'Invalid signature' });
     }
   }
+
+  static async activateBeta(request: FastifyRequest, reply: FastifyReply) {
+    const user = request.user;
+    if (!user) return reply.code(401).send({ error: 'Unauthorized' });
+
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          plan: 'BETA',
+          subscriptionStatus: 'ACTIVE',
+        },
+      });
+      return reply.send({ success: true });
+    } catch (error) {
+      console.error("🔥 BETA ACTIVATION ERROR:", error);
+      return reply.code(500).send({ error: 'Failed to activate Beta' });
+    }
+  }
 }

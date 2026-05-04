@@ -199,6 +199,7 @@ enum PlanTier {
   FREE
   GROWTH
   PRO
+  BETA
 }
 
 enum SubscriptionStatus {
