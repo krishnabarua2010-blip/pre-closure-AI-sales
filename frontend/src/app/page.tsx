@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import dynamic from 'next/dynamic';
+import api from '@/lib/api';
 import CubeNetBackground from '@/components/CubeNetBackground';
 
 gsap.registerPlugin(ScrollTrigger);
-
-const LiquidMetalBall = dynamic(() => import('@/components/LiquidMetalBall'), { ssr: false });
 
 /* ─── Data ─── */
 const FEATURES = [
@@ -75,7 +74,7 @@ function ProductSimulation() {
         {step >= 1 && (
           <div className="sim-step flex justify-end">
             <div className="bg-[#6366F1] rounded-xl rounded-tr-sm px-4 py-2.5 text-sm text-white max-w-[85%]">
-              Hi, I&apos;m interested in scaling my agency to $50K MRR.
+              Hi, I'm interested in scaling my agency to $50K MRR.
             </div>
           </div>
         )}
@@ -84,7 +83,7 @@ function ProductSimulation() {
           <div className="sim-step">
             <div className="flex justify-start">
               <div className="bg-[#1F2937] rounded-xl rounded-tl-sm px-4 py-2.5 text-sm text-gray-300 max-w-[85%]">
-                Great! What&apos;s your current monthly revenue and team size?
+                Great! What's your current monthly revenue and team size?
               </div>
             </div>
             <div className="flex items-center gap-2 mt-1.5 ml-1">
@@ -131,84 +130,28 @@ function ProductSimulation() {
   );
 }
 
-/* ─── Particle Background ─── */
-function ParticleCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animId: number;
-    const particles: { x: number; y: number; vx: number; vy: number; r: number; o: number }[] = [];
-
-    const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: (Math.random() - 0.5) * 0.25,
-        r: Math.random() * 1.2 + 0.3,
-        o: Math.random() * 0.3 + 0.08,
-      });
-    }
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(99, 102, 241, ${p.o})`;
-        ctx.fill();
-      });
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 100) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(99, 102, 241, ${0.05 * (1 - dist / 100)})`;
-            ctx.lineWidth = 0.4;
-            ctx.stroke();
-          }
-        }
-      }
-      animId = requestAnimationFrame(draw);
-    };
-    draw();
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} id="particle-canvas" />;
-}
-
 /* ─── Main Landing Page ─── */
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    api.get('/user/me')
+      .then((res) => {
+        const user = res.data;
+        if (user.plan === 'BETA' || user.subscriptionStatus === 'ACTIVE') {
+          router.push('/dashboard');
+        }
+      })
+      .catch((err) => {
+        localStorage.removeItem('token');
+      });
+  }, [router]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -285,21 +228,19 @@ export default function LandingPage() {
           <div ref={heroTextRef} className="flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 bg-[#6366F1]/10 border border-[#6366F1]/20 text-[#a5b4fc] text-xs font-medium px-4 py-2 rounded-full mb-6 tracking-wide">
               <span className="w-1.5 h-1.5 bg-[#6366F1] rounded-full animate-pulse" />
-              50% Lifetime Discount — First 200 Beta Users
+              Limited Beta Access for Selected Agencies
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.0] mb-6">
-              <span className="gradient-text">Your AI</span>
+              <span className="gradient-text">Get qualified clients every week</span>
               <br />
-              <span className="text-white">Sales Pre-Closer</span>
+              <span className="text-white">— without chasing leads</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-400 max-w-xl mx-auto lg:mx-0 mb-4 leading-relaxed">
-              Qualify leads.<br />
-              Detect buying signals.<br />
-              Book strategy calls automatically.
+              We find, contact, follow up, and qualify leads so you only talk to serious clients.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link href="/signup" className="btn-glow bg-[#6366F1] hover:bg-[#5558e3] text-white px-7 py-3.5 rounded-xl font-semibold text-base transition-all shadow-lg shadow-[#6366F1]/30">
-                Start Free Trial →
+                Start Beta Access (₹1,500) →
               </Link>
               <a href="#demo" className="flex items-center justify-center gap-2 text-gray-400 hover:text-white border border-[#1F2937] hover:border-[#374151] px-7 py-3.5 rounded-xl font-medium text-base transition-all">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -312,27 +253,36 @@ export default function LandingPage() {
             {/* Social proof */}
             <div className="flex items-center gap-6 mt-10 justify-center lg:justify-start text-sm text-gray-500">
               <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {['A','B','C','D'].map((l,i) => (
-                    <div key={i} className="w-7 h-7 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8b5cf6] flex items-center justify-center text-[9px] font-bold text-white border-2 border-[#000000]">{l}</div>
-                  ))}
-                </div>
-                <span>150+ businesses</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {Array(5).fill(0).map((_,i) => (
-                  <svg key={i} className="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                ))}
-                <span>4.9/5 rating</span>
+                <span>Built for agencies scaling to 5–50 clients/month</span>
               </div>
             </div>
           </div>
 
-          {/* Liquid Metal Ball */}
+          {/* Dashboard Mockup */}
           <div className="flex-1 relative w-full max-w-lg lg:max-w-none flex flex-col items-center">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-tr from-[#6366F1]/20 via-[#8b5cf6]/10 to-[#06b6d4]/15 rounded-full blur-[80px] opacity-60 pointer-events-none" />
-            <div className="relative z-10">
-              <LiquidMetalBall />
+            <div className="relative z-10 w-full max-w-md bg-[#0a0a0a] border border-[#1F2937] rounded-2xl overflow-hidden shadow-2xl">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1F2937] bg-[#050505]">
+                <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                <div className="w-3 h-3 rounded-full bg-green-500/80" />
+                <div className="flex-1 mx-4 bg-[#1F2937] rounded-lg px-3 py-1.5 text-xs text-gray-500 text-center">app.precloser.ai/leads</div>
+              </div>
+              <div className="p-4 space-y-3">
+                {[
+                  { name: 'John D.', status: 'HOT 🔥', score: 92 },
+                  { name: 'Sarah M.', status: 'WARM', score: 75 },
+                  { name: 'Mike T.', status: 'MEETING BOOKED', score: 98 },
+                ].map((l, i) => (
+                  <div key={i} className="bg-[#111827] border border-[#1F2937] p-3 rounded-xl flex justify-between items-center">
+                    <div>
+                      <div className="text-sm font-bold text-white">{l.name}</div>
+                      <div className="text-xs text-gray-400 mt-1">{l.status}</div>
+                    </div>
+                    <div className="text-xl font-black text-emerald-400">{l.score}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -343,28 +293,17 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12 reveal">
             <p className="text-[#6366F1] text-sm font-semibold tracking-widest uppercase mb-4">Live Demo</p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Watch AI close in real-time</h2>
-            <p className="text-gray-400 mt-4 max-w-xl mx-auto">See exactly how Pre-Closer AI qualifies leads, detects buying signals, and books calls — all automatically.</p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">See how your next client gets qualified automatically</h2>
+            <p className="text-gray-400 mt-4 max-w-xl mx-auto">Watch exactly how Pre-Closer AI filters your leads and only sends you the serious ones.</p>
+            <div className="mt-8">
+               <Link href="/signup" className="btn-glow inline-block text-sm bg-[#1F2937] hover:bg-[#374151] text-white px-6 py-2.5 rounded-xl font-semibold transition-all">
+                  Try Demo with Your Niche →
+               </Link>
+            </div>
           </div>
           <div className="reveal">
             <ProductSimulation />
           </div>
-        </div>
-      </section>
-
-      {/* ── PROOF / METRICS ── */}
-      <section className="py-16 px-6 border-y border-[#1F2937]/40 bg-[#000000]">
-        <div className="max-w-5xl mx-auto grid grid-cols-3 gap-8 text-center reveal">
-          {[
-            { value: '150+', label: 'Businesses using AI assistant' },
-            { value: '$70M+', label: 'Revenue generated' },
-            { value: '35,000+', label: 'Leads qualified' },
-          ].map((item, i) => (
-            <div key={i}>
-              <div className="text-3xl md:text-4xl font-black text-[#6366F1] mb-1">{item.value}</div>
-              <div className="text-xs md:text-sm text-gray-500">{item.label}</div>
-            </div>
-          ))}
         </div>
       </section>
 
@@ -373,55 +312,39 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center reveal">
           <p className="text-[#6366F1] text-sm font-semibold tracking-widest uppercase mb-6">The Problem</p>
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-8 leading-tight">
-            Sales teams waste hours on{' '}
-            <span className="line-through text-gray-600">unqualified leads</span>
+            Stop wasting time on <span className="line-through text-gray-600">unqualified leads</span>
           </h2>
-          <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
-            Our AI filters serious prospects before they reach your calendar.
-            Every unqualified call costs you money and morale.
+          <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto mb-8">
+            Most agencies lose 60% of leads due to slow follow-up. Imagine waking up to qualified clients already interested.
           </p>
-        </div>
-        <div className="max-w-5xl mx-auto mt-16 grid md:grid-cols-3 gap-6">
-          {[
-            { stat: '68%', label: 'of sales time wasted on unqualified prospects' },
-            { stat: '4.2x', label: 'more likely to close a pre-qualified lead' },
-            { stat: '$127k', label: 'average annual cost of bad lead follow-up' },
-          ].map((item, i) => (
-            <div key={i} className="reveal-stagger bg-[#0a0a0a] border border-[#1F2937] rounded-2xl p-6 text-center">
-              <div className="text-4xl font-black text-[#6366F1] mb-2">{item.stat}</div>
-              <div className="text-sm text-gray-400">{item.label}</div>
-            </div>
-          ))}
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
+      {/* ── WHAT YOU GET IN 30 DAYS ── */}
       <section id="how" className="py-32 px-6 bg-[#000000] relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-20 reveal">
-            <p className="text-[#6366F1] text-sm font-semibold tracking-widest uppercase mb-4">How It Works</p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">Four steps to close faster</h2>
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className="text-center mb-16 reveal">
+            <p className="text-[#6366F1] text-sm font-semibold tracking-widest uppercase mb-4">Set it once. Let it run.</p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">What you get in 30 days</h2>
           </div>
-          <div className="grid md:grid-cols-4 gap-6 relative">
-            <div className="absolute top-16 left-[15%] right-[15%] h-px bg-gradient-to-r from-transparent via-[#6366F1]/30 to-transparent hidden md:block" />
-            {[
-              { step: '01', icon: '💬', title: 'Lead Opens AI Chat', desc: 'Your prospect clicks the AI chat link from your bio, website, or WhatsApp.' },
-              { step: '02', icon: '🔍', title: 'AI Discovers Pain Points', desc: 'The AI asks smart discovery questions to understand needs and goals.' },
-              { step: '03', icon: '📊', title: 'Lead Readiness Scored', desc: 'Real-time scoring based on authority, urgency, and buying signals.' },
-              { step: '04', icon: '📅', title: 'Qualified Leads Book Calls', desc: 'High-score prospects automatically book a strategy call on your calendar.' },
-            ].map((s, i) => (
-              <div key={i} className="reveal-stagger flex flex-col items-center text-center">
-                <div className="relative mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-[#6366F1]/10 border border-[#6366F1]/20 flex items-center justify-center text-2xl mb-1">
-                    {s.icon}
+          <div className="bg-[#0a0a0a] border border-[#1F2937] rounded-2xl p-8 max-w-2xl mx-auto reveal-stagger">
+            <ul className="space-y-6">
+              {[
+                '100 targeted leads generated',
+                'AI filters out the tire-kickers and serious prospects',
+                'Personalized outreach sent to every lead',
+                'Follow-ups handled automatically (3-4 steps)',
+                'You receive ONLY interested, ready-to-buy clients',
+              ].map((text, i) => (
+                <li key={i} className="flex items-center gap-4 text-lg text-gray-300 font-medium">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                    <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
                   </div>
-                  <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#6366F1] flex items-center justify-center text-[10px] font-black text-white">{s.step}</div>
-                </div>
-                <h3 className="text-lg font-bold text-white mb-3">{s.title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
+                  {text}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
@@ -431,7 +354,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16 reveal">
             <p className="text-[#6366F1] text-sm font-semibold tracking-widest uppercase mb-4">Product Preview</p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">See what&apos;s waiting inside</h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">See what's waiting inside</h2>
           </div>
           <div className="reveal bg-[#0a0a0a] border border-[#1F2937] rounded-2xl overflow-hidden shadow-2xl">
             <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1F2937] bg-[#050505]">
@@ -515,7 +438,7 @@ export default function LandingPage() {
                     <svg key={j} className="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                   ))}
                 </div>
-                <blockquote className="text-sm text-gray-300 leading-relaxed mb-5">&ldquo;{t.quote}&rdquo;</blockquote>
+                <blockquote className="text-sm text-gray-300 leading-relaxed mb-5">"{t.quote}"</blockquote>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6366F1] to-[#8b5cf6] flex items-center justify-center text-xs font-bold text-white">
                     {t.author[0]}
@@ -534,83 +457,80 @@ export default function LandingPage() {
       {/* ── PRICING ── */}
       <section id="pricing" className="py-32 px-6 bg-[#000000] relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#6366F1]/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="max-w-5xl mx-auto relative z-10">
-          <div className="text-center mb-6 reveal">
-            <div className="inline-flex items-center gap-2 bg-[#6366F1]/10 border border-[#6366F1]/20 text-[#a5b4fc] text-xs font-medium px-4 py-2 rounded-full mb-6">
-              🚀 50% lifetime discount for the first 200 beta users
-            </div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-16 reveal">
             <h2 className="text-4xl md:text-5xl font-black tracking-tight">Simple pricing. Massive ROI.</h2>
-            <p className="text-gray-400 mt-4">Lock in beta pricing before it&apos;s gone forever.</p>
           </div>
-          <div className="grid md:grid-cols-2 gap-6 mt-12">
-            {/* Starter */}
-            <div className="reveal-stagger feature-card bg-[#0a0a0a] border border-[#1F2937] rounded-2xl p-8">
-              <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-4">Starter</p>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-4xl font-black text-white">$99</span>
-                <span className="text-gray-500 text-sm">/month</span>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Beta Access */}
+            <div className="reveal-stagger feature-card bg-[#111827] border-2 border-[#6366F1] rounded-2xl p-8 relative transform md:scale-105 z-10 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#6366F1] text-white px-4 py-1 rounded-full text-xs font-black tracking-wide uppercase">
+                🔥 BETA ACCESS
               </div>
-              <div className="flex items-center gap-2 mb-6">
-                <span className="text-gray-600 line-through text-sm">$199/month</span>
-                <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">50% off</span>
+              <p className="text-xs font-semibold text-gray-400 tracking-wider uppercase mb-4 text-center">Limited to early agencies</p>
+              <div className="flex items-baseline justify-center gap-1 mb-6">
+                <span className="text-4xl font-black text-white">₹1,500</span>
+                <span className="text-gray-500 text-sm">/ 30 days</span>
               </div>
-              <p className="text-sm text-gray-400 mb-8">Perfect for solo founders and small sales teams getting started with AI qualification.</p>
               <ul className="space-y-3 mb-8">
-                {['500 AI messages/month','AI lead qualification','Lead dashboard','Lead scoring','Public AI assistant link','Deal probability scoring','Basic objection tracking'].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2.5 text-sm text-gray-300">
-                    <svg className="w-4 h-4 text-[#6366F1] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
+                {['Up to 100 targeted leads', 'AI lead qualification (HOT/WARM/COLD)', 'AI-generated personalized outreach', 'Automated follow-ups (3-4 steps)', 'AI chat that talks to your leads', 'Lead scoring based on intent', 'Basic analytics dashboard', 'Setup assistance'].map((f, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-gray-300">
+                    <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
                     {f}
                   </li>
                 ))}
               </ul>
-              <Link href="/signup" className="block text-center border border-[#374151] hover:border-[#6366F1] text-white py-3 rounded-xl font-semibold transition-all text-sm">
-                Start Starter Plan
+              <div className="bg-[#050505] p-3 rounded-xl mb-8 border border-[#1F2937]">
+                <p className="text-xs font-semibold text-gray-400 mb-2 uppercase">Limits</p>
+                <p className="text-xs text-gray-500">⚡ 10 leads/day<br/>⚡ 5 AI conversations/day<br/>⚡ 5 message generations/day</p>
+                <p className="text-xs text-emerald-400 mt-2 font-medium">Bonus: ₹1,500 credited back if you upgrade.</p>
+              </div>
+              <Link href="/signup" className="btn-glow block text-center bg-[#6366F1] hover:bg-[#5558e3] text-white py-3 rounded-xl font-bold transition-all text-sm shadow-lg shadow-[#6366F1]/30">
+                Start Beta Access
               </Link>
             </div>
-            {/* Growth */}
-            <div className="reveal-stagger relative">
-              <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-[#6366F1] to-[#6366F1]/30 z-0" />
-              <div className="relative bg-[#0a0a0a] rounded-2xl p-8 z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase">Growth</p>
-                  <span className="text-xs bg-[#6366F1] text-white px-2.5 py-1 rounded-full font-semibold">Recommended ⭐</span>
-                </div>
-                <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-4xl font-black text-white">$199</span>
-                  <span className="text-gray-500 text-sm">/month</span>
-                </div>
-                <div className="flex items-center gap-2 mb-6">
-                  <span className="text-gray-600 line-through text-sm">$399/month</span>
-                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">50% off</span>
-                </div>
-                <p className="text-sm text-gray-400 mb-8">The complete AI sales system. Unlimited messages and the full feature suite.</p>
-                <ul className="space-y-3 mb-8">
-                  {[
-                    'Unlimited AI messages',
-                    'AI revenue advisor',
-                    'Lead intelligence summaries',
-                    'Close strategy generator',
-                    'Proposal generator',
-                    'Client onboarding AI',
-                    'Call booking automation',
-                    'Follow-up automation',
-                    'Funnel analytics',
-                    'Sales coaching',
-                    'Deal probability engine',
-                    'Objection intelligence',
-                    'Funnel leak detector',
-                    'AI follow-up writer',
-                  ].map((f, i) => (
-                    <li key={i} className="flex items-center gap-2.5 text-sm text-gray-300">
-                      <svg className="w-4 h-4 text-[#6366F1] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/signup" className="btn-glow block text-center bg-[#6366F1] hover:bg-[#5558e3] text-white py-3 rounded-xl font-semibold transition-all text-sm shadow-lg shadow-[#6366F1]/30">
-                  Get Growth Plan →
-                </Link>
+
+            {/* Starter */}
+            <div className="reveal-stagger feature-card bg-[#0a0a0a] border border-[#1F2937] rounded-2xl p-8 mt-4 mb-4">
+              <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-4">Starter</p>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-black text-white">₹9,999</span>
+                <span className="text-gray-500 text-sm">/month</span>
               </div>
+              <ul className="space-y-3 mb-8">
+                {['300 leads/month', 'Full automation', 'AI chat qualification', 'Follow-ups', 'Basic analytics'].map((f, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-gray-300">
+                    <svg className="w-5 h-5 text-[#6366F1] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/signup" className="block text-center border border-[#374151] hover:border-[#6366F1] text-white py-3 rounded-xl font-semibold transition-all text-sm mt-auto">
+                Select Starter
+              </Link>
+            </div>
+
+            {/* Growth */}
+            <div className="reveal-stagger feature-card bg-[#0a0a0a] border border-[#1F2937] rounded-2xl p-8 mt-4 mb-4 relative">
+              <div className="absolute top-0 right-0 bg-[#374151] text-white px-3 py-1 rounded-bl-lg rounded-tr-xl text-[10px] font-bold uppercase">
+                Most Popular
+              </div>
+              <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-4">Growth</p>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-black text-white">₹17,999</span>
+                <span className="text-gray-500 text-sm">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8">
+                {['800+ leads/month', 'Advanced AI qualification', 'Smart follow-up sequences', 'Priority processing', 'Full analytics dashboard', 'Advisor + analysis system'].map((f, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-gray-300">
+                    <svg className="w-5 h-5 text-[#6366F1] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/signup" className="block text-center bg-[#1F2937] hover:bg-[#374151] text-white py-3 rounded-xl font-semibold transition-all text-sm mt-auto">
+                Select Growth
+              </Link>
             </div>
           </div>
         </div>
@@ -629,9 +549,9 @@ export default function LandingPage() {
             Let AI filter the serious buyers. You focus on closing.
           </p>
           <Link href="/signup" className="btn-glow inline-block bg-[#6366F1] hover:bg-[#5558e3] text-white px-10 py-4 rounded-xl font-bold text-lg transition-all shadow-2xl shadow-[#6366F1]/30">
-            Get Started Free →
+            Start Beta Access (₹1,500) →
           </Link>
-          <p className="text-gray-600 text-xs mt-4">No credit card required. Beta pricing locked in forever.</p>
+          <p className="text-gray-600 text-xs mt-4">Beta pricing locked in forever.</p>
         </div>
       </section>
 

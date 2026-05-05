@@ -80,23 +80,26 @@ export default function DashboardPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/login');
+      router.push('/');
       return;
     }
 
-    // Check if user has a plan or preview access
-    try {
-      const userData = localStorage.getItem('user_data');
-      if (userData) {
-        const user = JSON.parse(userData);
-        const urlParams = new URLSearchParams(window.location.search);
-        const hasPreview = urlParams.get('preview');
-        if (!user.plan && !hasPreview) {
-          router.push('/product');
-          return;
+    api.get('/user/me')
+      .then((res) => {
+        const user = res.data;
+        if (user.plan !== 'BETA' && user.subscriptionStatus !== 'ACTIVE') {
+          router.push('/#pricing');
+        } else {
+          // They have access
         }
-      }
-    } catch {}
+      })
+      .catch((err) => {
+        localStorage.removeItem('token');
+        router.push('/');
+      });
+
+    // We do not return immediately, let the second useEffect fetch data
+  }, [router]);
 
     const fetchDashboardData = async () => {
       try {

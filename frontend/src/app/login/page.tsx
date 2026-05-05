@@ -40,11 +40,11 @@ export default function LoginPage() {
       if (data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user_data', JSON.stringify(data.user));
-        // Plan-based routing: if plan exists → dashboard, else → product
-        if (data.user?.plan) {
+        // Plan-based routing: if plan exists → dashboard, else → pricing
+        if (data.user?.plan === 'BETA' || data.user?.subscriptionStatus === 'ACTIVE') {
           router.push('/dashboard');
         } else {
-          router.push('/product');
+          router.push('/#pricing');
         }
       } else {
         setError('Invalid login response. Please try again.');
