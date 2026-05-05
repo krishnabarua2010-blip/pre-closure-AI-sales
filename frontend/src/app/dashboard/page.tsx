@@ -84,13 +84,13 @@ export default function DashboardPage() {
       return;
     }
 
+    // 1. Check user plan first
     api.get('/user/me')
       .then((res) => {
         const user = res.data;
         if (user.plan !== 'BETA' && user.subscriptionStatus !== 'ACTIVE') {
           router.push('/#pricing');
-        } else {
-          // They have access
+          return;
         }
       })
       .catch((err) => {
@@ -98,9 +98,7 @@ export default function DashboardPage() {
         router.push('/');
       });
 
-    // We do not return immediately, let the second useEffect fetch data
-  }, [router]);
-
+    // 2. Fetch dashboard data
     const fetchDashboardData = async () => {
       try {
         const [funnelRes, revenueRes, leadsRes] = await Promise.all([
