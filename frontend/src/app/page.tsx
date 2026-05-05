@@ -568,6 +568,7 @@ export default function LandingPage() {
             <span className="text-sm font-semibold text-white">Pre-Closer AI</span>
           </div>
           <div className="flex items-center gap-6 text-xs text-gray-600">
+            <span className="font-medium">Contact Support: 9238798130</span>
             <Link href="/privacy" className="hover:text-gray-400 transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-gray-400 transition-colors">Terms</Link>
             <Link href="/pricing" className="hover:text-gray-400 transition-colors">Pricing</Link>
