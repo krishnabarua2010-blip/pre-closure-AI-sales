@@ -4,9 +4,9 @@ import { Providers } from "@/lib/react-query";
 import ClientMeshBackground from "@/components/ClientMeshBackground";
 
 export const metadata: Metadata = {
-  title: "Pre-Closer AI — Your AI Sales Pre-Closer",
-  description: "Qualify leads, detect buying signals, and book calls automatically with AI. The complete AI sales platform for growth teams.",
-  keywords: "AI sales, lead qualification, sales automation, AI lead scoring, sales pre-closer",
+  title: "Pre Closer — Agency Growth Audit & Revenue Optimization",
+  description: "Find out where your agency is losing clients and revenue. We analyze your lead generation, follow-up, and conversion process to identify hidden growth leaks.",
+  keywords: "agency growth audit, revenue optimization, lead conversion analysis, follow-up analysis, agency consulting",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
