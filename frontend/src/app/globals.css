@@ -211,3 +211,58 @@ html, body {
 .count-up {
   animation: countUp 0.8s ease forwards;
 }
+
+/* ── Twinkling Stars ── */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.4); }
+}
+@keyframes twinkleSlow {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.6; }
+}
+
+/* ── Scroll Reveal ── */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Interactive hover ── */
+.audit-card {
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.audit-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(255,255,255,0.03);
+}
+
+/* ── Mobile spacing overrides ── */
+@media (max-width: 640px) {
+  .hero-heading { font-size: 2rem !important; line-height: 1.15 !important; }
+  .section-heading { font-size: 1.5rem !important; }
+  .section-pad { padding-top: 3.5rem !important; padding-bottom: 3.5rem !important; }
+}

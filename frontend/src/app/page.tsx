@@ -4,20 +4,32 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
-/* ── Particle Background ── */
-function StarParticles() {
+/* ── Twinkling Star Background ── */
+function TwinklingStars() {
   const c = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = c.current; if (!canvas) return;
     const ctx = canvas.getContext('2d'); if (!ctx) return;
     let id: number;
-    const stars: {x:number;y:number;r:number;o:number;s:number}[] = [];
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    const stars: {x:number;y:number;r:number;baseO:number;speed:number;phase:number}[] = [];
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = document.body.scrollHeight; };
     resize(); window.addEventListener('resize', resize);
-    for (let i = 0; i < 80; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.2+0.2, o: Math.random()*0.5+0.1, s: Math.random()*0.3+0.05 });
+    for (let i = 0; i < 120; i++) stars.push({
+      x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+      r: Math.random()*1.5+0.3, baseO: Math.random()*0.4+0.05,
+      speed: Math.random()*2+0.5, phase: Math.random()*Math.PI*2
+    });
     const draw = () => {
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      stars.forEach(s => { s.o += Math.sin(Date.now()*0.001*s.s)*0.003; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle=`rgba(200,200,210,${Math.max(0.05,Math.min(0.5,s.o))})`; ctx.fill(); });
+      const t = Date.now()*0.001;
+      stars.forEach(s => {
+        const twinkle = Math.sin(t*s.speed+s.phase)*0.5+0.5;
+        const o = s.baseO + twinkle*0.5;
+        const r = s.r*(0.8+twinkle*0.4);
+        ctx.beginPath(); ctx.arc(s.x,s.y,r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(220,220,235,${o})`; ctx.fill();
+        if(twinkle>0.7){ctx.beginPath();ctx.arc(s.x,s.y,r*2.5,0,Math.PI*2);ctx.fillStyle=`rgba(220,220,235,${o*0.15})`;ctx.fill();}
+      });
       id = requestAnimationFrame(draw);
     }; draw();
     return () => { cancelAnimationFrame(id); window.removeEventListener('resize', resize); };
@@ -92,9 +104,9 @@ export default function LandingPage() {
 
   useEffect(() => {
     const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('opacity-100','translate-y-0'); e.target.classList.remove('opacity-0','translate-y-6'); }});
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal-up').forEach(el => obs.observe(el));
+      entries.forEach((e,i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i*80); }});
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal-up,.reveal-left,.reveal-scale').forEach(el => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
@@ -106,7 +118,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white overflow-x-hidden relative">
-      <StarParticles />
+      <TwinklingStars />
 
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 md:px-10 py-4 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5">
@@ -137,7 +149,7 @@ export default function LandingPage() {
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
               Limited onboarding slots available this month
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-gray-100">
+            <h1 className="hero-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-gray-100">
               Find Out Where Your Agency Is{' '}
               <span className="bg-gradient-to-r from-gray-100 via-gray-300 to-gray-500 bg-clip-text text-transparent">Losing Clients & Revenue.</span>
             </h1>
@@ -161,11 +173,11 @@ export default function LandingPage() {
       </section>
 
       {/* PROBLEM */}
-      <section id="problem" className="py-20 md:py-28 px-5 md:px-10">
+      <section id="problem" className="section-pad py-16 md:py-28 px-5 md:px-10">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14 reveal-up opacity-0 translate-y-6 transition-all duration-700">
             <p className="text-[11px] font-semibold text-gray-500 tracking-[0.2em] uppercase mb-3">The Problem</p>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-100">Most Agencies Lose Revenue Quietly.</h2>
+            <h2 className="section-heading text-3xl md:text-4xl font-bold tracking-tight text-gray-100">Most Agencies Lose Revenue Quietly.</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
@@ -173,7 +185,7 @@ export default function LandingPage() {
               {icon:'⏱️',title:'Weak Follow-Up',desc:'Inconsistent or delayed follow-ups reduce conversion opportunities.'},
               {icon:'🔒',title:'Conversion Bottlenecks',desc:'Small inefficiencies compound into significant monthly revenue loss.'},
             ].map((c,i) => (
-              <div key={i} className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 hover:border-white/10 hover:-translate-y-1 transition-all group">
+              <div key={i} className="reveal-up audit-card bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 hover:border-white/10 cursor-default group">
                 <div className="text-2xl mb-4">{c.icon}</div>
                 <h3 className="text-base font-semibold text-gray-200 mb-2">{c.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{c.desc}</p>
@@ -184,7 +196,7 @@ export default function LandingPage() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="py-20 md:py-28 px-5 md:px-10 border-t border-white/5">
+      <section id="how" className="section-pad py-16 md:py-28 px-5 md:px-10 border-t border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14 reveal-up opacity-0 translate-y-6 transition-all duration-700">
             <p className="text-[11px] font-semibold text-gray-500 tracking-[0.2em] uppercase mb-3">Process</p>
@@ -210,7 +222,7 @@ export default function LandingPage() {
       </section>
 
       {/* WHAT'S INCLUDED */}
-      <section className="py-20 md:py-28 px-5 md:px-10 border-t border-white/5">
+      <section className="section-pad py-16 md:py-28 px-5 md:px-10 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14 reveal-up opacity-0 translate-y-6 transition-all duration-700">
             <p className="text-[11px] font-semibold text-gray-500 tracking-[0.2em] uppercase mb-3">Deliverables</p>
@@ -218,7 +230,7 @@ export default function LandingPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {['Lead Flow Analysis','Conversion Rate Review','Follow-Up Analysis','Revenue Leak Insights','Pipeline Optimization','Growth Opportunity Breakdown','Client Conversion Mapping','Action Plan Recommendations'].map((f,i) => (
-              <div key={i} className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-white/10 hover:bg-white/[0.03] transition-all">
+              <div key={i} className="reveal-scale audit-card bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-white/10 hover:bg-white/[0.03] cursor-default">
                 <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center mb-3">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7"/></svg>
                 </div>
@@ -230,7 +242,7 @@ export default function LandingPage() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" className="py-20 md:py-28 px-5 md:px-10 border-t border-white/5">
+      <section id="pricing" className="section-pad py-16 md:py-28 px-5 md:px-10 border-t border-white/5">
         <div className="max-w-lg mx-auto text-center">
           <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700">
             <p className="text-[11px] font-semibold text-gray-500 tracking-[0.2em] uppercase mb-3">Investment</p>
