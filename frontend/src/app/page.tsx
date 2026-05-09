@@ -150,23 +150,21 @@ export default function LandingPage() {
               Limited onboarding slots available this month
             </div>
             <h1 className="hero-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-6 text-gray-100">
-              Find Out Where Your Agency Is{' '}
-              <span className="bg-gradient-to-r from-gray-100 via-gray-300 to-gray-500 bg-clip-text text-transparent">Losing Clients & Revenue.</span>
+              Stop Losing {' '}
+              <span className="bg-gradient-to-r from-gray-100 via-gray-300 to-gray-500 bg-clip-text text-transparent">Leads & Clients.</span>
             </h1>
             <p className="text-base md:text-lg text-gray-500 max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
-              We analyze your lead generation, follow-up, and conversion process to identify hidden growth leaks and missed opportunities.
+              Pre Closer helps agencies manage leads, follow-ups, and conversions with a modern AI-powered workflow system.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <a href="#pricing" className="relative bg-white text-black px-7 py-3.5 rounded-xl font-semibold text-sm transition-all hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:-translate-y-0.5">
-                Book Growth Audit
+                Start Free Trial
               </a>
-              <a href="#book" className="flex items-center justify-center gap-2 text-gray-400 hover:text-gray-200 border border-white/10 hover:border-white/20 px-7 py-3.5 rounded-xl font-medium text-sm transition-all">
-                Schedule Free Call
+              <a href="#demo" className="flex items-center justify-center gap-2 text-gray-400 hover:text-gray-200 border border-white/10 hover:border-white/20 px-7 py-3.5 rounded-xl font-medium text-sm transition-all">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
+                Watch Demo
               </a>
             </div>
-            <p className="text-xs text-gray-600 mt-8 max-w-md mx-auto lg:mx-0">
-              Trusted by growing agencies looking to improve conversions and client consistency.
-            </p>
           </div>
           <div className="flex-1 flex justify-center items-center"><FloatingGeo /></div>
         </div>
@@ -205,9 +203,11 @@ export default function LandingPage() {
           <div className="relative">
             <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-white/5 hidden md:block" />
             {[
-              {n:'01',title:'Analyze',desc:'We analyze your current lead and sales process.'},
-              {n:'02',title:'Identify',desc:'We identify conversion gaps, follow-up weaknesses, and possible revenue leakage.'},
-              {n:'03',title:'Deliver',desc:'You receive a structured growth report with actionable recommendations.'},
+              {n:'01',title:'Import',desc:'Import or add your leads to the platform.'},
+              {n:'02',title:'Qualify',desc:'AI organizes and qualifies your leads instantly.'},
+              {n:'03',title:'Automate',desc:'Automated follow-ups & intelligent reminders trigger.'},
+              {n:'04',title:'Track',desc:'Track conversations, responses, and conversions.'},
+              {n:'05',title:'Close',desc:'Improve closing efficiency and scale your agency.'},
             ].map((s,i) => (
               <div key={i} className={`reveal-up opacity-0 translate-y-6 transition-all duration-700 flex items-start gap-5 mb-10 last:mb-0 ${i%2===1?'md:flex-row-reverse md:text-right':''}`}>
                 <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-sm font-bold text-gray-400 shrink-0">{s.n}</div>
@@ -229,7 +229,7 @@ export default function LandingPage() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-100">What&#39;s Included In The Growth Audit</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {['Lead Flow Analysis','Conversion Rate Review','Follow-Up Analysis','Revenue Leak Insights','Pipeline Optimization','Growth Opportunity Breakdown','Client Conversion Mapping','Action Plan Recommendations'].map((f,i) => (
+            {['Lead Qualification','AI Lead Summary','Follow-Up Automation','Client Pipeline Tracking','Conversion Analytics','Team Collaboration','Smart Notifications','Revenue Insights','WhatsApp & Email Tracking','AI Suggestions'].map((f,i) => (
               <div key={i} className="reveal-scale audit-card bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-white/10 hover:bg-white/[0.03] cursor-default">
                 <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center mb-3">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7"/></svg>
@@ -241,34 +241,123 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* DEMO SECTION */}
+      <section id="demo" className="section-pad py-16 md:py-28 px-5 md:px-10 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14 reveal-up opacity-0 translate-y-6 transition-all duration-700">
+            <p className="text-[11px] font-semibold text-gray-500 tracking-[0.2em] uppercase mb-3">Platform Preview</p>
+            <h2 className="section-heading text-3xl md:text-4xl font-bold tracking-tight text-gray-100">See Pre Closer In Action</h2>
+          </div>
+          <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(255,255,255,0.05)] aspect-[16/9] bg-[#0a0a0a] flex items-center justify-center group cursor-pointer">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none" />
+            
+            {/* Fake Dashboard UI */}
+            <div className="absolute inset-0 p-4 sm:p-8 flex flex-col gap-4 opacity-50 transition-opacity group-hover:opacity-30">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b border-white/5 pb-4">
+                <div className="w-32 h-6 bg-white/10 rounded-md"></div>
+                <div className="flex gap-3"><div className="w-8 h-8 rounded-full bg-white/10"></div><div className="w-8 h-8 rounded-full bg-white/10"></div></div>
+              </div>
+              {/* Content */}
+              <div className="flex gap-4 h-full">
+                {/* Sidebar */}
+                <div className="w-48 hidden md:flex flex-col gap-3">
+                  {[1,2,3,4,5].map(i=><div key={i} className="h-8 bg-white/5 rounded-md w-full"></div>)}
+                </div>
+                {/* Main area */}
+                <div className="flex-1 flex flex-col gap-4">
+                  {/* Stats */}
+                  <div className="flex gap-4">
+                    {[1,2,3].map(i=><div key={i} className="flex-1 h-24 bg-white/[0.03] border border-white/5 rounded-xl"></div>)}
+                  </div>
+                  {/* Table */}
+                  <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col gap-3">
+                    {[1,2,3,4].map(i=><div key={i} className="h-12 bg-white/[0.04] rounded-lg w-full"></div>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative z-10 w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-md transition-transform group-hover:scale-110">
+              <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* PRICING */}
       <section id="pricing" className="section-pad py-16 md:py-28 px-5 md:px-10 border-t border-white/5">
-        <div className="max-w-lg mx-auto text-center">
+        <div className="max-w-6xl mx-auto text-center">
           <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700">
             <p className="text-[11px] font-semibold text-gray-500 tracking-[0.2em] uppercase mb-3">Investment</p>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-100 mb-12">Growth Audit</h2>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-100 mb-12">Pricing That Scales With You</h2>
           </div>
-          <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.08] rounded-2xl p-8 md:p-10">
-            <div className="flex items-baseline justify-center gap-1 mb-2">
-              <span className="text-5xl font-bold text-white">₹2,999</span>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+            {/* Starter India */}
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.08] rounded-2xl p-8 relative flex flex-col hover:border-white/20 hover:bg-white/[0.03]">
+              <h3 className="text-lg font-semibold text-gray-300 mb-2">Starter</h3>
+              <p className="text-xs text-gray-500 mb-6">For small agencies.</p>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">₹999</span><span className="text-sm text-gray-500">/mo</span></div>
+              <ul className="space-y-3 mb-8 flex-1">
+                {['100 leads/month','AI summaries','Follow-up reminders','Basic dashboard','1 collaborator'].map((f,i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-gray-400">
+                    <svg className="w-4 h-4 text-emerald-500/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a href="/signup" className="block w-full bg-white/10 hover:bg-white/20 text-white text-center py-3 rounded-xl font-medium text-sm transition-all border border-white/10">Start Free Trial</a>
             </div>
-            <p className="text-xs text-gray-500 mb-8">One-Time Professional Growth Audit</p>
-            <ul className="space-y-3 mb-8 text-left max-w-xs mx-auto">
-              {['Lead & Conversion Analysis','Follow-Up Gap Detection','Revenue Leak Insights','Actionable Growth Recommendations','Detailed Audit Breakdown','Personalized Improvement Suggestions'].map((f,i) => (
-                <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
-                  <svg className="w-4 h-4 text-emerald-500/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <a href="#book" className="block w-full bg-white text-black py-3.5 rounded-xl font-semibold text-sm transition-all hover:shadow-[0_0_30px_rgba(255,255,255,0.12)] hover:-translate-y-0.5">
-              Book Your Audit
-            </a>
-          </div>
-          <div className="mt-10 reveal-up opacity-0 translate-y-6 transition-all duration-700">
-            <p className="text-xs text-gray-500 mb-4">Current onboarding window closes in:</p>
-            <CountdownTimer />
-            <p className="text-[11px] text-gray-600 mt-4">Limited audit slots available to maintain personalized analysis quality.</p>
+
+            {/* Growth India */}
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/[0.2] rounded-2xl p-8 relative flex flex-col transform md:-translate-y-4 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
+              <h3 className="text-lg font-semibold text-gray-100 mb-2">Growth</h3>
+              <p className="text-xs text-gray-400 mb-6">For growing teams.</p>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">₹2,999</span><span className="text-sm text-gray-500">/mo</span></div>
+              <ul className="space-y-3 mb-8 flex-1">
+                {['1,000 leads/month','AI qualification','Automated follow-ups','Conversion analytics','WhatsApp integration','5 collaborators','Admin dashboard'].map((f,i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
+                    <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a href="/signup" className="block w-full bg-white text-black text-center py-3 rounded-xl font-semibold text-sm transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">Start Free Trial</a>
+            </div>
+
+            {/* Scale Int */}
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.08] rounded-2xl p-8 relative flex flex-col hover:border-white/20 hover:bg-white/[0.03]">
+              <h3 className="text-lg font-semibold text-gray-300 mb-2">Scale</h3>
+              <p className="text-xs text-gray-500 mb-6">For global agencies.</p>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">$99</span><span className="text-sm text-gray-500">/mo</span></div>
+              <ul className="space-y-3 mb-8 flex-1">
+                {['Unlimited leads','Advanced analytics','Team management','AI recommendations','Email + WhatsApp','Advanced pipeline','10 collaborators'].map((f,i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-gray-400">
+                    <svg className="w-4 h-4 text-emerald-500/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a href="/signup" className="block w-full bg-white/10 hover:bg-white/20 text-white text-center py-3 rounded-xl font-medium text-sm transition-all border border-white/10">Start Free Trial</a>
+            </div>
+
+            {/* Enterprise */}
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.08] rounded-2xl p-8 relative flex flex-col hover:border-white/20 hover:bg-white/[0.03]">
+              <h3 className="text-lg font-semibold text-gray-300 mb-2">Enterprise</h3>
+              <p className="text-xs text-gray-500 mb-6">Custom requirements.</p>
+              <div className="mb-6"><span className="text-4xl font-bold text-white">$199</span><span className="text-sm text-gray-500">/mo</span></div>
+              <ul className="space-y-3 mb-8 flex-1">
+                {['Everything in Scale','Custom workflows','API access','Priority onboarding','White-label options','Unlimited collaborators','Dedicated support'].map((f,i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-gray-400">
+                    <svg className="w-4 h-4 text-emerald-500/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a href="#book" className="block w-full bg-white/10 hover:bg-white/20 text-white text-center py-3 rounded-xl font-medium text-sm transition-all border border-white/10">Contact Sales</a>
+            </div>
           </div>
         </div>
       </section>
