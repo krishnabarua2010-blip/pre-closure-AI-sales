@@ -7,11 +7,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// 🔥 TEMPORARY HARDCODE FOR DEBUGGING
-process.env.DATABASE_URL = "postgresql://postgres.sjezasjszvtrlpplxuuu:W7ZLLgOZSJley0UN@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require";
-process.env.REDIS_URL = "rediss://default:gQAAAAAAASu2AAIncDJhZGM3ZTM0N2JkMjE0MWMzOWQzNTg4ZmI2NGY3NmI4ZnAyNzY3MjY@fleet-beagle-76726.upstash.io:6379";
-process.env.JWT_SECRET = "supersecretkey";
-process.env.PORT = "8080";
+// 🔥 TEMPORARY FALLBACKS FOR DEBUGGING
+process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres.sjezasjszvtrlpplxuuu:W7ZLLgOZSJley0UN@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require";
+process.env.REDIS_URL = process.env.REDIS_URL || "rediss://default:gQAAAAAAASu2AAIncDJhZGM3ZTM0N2JkMjE0MWMzOWQzNTg4ZmI2NGY3NmI4ZnAyNzY3MjY@fleet-beagle-76726.upstash.io:6379";
+process.env.JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+process.env.PORT = process.env.PORT || "8080";
 
 const server = Fastify({ logger: true });
 

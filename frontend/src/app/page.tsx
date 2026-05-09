@@ -117,8 +117,21 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#050505] text-white overflow-x-hidden relative noise-bg">
       <TwinklingStars />
+      <div className="glow-blur w-[600px] h-[600px] bg-indigo-500/10 top-0 left-[-200px]"></div>
+      <div className="glow-blur w-[800px] h-[800px] bg-purple-500/5 bottom-0 right-[-300px]" style={{ animationDelay: '2s' }}></div>
+      <div className="glow-blur w-[500px] h-[500px] bg-emerald-500/5 top-[40%] left-[30%]" style={{ animationDelay: '4s' }}></div>
+      {[...Array(15)].map((_, i) => (
+        <div key={`p-${i}`} className="particle absolute rounded-full bg-white/10" style={{
+          width: Math.random() * 3 + 1 + 'px',
+          height: Math.random() * 3 + 1 + 'px',
+          top: Math.random() * 100 + '%',
+          left: Math.random() * 100 + '%',
+          animationDelay: `${Math.random() * 5}s`,
+          animationDuration: `${Math.random() * 10 + 10}s`
+        }} />
+      ))}
 
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 md:px-10 py-4 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5">
@@ -183,7 +196,7 @@ export default function LandingPage() {
               {icon:'⏱️',title:'Weak Follow-Up',desc:'Inconsistent or delayed follow-ups reduce conversion opportunities.'},
               {icon:'🔒',title:'Conversion Bottlenecks',desc:'Small inefficiencies compound into significant monthly revenue loss.'},
             ].map((c,i) => (
-              <div key={i} className="reveal-up audit-card bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 hover:border-white/10 cursor-default group">
+              <div key={i} className="reveal-up glass-premium rounded-2xl p-6 cursor-default group">
                 <div className="text-2xl mb-4">{c.icon}</div>
                 <h3 className="text-base font-semibold text-gray-200 mb-2">{c.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{c.desc}</p>
@@ -230,7 +243,7 @@ export default function LandingPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {['Lead Qualification','AI Lead Summary','Follow-Up Automation','Client Pipeline Tracking','Conversion Analytics','Team Collaboration','Smart Notifications','Revenue Insights','WhatsApp & Email Tracking','AI Suggestions'].map((f,i) => (
-              <div key={i} className="reveal-scale audit-card bg-white/[0.02] border border-white/[0.06] rounded-xl p-5 hover:border-white/10 hover:bg-white/[0.03] cursor-default">
+              <div key={i} className="reveal-scale glass-premium rounded-xl p-5 cursor-default">
                 <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center mb-3">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7"/></svg>
                 </div>
@@ -248,7 +261,7 @@ export default function LandingPage() {
             <p className="text-[11px] font-semibold text-gray-500 tracking-[0.2em] uppercase mb-3">Platform Preview</p>
             <h2 className="section-heading text-3xl md:text-4xl font-bold tracking-tight text-gray-100">See Pre Closer In Action</h2>
           </div>
-          <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(255,255,255,0.05)] aspect-[16/9] bg-[#0a0a0a] flex items-center justify-center group cursor-pointer">
+          <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 relative rounded-2xl overflow-hidden glass-premium shadow-[0_0_80px_rgba(255,255,255,0.05)] aspect-[16/9] flex items-center justify-center group cursor-pointer hover:shadow-[0_0_100px_rgba(99,102,241,0.15)]">
             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none" />
             
             {/* Fake Dashboard UI */}
@@ -295,7 +308,7 @@ export default function LandingPage() {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
             {/* Starter India */}
-            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.08] rounded-2xl p-8 relative flex flex-col hover:border-white/20 hover:bg-white/[0.03]">
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium rounded-2xl p-8 relative flex flex-col hover:bg-white/[0.03]">
               <h3 className="text-lg font-semibold text-gray-300 mb-2">Starter</h3>
               <p className="text-xs text-gray-500 mb-6">For small agencies.</p>
               <div className="mb-6"><span className="text-4xl font-bold text-white">₹999</span><span className="text-sm text-gray-500">/mo</span></div>
@@ -311,8 +324,8 @@ export default function LandingPage() {
             </div>
 
             {/* Growth India */}
-            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/[0.2] rounded-2xl p-8 relative flex flex-col transform md:-translate-y-4 shadow-[0_0_40px_rgba(255,255,255,0.05)]">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Most Popular</div>
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium border-white/[0.2] bg-white/[0.04] rounded-2xl p-8 relative flex flex-col transform md:-translate-y-4 shadow-[0_0_60px_rgba(99,102,241,0.1)] hover:shadow-[0_0_80px_rgba(99,102,241,0.15)]">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider glow-primary-sm">Most Popular</div>
               <h3 className="text-lg font-semibold text-gray-100 mb-2">Growth</h3>
               <p className="text-xs text-gray-400 mb-6">For growing teams.</p>
               <div className="mb-6"><span className="text-4xl font-bold text-white">₹2,999</span><span className="text-sm text-gray-500">/mo</span></div>
@@ -328,7 +341,7 @@ export default function LandingPage() {
             </div>
 
             {/* Scale Int */}
-            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.08] rounded-2xl p-8 relative flex flex-col hover:border-white/20 hover:bg-white/[0.03]">
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium rounded-2xl p-8 relative flex flex-col hover:bg-white/[0.03]">
               <h3 className="text-lg font-semibold text-gray-300 mb-2">Scale</h3>
               <p className="text-xs text-gray-500 mb-6">For global agencies.</p>
               <div className="mb-6"><span className="text-4xl font-bold text-white">$99</span><span className="text-sm text-gray-500">/mo</span></div>
@@ -344,7 +357,7 @@ export default function LandingPage() {
             </div>
 
             {/* Enterprise */}
-            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.08] rounded-2xl p-8 relative flex flex-col hover:border-white/20 hover:bg-white/[0.03]">
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium rounded-2xl p-8 relative flex flex-col hover:bg-white/[0.03]">
               <h3 className="text-lg font-semibold text-gray-300 mb-2">Enterprise</h3>
               <p className="text-xs text-gray-500 mb-6">Custom requirements.</p>
               <div className="mb-6"><span className="text-4xl font-bold text-white">$199</span><span className="text-sm text-gray-500">/mo</span></div>
@@ -379,7 +392,7 @@ export default function LandingPage() {
               {q:"The audit gave us a clearer view of our conversion process.",a:"Sneha K.",r:"Marketing Lead"},
               {q:"Very structured and insightful.",a:"Arjun P.",r:"Growth Director"},
             ].map((t,i) => (
-              <div key={i} className="reveal-up opacity-0 translate-y-6 transition-all duration-700 bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6">
+              <div key={i} className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] cursor-default rounded-2xl p-6">
                 <p className="text-sm text-gray-300 leading-relaxed mb-5 italic">&ldquo;{t.q}&rdquo;</p>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center text-xs font-semibold text-gray-400">{t.a[0]}</div>
