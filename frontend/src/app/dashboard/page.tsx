@@ -217,7 +217,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div ref={pageRef} className="flex w-full h-full bg-[#000000] text-white">
+    <div ref={pageRef} className="flex w-full h-full bg-[#050505] text-white">
       {/* CENTER PANEL: Metrics, Pipeline, Leads */}
       <main className="flex-1 overflow-y-auto p-6 lg:p-8">
         <div className="max-w-5xl mx-auto space-y-8">
@@ -227,7 +227,7 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold tracking-tight text-white">Overview</h1>
               <p className="text-gray-500 mt-1 text-sm">Your AI sales pipeline at a glance.</p>
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500 bg-[#111827] border border-[#1F2937] px-3 py-2 rounded-lg">
+            <div className="flex items-center gap-2 text-xs text-gray-500 bg-white/[0.02] border border-white/[0.06] px-3 py-2 rounded-lg">
               <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
               Live data
             </div>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
               <div
                 key={i}
                 data-metric
-                className="feature-card bg-[#0B0F19] border border-[#1F2937] hover:border-[#374151] rounded-2xl p-4 sm:p-5 group relative overflow-hidden"
+                className="feature-card bg-white/[0.02] border border-white/[0.06] hover:border-white/10 rounded-2xl p-4 sm:p-5 group relative overflow-hidden"
               >
                 <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40" style={{ background: card.color }} />
                 <div className="flex items-start justify-between mb-4">
@@ -253,7 +253,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Deal Probability Engine */}
-          <div className={`bg-[#0B0F19] border border-[#1F2937] rounded-2xl p-5 sm:p-6 shadow-sm relative ${isLocked ? 'blur-md pointer-events-none select-none' : ''}`} data-metric>
+          <div className={`bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 sm:p-6 shadow-sm relative ${isLocked ? 'blur-md pointer-events-none select-none' : ''}`} data-metric>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-9 h-9 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center">
                 <span className="text-lg">💰</span>
@@ -265,15 +265,15 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <div className="bg-[#000000] border border-[#1F2937] rounded-xl p-4 text-center">
+              <div className="bg-[#050505] border border-white/[0.06] rounded-xl p-4 text-center">
                 <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Potential Revenue</p>
                 <p className="text-2xl sm:text-3xl font-black text-white">${potentialRevenue.toLocaleString()}</p>
               </div>
-              <div className="bg-[#000000] border border-emerald-500/20 rounded-xl p-4 text-center">
+              <div className="bg-[#050505] border border-emerald-500/20 rounded-xl p-4 text-center">
                 <p className="text-[10px] text-emerald-400 uppercase tracking-wider mb-2">Expected Revenue</p>
                 <p className="text-2xl sm:text-3xl font-black text-emerald-400">${Math.round(expectedRevenue).toLocaleString()}</p>
               </div>
-              <div className="bg-[#000000] border border-[#6366F1]/20 rounded-xl p-4 text-center">
+              <div className="bg-[#050505] border border-[#6366F1]/20 rounded-xl p-4 text-center">
                 <p className="text-[10px] text-[#a5b4fc] uppercase tracking-wider mb-2">Close Probability</p>
                 <p className="text-2xl sm:text-3xl font-black text-[#a5b4fc]">{overallCloseProb}%</p>
               </div>
@@ -282,7 +282,7 @@ export default function DashboardPage() {
             {leadProbabilities.length > 0 && (
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {leadProbabilities.slice(0, 4).map((lead, i) => (
-                  <div key={i} className="flex items-center justify-between bg-[#111827] border border-[#1F2937] rounded-lg px-4 py-3 hover:border-[#374151] transition-colors">
+                  <div key={i} className="flex items-center justify-between bg-[#050505] border border-white/[0.06] rounded-lg px-4 py-3 hover:border-white/10 transition-colors">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-7 h-7 rounded-lg bg-[#6366F1]/15 flex items-center justify-center text-xs font-bold text-[#a5b4fc] shrink-0">
                         {(lead.name || 'U')[0].toUpperCase()}
@@ -293,7 +293,7 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
-                      <div className="w-24 h-2 bg-[#000000] rounded-full overflow-hidden hidden sm:block border border-[#1F2937]">
+                      <div className="w-24 h-2 bg-[#050505] rounded-full overflow-hidden hidden sm:block border border-white/[0.06]">
                         <div
                           className="h-full rounded-full transition-all duration-700"
                           style={{
@@ -317,7 +317,7 @@ export default function DashboardPage() {
           {/* Pipeline Graph */}
           {isLocked && (
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl mt-48">
-               <div className="bg-[#111827] border border-[#1F2937] p-8 rounded-2xl max-w-md text-center shadow-2xl">
+               <div className="bg-[#050505] border border-white/[0.06] p-8 rounded-2xl max-w-md text-center shadow-2xl">
                  <h3 className="text-xl font-bold mb-2 text-white">See which visitors are converting and why</h3>
                  <p className="text-sm text-gray-400 mb-6">Unlock complete funnel visibility, deal scoring, and real-time revenue analytics.</p>
                  <button onClick={() => handleUpgrade('growth', () => { window.location.href = '/onboarding'; })} className="bg-[#6366F1] hover:bg-[#5558e3] text-white px-6 py-4 rounded-xl font-black transition-all w-full shadow-xl shadow-[#6366F1]/30 hover:scale-[1.02]">
@@ -330,7 +330,7 @@ export default function DashboardPage() {
                </div>
             </div>
           )}
-          <div className={`bg-[#0B0F19] border border-[#1F2937] rounded-2xl p-5 sm:p-6 shadow-sm relative ${isLocked ? 'blur-md pointer-events-none select-none' : ''}`}>
+          <div className={`bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 sm:p-6 shadow-sm relative ${isLocked ? 'blur-md pointer-events-none select-none' : ''}`}>
             <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <div>
                 <h2 className="text-sm font-semibold text-white">Pipeline Activity</h2>
@@ -364,8 +364,8 @@ export default function DashboardPage() {
 
           {/* Leads Table */}
           {metrics?.leads && metrics.leads.length > 0 && (
-            <div className="bg-[#0B0F19] border border-[#1F2937] rounded-2xl overflow-hidden shadow-sm">
-              <div className="px-5 py-4 border-b border-[#1F2937] flex items-center justify-between">
+            <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden shadow-sm">
+              <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
                 <div>
                   <h2 className="text-sm font-semibold text-white">Recent Pipeline</h2>
                   <p className="text-[11px] text-gray-500 mt-0.5">{metrics.leads.length} total leads tracked</p>
@@ -377,13 +377,13 @@ export default function DashboardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="bg-[#000000] text-gray-600 text-[10px] uppercase tracking-widest border-b border-[#1F2937]">
+                    <tr className="bg-[#050505] text-gray-600 text-[10px] uppercase tracking-widest border-b border-white/[0.06]">
                       <th className="px-5 py-3 font-semibold">Lead</th>
                       <th className="px-5 py-3 font-semibold hidden sm:table-cell">Status</th>
                       <th className="px-5 py-3 font-semibold text-right">Score</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1F2937]/50">
+                  <tbody className="divide-y divide-white/5">
                     {metrics.leads.slice(0, 6).map((lead: any, i: number) => {
                       const score = lead.lead_score || lead.score || 0;
                       const scoreColor = score >= 80 ? 'text-green-400 bg-green-400/10 border-green-400/20' : score >= 50 ? 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20' : 'text-gray-400 bg-[#1F2937] border-[#374151]';
@@ -422,7 +422,7 @@ export default function DashboardPage() {
       </main>
 
       {/* RIGHT PANEL: Live Insights & Recommendations */}
-      <aside className="hidden xl:flex w-[380px] shrink-0 border-l border-[#1F2937] bg-gradient-to-b from-[#0B0F19] to-[#000000] flex-col p-6 overflow-y-auto space-y-6">
+      <aside className="hidden xl:flex w-[380px] shrink-0 border-l border-white/5 bg-[#050505] flex-col p-6 overflow-y-auto space-y-6">
         <div className="mb-2">
           <h2 className="text-[10px] font-black tracking-widest text-emerald-400 uppercase flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
@@ -432,7 +432,7 @@ export default function DashboardPage() {
         </div>
 
         {/* AI Advisor Panel */}
-        <div className="bg-[#111827] border border-[#6366F1]/20 rounded-2xl p-5 shadow-[0_0_20px_rgba(99,102,241,0.05)]">
+        <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 shadow-[0_0_20px_rgba(255,255,255,0.02)]">
           <div className="flex items-center justify-between mb-4">
              <div className="flex items-center gap-2">
               <span className="text-base">🧠</span>
@@ -449,11 +449,11 @@ export default function DashboardPage() {
 
           {advisorInsight ? (
             <div className="space-y-3">
-              <div className="bg-[#0B0F19] border border-[#1F2937] rounded-xl p-3">
+              <div className="bg-[#050505] border border-white/[0.06] rounded-xl p-3">
                 <p className="text-[9px] font-semibold text-red-400 uppercase mb-1">Issue</p>
                 <p className="text-xs text-gray-300">{advisorInsight.summary || advisorInsight.funnel_problems?.[0]}</p>
               </div>
-              <div className="bg-[#0B0F19] border border-emerald-500/20 rounded-xl p-3">
+              <div className="bg-[#050505] border border-emerald-500/20 rounded-xl p-3">
                 <p className="text-[9px] font-semibold text-emerald-400 uppercase mb-1">Recommendation</p>
                 <p className="text-xs text-[#a5b4fc]">{advisorInsight.recommendation || advisorInsight.revenue_improvement_suggestions?.[0]}</p>
               </div>

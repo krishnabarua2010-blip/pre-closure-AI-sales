@@ -31,19 +31,18 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="w-60 h-screen bg-[#0d1117] border-r border-[#1F2937] flex-col hidden md:flex sticky top-0 shrink-0">
+    <div className="w-60 h-screen bg-[#050505] border-r border-white/5 flex-col hidden md:flex sticky top-0 shrink-0">
       {/* Logo */}
-      <div className="p-5 border-b border-[#1F2937]">
+      <div className="p-5 border-b border-white/5">
         <Link href="/dashboard" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-[#6366F1] flex items-center justify-center shadow-lg shadow-[#6366F1]/30 group-hover:shadow-[#6366F1]/50 transition-shadow">
+          <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center transition-shadow group-hover:bg-white/20">
             <svg width="15" height="15" viewBox="0 0 18 18" fill="none">
               <path d="M9 2L15.5 12H2.5L9 2Z" fill="white"/>
-              <circle cx="9" cy="13.5" r="2.5" fill="white" fillOpacity="0.6"/>
             </svg>
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white tracking-tight leading-none">Pre-Closer</h2>
-            <p className="text-[10px] text-gray-600 mt-0.5">AI Sales Platform</p>
+            <h2 className="text-sm font-bold text-gray-200 tracking-tight leading-none">Pre Closer</h2>
+            <p className="text-[10px] text-gray-600 mt-0.5">Agency Growth Platform</p>
           </div>
         </Link>
       </div>
@@ -59,8 +58,8 @@ export function Sidebar() {
               href={item.href}
               className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                 isActive
-                  ? 'bg-[#6366F1]/12 text-[#a5b4fc] border-l-2 border-[#6366F1]'
-                  : 'text-gray-500 hover:text-gray-200 hover:bg-white/4'
+                  ? 'bg-white/[0.04] text-white border-l-2 border-white'
+                  : 'text-gray-500 hover:text-gray-200 hover:bg-white/5'
               }`}
             >
               <span className={`transition-colors ${isActive ? 'text-[#6366F1]' : 'text-gray-600 group-hover:text-gray-400'}`}>
@@ -73,25 +72,25 @@ export function Sidebar() {
       </nav>
 
       {/* Plan Badge */}
-      <div className="mx-3 mb-3 bg-[#6366F1]/8 border border-[#6366F1]/15 rounded-xl p-3">
+      <div className="mx-3 mb-3 bg-white/[0.02] border border-white/[0.06] rounded-xl p-3">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] font-semibold text-[#a5b4fc] tracking-wide uppercase">Beta Plan</span>
-          <span className="text-[9px] bg-[#6366F1]/20 text-[#a5b4fc] px-1.5 py-0.5 rounded-full">Active</span>
+          <span className="text-[10px] font-semibold text-gray-300 tracking-wide uppercase">Beta Plan</span>
+          <span className="text-[9px] bg-white/10 text-white px-1.5 py-0.5 rounded-full">Active</span>
         </div>
-        <div className="w-full h-1 bg-[#1F2937] rounded-full overflow-hidden">
-          <div className="h-full bg-[#6366F1] rounded-full" style={{ width: '45%' }} />
+        <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+          <div className="h-full bg-white/30 rounded-full" style={{ width: '45%' }} />
         </div>
-        <p className="text-[10px] text-gray-600 mt-1.5">225 / 500 messages used</p>
+        <p className="text-[10px] text-gray-500 mt-1.5">225 / 500 messages used</p>
       </div>
 
       {/* Sign out */}
-      <div className="p-3 border-t border-[#1F2937]">
+      <div className="p-3 border-t border-white/5">
         <button
           onClick={() => {
             localStorage.removeItem('token');
             window.location.href = '/login';
           }}
-          className="w-full px-3 py-2.5 text-sm text-gray-500 hover:text-gray-200 hover:bg-white/4 rounded-xl transition-all duration-150 text-left flex gap-3 items-center"
+          className="w-full px-3 py-2.5 text-sm text-gray-500 hover:text-gray-200 hover:bg-white/5 rounded-xl transition-all duration-150 text-left flex gap-3 items-center"
         >
           <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.8">
             <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
