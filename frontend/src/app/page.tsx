@@ -4,40 +4,321 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
-/* ── Twinkling Star Background ── */
-function TwinklingStars() {
-  const c = useRef<HTMLCanvasElement>(null);
+/* ── Grey 3D Mesh Background ── */
+function GreyMeshBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
   useEffect(() => {
-    const canvas = c.current; if (!canvas) return;
-    const ctx = canvas.getContext('2d'); if (!ctx) return;
-    let id: number;
-    const stars: {x:number;y:number;r:number;baseO:number;speed:number;phase:number}[] = [];
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = document.body.scrollHeight; };
-    resize(); window.addEventListener('resize', resize);
-    for (let i = 0; i < 250; i++) stars.push({
-      x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-      r: Math.random()*1.8+0.3, baseO: Math.random()*0.5+0.1,
-      speed: Math.random()*1.5+0.5, phase: Math.random()*Math.PI*2
-    });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    let animationFrameId: number;
+    let time = 0;
+    
+    const rows = 15;
+    const cols = 25;
+    const spacing = 90;
+    
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    
     const draw = () => {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      const t = Date.now()*0.001;
-      stars.forEach(s => {
-        const twinkle = Math.sin(t*s.speed+s.phase)*0.5+0.5;
-        const o = s.baseO + twinkle*0.6;
-        const r = s.r*(0.8+twinkle*0.5);
-        ctx.beginPath(); ctx.arc(s.x,s.y,r,0,Math.PI*2);
-        ctx.fillStyle=`rgba(220,230,255,${o})`; ctx.fill();
-        if(twinkle>0.8){
-          ctx.beginPath();ctx.arc(s.x,s.y,r*3,0,Math.PI*2);
-          ctx.fillStyle=`rgba(200,220,255,${o*0.2})`;ctx.fill();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      time += 0.003; // slower, elegant movement
+      
+      const points = [];
+      const offsetY = canvas.height * 0.15; // Shift grid to center nicely
+      
+      // Calculate 3D points
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const x = (i - cols/2) * spacing;
+          const y = (j - rows/2) * spacing;
+          
+          // Flowing wave effect
+          const z = Math.sin(i * 0.2 + time) * 60 + Math.cos(j * 0.2 + time * 1.5) * 60;
+          
+          // Tilt the mesh to look 3D
+          const angleX = Math.PI / 2.5;
+          const angleZ = time * 0.1;
+          
+          // Rotate Z
+          const x1 = x * Math.cos(angleZ) - y * Math.sin(angleZ);
+          const y1 = x * Math.sin(angleZ) + y * Math.cos(angleZ);
+          
+          // Rotate X
+          const y2 = y1 * Math.cos(angleX) - z * Math.sin(angleX);
+          const z2 = y1 * Math.sin(angleX) + z * Math.cos(angleX);
+          
+          // Project to 2D
+          const fov = 1000;
+          const distance = 800;
+          const scale = fov / (fov + z2 + distance);
+          
+          points.push({
+            x: x1 * scale + canvas.width / 2,
+            y: y2 * scale + canvas.height / 2 + offsetY,
+            z: z2,
+            scale
+          });
         }
-      });
-      id = requestAnimationFrame(draw);
-    }; draw();
-    return () => { cancelAnimationFrame(id); window.removeEventListener('resize', resize); };
+      }
+      
+      ctx.lineWidth = 1;
+      
+      // Draw connecting lines
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const idx = i * rows + j;
+          const p = points[idx];
+          
+          // Dynamic fade based on distance from center and Z-depth
+          const distFromCenter = Math.abs(p.x - canvas.width/2) / (canvas.width/2);
+          const opacity = Math.max(0, 0.25 - distFromCenter * 0.2 - (p.z + 50) * 0.001);
+          
+          if (opacity <= 0) continue;
+          
+          ctx.strokeStyle = `rgba(140, 150, 170, ${opacity})`;
+          
+          if (i < cols - 1) {
+            const right = points[(i + 1) * rows + j];
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(right.x, right.y);
+            ctx.stroke();
+          }
+          
+          if (j < rows - 1) {
+            const bottom = points[i * rows + (j + 1)];
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(bottom.x, bottom.y);
+            ctx.stroke();
+          }
+        }
+      }
+      
+      animationFrameId = requestAnimationFrame(draw);
+    };
+    
+    draw();
+    
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', resize);
+    };
   }, []);
-  return <canvas ref={c} className="fixed inset-0 pointer-events-none z-0" />;
+  
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />;
+}
+
+/* ── Simulated Demo Component ── */
+function SimulatedDemo() {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    let currentStep = 0;
+    const intervals = [
+      1500, // 0 -> 1: Lead messages
+      2500, // 1 -> 2: AI replies
+      2500, // 2 -> 3: Lead answers
+      3000, // 3 -> 4: Dashboard shows new lead & AI confirms
+      2500, // 4 -> 5: Lead moves to Qualified
+      3500, // 5 -> 6: AI sends WhatsApp follow-up
+      6000, // 6 -> 0: Reset loop
+    ];
+    let timeoutId: NodeJS.Timeout;
+
+    const runSequence = () => {
+      timeoutId = setTimeout(() => {
+        currentStep++;
+        if (currentStep > 6) currentStep = 0;
+        setStep(currentStep);
+        if (currentStep !== 0 || true) {
+            runSequence();
+        }
+      }, intervals[currentStep % intervals.length]);
+    };
+
+    runSequence();
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  return (
+    <>
+      <style>{`
+        @keyframes slideUpFade {
+          from { opacity: 0; transform: translateY(15px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-up {
+          animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes pulseGlow {
+          0%, 100% { box-shadow: 0 0 15px rgba(99,102,241,0.2); }
+          50% { box-shadow: 0 0 25px rgba(99,102,241,0.5); }
+        }
+        .animate-pulse-glow {
+          animation: pulseGlow 2s infinite;
+        }
+      `}</style>
+      
+      <div className="w-full h-full bg-[#050505] flex flex-col md:flex-row relative overflow-hidden text-sm font-sans">
+         {/* Left: Chat Widget Simulation */}
+         <div className="w-full md:w-5/12 bg-[#080808] border-b md:border-b-0 md:border-r border-white/10 flex flex-col relative z-10 h-72 md:h-auto shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+            <div className="p-4 border-b border-white/5 flex items-center gap-3 bg-white/[0.01]">
+              <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              </div>
+              <div>
+                <div className="text-gray-100 font-bold text-sm tracking-wide">Pre Closer AI</div>
+                <div className="text-emerald-400 text-[10px] flex items-center gap-1.5 font-bold mt-0.5 uppercase tracking-wider">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                  Active Agent
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 p-5 space-y-5 overflow-y-auto relative custom-scrollbar flex flex-col justify-end pb-8">
+              <div className="text-center text-[10px] text-gray-600 mb-2 uppercase tracking-widest font-bold">Chat Initiated</div>
+              
+              {step >= 1 && (
+                <div className="bg-white/10 text-gray-100 p-3.5 rounded-2xl rounded-tr-none ml-auto max-w-[85%] text-xs md:text-sm shadow-xl border border-white/5 animate-slide-up">
+                  Hi, I'm looking for a system to manage my agency's leads.
+                </div>
+              )}
+              {step >= 2 && (
+                <div className="bg-indigo-500/10 text-indigo-100 p-3.5 rounded-2xl rounded-tl-none mr-auto max-w-[85%] text-xs md:text-sm shadow-xl border border-indigo-500/30 animate-slide-up backdrop-blur-md">
+                  Hello! We can definitely help. About how many leads do you process monthly?
+                </div>
+              )}
+              {step >= 3 && (
+                <div className="bg-white/10 text-gray-100 p-3.5 rounded-2xl rounded-tr-none ml-auto max-w-[85%] text-xs md:text-sm shadow-xl border border-white/5 animate-slide-up">
+                  Around 50-100 per month right now.
+                </div>
+              )}
+              {step >= 4 && (
+                <div className="bg-indigo-500/10 text-indigo-100 p-3.5 rounded-2xl rounded-tl-none mr-auto max-w-[85%] text-xs md:text-sm shadow-xl border border-indigo-500/30 animate-slide-up backdrop-blur-md">
+                  Perfect. I've logged your requirements. Our platform is ideal for that volume!
+                </div>
+              )}
+              {step >= 6 && (
+                <div className="bg-emerald-500/10 text-emerald-100 p-4 rounded-2xl rounded-tl-none mr-auto max-w-[90%] text-xs md:text-sm shadow-xl border border-emerald-500/40 animate-slide-up mt-6 relative overflow-hidden backdrop-blur-md">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-50" />
+                  <div className="relative z-10">
+                    <div className="text-[10px] text-emerald-400 mb-2 font-bold flex items-center gap-2 uppercase tracking-widest">
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                      WhatsApp Auto-Pilot Triggered
+                    </div>
+                    Hey! Just checking in to see if you'd like to book a quick demo with our team?
+                  </div>
+                </div>
+              )}
+            </div>
+         </div>
+
+         {/* Right: Dashboard Simulation */}
+         <div className="flex-1 bg-[#030303] p-5 md:p-8 relative flex flex-col h-[400px] md:h-auto">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.02] to-transparent pointer-events-none" />
+            <div className="flex justify-between items-center mb-8 relative z-10">
+              <div>
+                <h3 className="text-white font-extrabold text-xl md:text-2xl flex items-center gap-3">
+                  Live Pipeline <span className="bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">Real-time</span>
+                </h3>
+              </div>
+              <div className="flex gap-3">
+                <div className="bg-indigo-500/20 border border-indigo-500/50 px-4 py-2 rounded-xl text-xs text-indigo-300 font-bold flex items-center gap-2 shadow-[0_0_20px_rgba(99,102,241,0.25)]">
+                  <span className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
+                  AI Agent Active
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-5 flex-1 relative z-10">
+               {/* New Leads Column */}
+               <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-5 flex flex-col gap-4 shadow-xl">
+                 <div className="flex items-center justify-between mb-2">
+                   <h4 className="text-gray-400 text-[11px] font-extrabold uppercase tracking-widest">New Leads</h4>
+                   <span className="bg-white/10 text-gray-300 text-[10px] w-6 h-6 rounded-full flex items-center justify-center font-bold">{step >= 4 && step < 5 ? '2' : '1'}</span>
+                 </div>
+                 
+                 <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 opacity-50">
+                   <div className="text-gray-300 text-sm font-bold">Mike T.</div>
+                   <div className="text-gray-500 text-[11px] mt-1 font-medium">SaaS Founder</div>
+                 </div>
+
+                 {step >= 4 && step < 5 && (
+                   <div className="bg-indigo-500/10 border border-indigo-500/40 rounded-2xl p-4 animate-slide-up relative overflow-hidden animate-pulse-glow">
+                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-500" />
+                     <div className="flex justify-between items-start pl-2">
+                       <div className="text-white text-sm font-bold">Unknown Prospect</div>
+                       <span className="bg-indigo-500/20 text-indigo-300 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-wider">Evaluating</span>
+                     </div>
+                     <div className="text-indigo-200/70 text-[11px] mt-2 pl-2 font-medium">Needs system for 50-100 leads/mo</div>
+                     <div className="mt-4 pl-2 text-[10px] text-indigo-300 flex items-center gap-2 font-bold bg-indigo-500/20 py-1.5 px-2.5 rounded-lg w-fit">
+                       <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                       AI Scoring & Qualifying...
+                     </div>
+                   </div>
+                 )}
+               </div>
+
+               {/* Qualified Column */}
+               <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-5 flex flex-col gap-4 shadow-xl">
+                 <div className="flex items-center justify-between mb-2">
+                   <h4 className="text-gray-400 text-[11px] font-extrabold uppercase tracking-widest">Qualified</h4>
+                   <span className="bg-white/10 text-gray-300 text-[10px] w-6 h-6 rounded-full flex items-center justify-center font-bold">{step >= 5 ? '2' : '1'}</span>
+                 </div>
+
+                 <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 opacity-50">
+                   <div className="text-gray-300 text-sm font-bold">Sarah Jenkins</div>
+                   <div className="text-gray-500 text-[11px] mt-1 font-medium">Design Agency • Score: 85</div>
+                 </div>
+
+                 {step >= 5 && (
+                   <div className="bg-emerald-500/10 border border-emerald-500/40 rounded-2xl p-4 shadow-[0_0_30px_rgba(16,185,129,0.15)] animate-slide-up relative overflow-hidden">
+                     <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+                     <div className="flex justify-between items-start pl-2">
+                       <div className="text-white text-sm font-bold">Agency Prospect</div>
+                       <span className="bg-emerald-500/20 text-emerald-400 text-[9px] px-2 py-1 rounded font-extrabold tracking-widest uppercase shadow-[0_0_15px_rgba(16,185,129,0.2)]">High Intent</span>
+                     </div>
+                     <div className="text-emerald-100/70 text-[11px] mt-2 pl-2 font-medium">AI Score: 96/100 • 50-100 leads</div>
+                     
+                     {step >= 6 && (
+                       <div className="mt-4 pl-2 text-[10px] text-emerald-400 flex items-center gap-2 border-t border-emerald-500/20 pt-3 font-bold uppercase tracking-wide">
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
+                         WhatsApp Auto-Pilot Sent
+                       </div>
+                     )}
+                   </div>
+                 )}
+               </div>
+
+               {/* In Discussion Column */}
+               <div className="hidden md:flex bg-[#080808] border border-white/[0.08] rounded-3xl p-5 flex-col gap-4 shadow-xl">
+                 <div className="flex items-center justify-between mb-2">
+                   <h4 className="text-gray-400 text-[11px] font-extrabold uppercase tracking-widest">In Discussion</h4>
+                   <span className="bg-white/10 text-gray-300 text-[10px] w-6 h-6 rounded-full flex items-center justify-center font-bold">1</span>
+                 </div>
+                 
+                 <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 opacity-50">
+                   <div className="flex justify-between items-center">
+                     <div className="text-gray-300 text-sm font-bold">David R.</div>
+                     <div className="w-2.5 h-2.5 bg-yellow-500 rounded-full shadow-[0_0_10px_rgba(234,179,8,0.5)]" />
+                   </div>
+                   <div className="text-gray-500 text-[11px] mt-1 font-medium">Awaiting Reply</div>
+                 </div>
+               </div>
+            </div>
+         </div>
+      </div>
+    </>
+  )
 }
 
 /* ── FAQ Item ── */
@@ -86,22 +367,10 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white overflow-x-hidden relative noise-bg selection:bg-indigo-500/30">
-      <TwinklingStars />
+      <GreyMeshBackground />
       <div className="glow-blur w-[800px] h-[800px] md:w-[1200px] md:h-[1200px] bg-indigo-500/15 top-[-10%] left-[-10%]"></div>
       <div className="glow-blur w-[1000px] h-[1000px] md:w-[1400px] md:h-[1400px] bg-purple-500/10 bottom-0 right-[-10%]" style={{ animationDelay: '2s' }}></div>
       <div className="glow-blur w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-emerald-500/10 top-[30%] left-[20%]" style={{ animationDelay: '4s' }}></div>
-      
-      {/* Increased Particle Density for Depth */}
-      {[...Array(40)].map((_, i) => (
-        <div key={`p-${i}`} className="particle absolute rounded-full bg-indigo-400/20 shadow-[0_0_15px_rgba(99,102,241,0.5)]" style={{
-          width: Math.random() * 8 + 3 + 'px',
-          height: Math.random() * 8 + 3 + 'px',
-          top: Math.random() * 100 + '%',
-          left: Math.random() * 100 + '%',
-          animationDelay: `${Math.random() * 5}s`,
-          animationDuration: `${Math.random() * 15 + 10}s`
-        }} />
-      ))}
 
       {/* NAV */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 md:px-10 py-4 bg-[#050505]/70 backdrop-blur-xl border-b border-white/5 transition-all">
@@ -151,35 +420,11 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Embedded Demo Video inside Hero */}
+        {/* Dynamic Simulated Demo Component */}
         <div id="demo" className="w-full max-w-5xl mx-auto mt-20 relative reveal-up opacity-0 translate-y-10 transition-all duration-1000 delay-500">
           <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500 rounded-3xl blur opacity-30 animate-pulse" />
-          <div className="relative rounded-2xl md:rounded-3xl overflow-hidden glass-premium border border-white/20 shadow-[0_0_80px_rgba(99,102,241,0.2)] aspect-[16/9] group bg-[#050505]">
-            <video 
-              autoPlay 
-              loop 
-              muted 
-              playsInline
-              className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 scale-[1.02] group-hover:scale-100"
-              src="/demo.mp4"
-              poster="/demo.webp"
-            />
-            <div className="absolute inset-0 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] pointer-events-none transition-opacity duration-700 group-hover:opacity-50" />
-            
-            {/* Overlay UI elements to make it feel real and immersive */}
-            <div className="absolute top-4 left-4 md:top-6 md:left-6 flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full shadow-xl">
-               <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
-               <span className="text-[9px] md:text-xs font-bold text-white tracking-wider uppercase">Live Dashboard Demo</span>
-            </div>
-            
-            <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 hidden sm:flex items-center gap-3 bg-black/60 backdrop-blur-md border border-white/10 px-5 py-2.5 rounded-2xl shadow-xl">
-               <div className="flex -space-x-2">
-                 <div className="w-8 h-8 rounded-full border-2 border-black bg-indigo-500 flex items-center justify-center text-[10px] font-bold">JD</div>
-                 <div className="w-8 h-8 rounded-full border-2 border-black bg-emerald-500 flex items-center justify-center text-[10px] font-bold">AS</div>
-                 <div className="w-8 h-8 rounded-full border-2 border-black bg-gray-800 flex items-center justify-center text-[10px] font-bold">+3</div>
-               </div>
-               <span className="text-[10px] md:text-xs font-semibold text-gray-300">Team Active</span>
-            </div>
+          <div className="relative rounded-2xl md:rounded-3xl overflow-hidden glass-premium border border-white/20 shadow-[0_0_80px_rgba(99,102,241,0.2)] aspect-auto group bg-[#050505]">
+            <SimulatedDemo />
           </div>
         </div>
       </section>
