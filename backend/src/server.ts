@@ -26,6 +26,21 @@ server.get("/api/health", async () => {
   return { status: "alive", timestamp: new Date().toISOString() };
 });
 
+// ✅ Build info route — verify which frontend is deployed
+server.get("/api/build-info", async () => {
+  try {
+    const fs = await import('fs');
+    const metaPath = path.join(__dirname, '../public/_build_meta.json');
+    if (fs.existsSync(metaPath)) {
+      const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+      return { deployed: true, ...meta };
+    }
+    return { deployed: true, buildTime: 'unknown', note: 'No _build_meta.json found' };
+  } catch {
+    return { deployed: true, buildTime: 'unknown', error: 'Could not read build meta' };
+  }
+});
+
 // ✅ Crash shields (VERY IMPORTANT)
 process.on("uncaughtException", (err) => {
   console.error("💥 Uncaught Exception:", err);

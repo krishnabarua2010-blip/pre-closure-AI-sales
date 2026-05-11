@@ -118,60 +118,69 @@ function GreyMeshBackground() {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" />;
 }
 
-/* ── Simulated Demo Component ── */
+/* ── SimulatedDemo Component ── */
 function SimulatedDemo() {
+  const [mode, setMode] = useState<'inbound' | 'outbound'>('inbound');
   const [step, setStep] = useState(0);
 
   useEffect(() => {
     let currentStep = 0;
-    const intervals = [
-      1500, // 0 -> 1: Lead messages
-      2500, // 1 -> 2: AI replies
-      2500, // 2 -> 3: Lead answers
-      3000, // 3 -> 4: Dashboard shows new lead & AI confirms
-      2500, // 4 -> 5: Lead moves to Qualified
-      3500, // 5 -> 6: AI sends WhatsApp follow-up
-      6000, // 6 -> 0: Reset loop
-    ];
+    const intervals = {
+      inbound: [1500, 2500, 2500, 3000, 2500, 3500, 6000], // 0->6
+      outbound: [1000, 2000, 2500, 2000, 2500, 3000, 5000] // 0->6
+    };
     let timeoutId: NodeJS.Timeout;
 
     const runSequence = () => {
       timeoutId = setTimeout(() => {
         currentStep++;
-        if (currentStep > 6) currentStep = 0;
+        const maxSteps = 6;
+        if (currentStep > maxSteps) currentStep = 0;
         setStep(currentStep);
-        if (currentStep !== 0 || true) {
-            runSequence();
-        }
-      }, intervals[currentStep % intervals.length]);
+        runSequence();
+      }, intervals[mode][currentStep % intervals[mode].length]);
     };
 
     runSequence();
-    return () => clearTimeout(timeoutId);
-  }, []);
+    return () => {
+      clearTimeout(timeoutId);
+      currentStep = 0;
+      setStep(0);
+    };
+  }, [mode]);
 
   return (
     <>
       <style>{`
-        @keyframes slideUpFade {
-          from { opacity: 0; transform: translateY(15px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-up {
-          animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes pulseGlow {
-          0%, 100% { box-shadow: 0 0 15px rgba(99,102,241,0.2); }
-          50% { box-shadow: 0 0 25px rgba(99,102,241,0.5); }
-        }
-        .animate-pulse-glow {
-          animation: pulseGlow 2s infinite;
-        }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-up { animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 15px rgba(99,102,241,0.2); } 50% { box-shadow: 0 0 25px rgba(99,102,241,0.5); } }
+        .animate-pulse-glow { animation: pulseGlow 2s infinite; }
+        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+        .animate-scan { animation: scanline 3s linear infinite; }
       `}</style>
       
-      <div className="w-full h-full bg-[#050505] flex flex-col md:flex-row relative overflow-hidden text-sm font-sans">
-         {/* Right: Dashboard Simulation */}
-         <div className="flex-1 bg-[#030303] p-5 md:p-8 relative flex flex-col h-[400px] md:h-auto">
+      <div className="w-full h-full bg-[#050505] flex flex-col relative overflow-hidden text-sm font-sans rounded-2xl md:rounded-3xl border border-white/20 shadow-[0_0_80px_rgba(99,102,241,0.2)]">
+        
+        {/* Top Toggle Bar */}
+        <div className="bg-[#0B0F19] border-b border-white/[0.08] p-3 flex justify-center gap-2 relative z-20">
+          <button 
+            onClick={() => { setMode('inbound'); setStep(0); }}
+            className={`px-4 py-2 rounded-lg font-bold text-xs transition-all ${mode === 'inbound' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            Starter / Growth (Inbound)
+          </button>
+          <button 
+            onClick={() => { setMode('outbound'); setStep(0); }}
+            className={`px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-2 ${mode === 'outbound' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            Elite Plan (Outbound Engine)
+          </button>
+        </div>
+
+        {mode === 'inbound' ? (
+          /* INBOUND DEMO (Original) */
+          <div className="flex-1 bg-[#030303] p-5 md:p-8 relative flex flex-col min-h-[450px]">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.02] to-transparent pointer-events-none" />
             <div className="flex justify-between items-center mb-8 relative z-10">
               <div>
@@ -263,7 +272,87 @@ function SimulatedDemo() {
                  </div>
                </div>
             </div>
-         </div>
+          </div>
+        ) : (
+          /* OUTBOUND DEMO (Google Maps Scraper) */
+          <div className="flex-1 bg-[#030303] p-5 md:p-8 relative flex flex-col min-h-[450px]">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.02] to-transparent pointer-events-none" />
+            <div className="flex justify-between items-center mb-8 relative z-10">
+              <div>
+                <h3 className="text-white font-extrabold text-xl md:text-2xl flex items-center gap-3">
+                  Outbound Engine <span className="bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">Elite</span>
+                </h3>
+              </div>
+              <div className="flex gap-3">
+                <div className="bg-amber-500/20 border border-amber-500/50 px-4 py-2 rounded-xl text-xs text-amber-300 font-bold flex items-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.25)]">
+                  <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+                  Scraper Active
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 flex flex-col md:flex-row gap-5 relative z-10">
+              
+              {/* Left: Terminal/Scraper View */}
+              <div className="flex-1 bg-[#050505] border border-white/[0.08] rounded-3xl p-5 flex flex-col shadow-xl font-mono relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-10 bg-white/5 border-b border-white/[0.08] flex items-center px-4 gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/50" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/50" />
+                  <span className="text-[10px] text-gray-500 font-sans ml-2">google_maps_extractor.js</span>
+                </div>
+                
+                <div className="mt-10 flex-1 overflow-y-auto space-y-2 text-[11px] md:text-xs">
+                  {step >= 0 && <div className="text-gray-400">] Initializing map boundary... [OK]</div>}
+                  {step >= 1 && <div className="text-indigo-400 animate-slide-up">] Query: "Marketing Agencies in London, UK"</div>}
+                  {step >= 2 && <div className="text-gray-400 animate-slide-up">] Scraping places API... found 412 results.</div>}
+                  {step >= 3 && (
+                    <div className="text-amber-400 animate-slide-up flex flex-col gap-1">
+                      <span>] Enriching data... extracting emails & socials...</span>
+                      <span className="text-emerald-400">] + Found: hello@creativeboost.co.uk (Score: 92)</span>
+                      <span className="text-emerald-400">] + Found: founders@elevatelondon.com (Score: 88)</span>
+                    </div>
+                  )}
+                  {step >= 4 && <div className="text-white animate-slide-up">] 120 Leads enriched. Pushing to CRM Pipeline...</div>}
+                  
+                  {step >= 1 && step < 4 && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-amber-500/10 to-transparent opacity-20 pointer-events-none animate-scan" />
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Pipeline / Action View */}
+              <div className="w-full md:w-1/2 flex flex-col gap-5">
+                <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-5 flex flex-col gap-4 shadow-xl flex-1">
+                  <h4 className="text-gray-400 text-[11px] font-extrabold uppercase tracking-widest">Cold Outreach Queue</h4>
+                  
+                  {step >= 4 ? (
+                    <div className="bg-amber-500/10 border border-amber-500/40 rounded-2xl p-4 animate-slide-up relative overflow-hidden shadow-[0_0_30px_rgba(245,158,11,0.15)]">
+                       <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+                       <div className="flex justify-between items-start pl-2">
+                         <div className="text-white text-sm font-bold">Creative Boost London</div>
+                         <span className="bg-amber-500/20 text-amber-400 text-[9px] px-2 py-1 rounded font-extrabold tracking-widest uppercase">Target</span>
+                       </div>
+                       <div className="text-amber-100/70 text-[11px] mt-2 pl-2 font-medium">Email: hello@creativeboost.co.uk</div>
+                       
+                       {step >= 5 && (
+                         <div className="mt-4 pl-2 text-[10px] text-emerald-400 flex items-center gap-2 border-t border-emerald-500/20 pt-3 font-bold uppercase tracking-wide animate-slide-up">
+                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                           Cold Sequence Initiated
+                         </div>
+                       )}
+                     </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-600 text-xs font-medium border-2 border-dashed border-white/[0.05] rounded-2xl">
+                      Awaiting Scraper Data...
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
       </div>
     </>
   )
