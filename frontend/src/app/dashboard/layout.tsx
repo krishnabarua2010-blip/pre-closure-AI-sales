@@ -1,5 +1,6 @@
 "use client";
 
+import { Sidebar } from "@/components/Sidebar";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -29,10 +30,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex h-screen bg-[#000000] text-white antialiased overflow-hidden">
-      <AiChatSidebar />
-      <div className="flex-1 flex min-w-0 h-full">
+    <div className="flex h-screen bg-[#050505] text-white antialiased overflow-hidden">
+      {/* Main Navigation on Left */}
+      <Sidebar />
+      
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 h-full relative z-10 overflow-hidden">
         {children}
+      </div>
+
+      {/* Optional AI Assistant on Right */}
+      <div className="hidden 2xl:block border-l border-white/5">
+        <AiChatSidebar />
       </div>
     </div>
   );

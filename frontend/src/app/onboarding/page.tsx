@@ -32,11 +32,11 @@ export default function OnboardingPage() {
       
       <div className="max-w-xl w-full relative z-10 glass bg-[#111827]/80 backdrop-blur-xl border border-[#1F2937] rounded-3xl p-10 shadow-2xl">
         <div className="text-center mb-10 reveal">
-          <div className="w-16 h-16 bg-[#6366F1]/20 rounded-2xl border border-[#6366F1]/30 flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 flex items-center justify-center mx-auto mb-6">
             <span className="text-3xl">🚀</span>
           </div>
-          <h1 className="text-3xl font-black tracking-tight mb-3">Let’s activate this on your website</h1>
-          <p className="text-gray-400">Your AI sales floor is ready. Let's start capturing leads immediately.</p>
+          <h1 className="text-3xl font-black tracking-tight mb-3">Connect Your Website</h1>
+          <p className="text-gray-400">Your premium agency CRM is ready. Let's start capturing and organizing leads immediately.</p>
         </div>
 
         <div className="space-y-8 reveal">

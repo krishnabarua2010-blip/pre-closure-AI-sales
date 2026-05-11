@@ -170,58 +170,6 @@ function SimulatedDemo() {
       `}</style>
       
       <div className="w-full h-full bg-[#050505] flex flex-col md:flex-row relative overflow-hidden text-sm font-sans">
-         {/* Left: Chat Widget Simulation */}
-         <div className="w-full md:w-5/12 bg-[#080808] border-b md:border-b-0 md:border-r border-white/10 flex flex-col relative z-10 h-72 md:h-auto shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
-            <div className="p-4 border-b border-white/5 flex items-center gap-3 bg-white/[0.01]">
-              <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-                <svg className="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-              </div>
-              <div>
-                <div className="text-gray-100 font-bold text-sm tracking-wide">Pre Closer AI</div>
-                <div className="text-emerald-400 text-[10px] flex items-center gap-1.5 font-bold mt-0.5 uppercase tracking-wider">
-                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                  Active Agent
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 p-5 space-y-5 overflow-y-auto relative custom-scrollbar flex flex-col justify-end pb-8">
-              <div className="text-center text-[10px] text-gray-600 mb-2 uppercase tracking-widest font-bold">Chat Initiated</div>
-              
-              {step >= 1 && (
-                <div className="bg-white/10 text-gray-100 p-3.5 rounded-2xl rounded-tr-none ml-auto max-w-[85%] text-xs md:text-sm shadow-xl border border-white/5 animate-slide-up">
-                  Hi, I'm looking for a system to manage my agency's leads.
-                </div>
-              )}
-              {step >= 2 && (
-                <div className="bg-indigo-500/10 text-indigo-100 p-3.5 rounded-2xl rounded-tl-none mr-auto max-w-[85%] text-xs md:text-sm shadow-xl border border-indigo-500/30 animate-slide-up backdrop-blur-md">
-                  Hello! We can definitely help. About how many leads do you process monthly?
-                </div>
-              )}
-              {step >= 3 && (
-                <div className="bg-white/10 text-gray-100 p-3.5 rounded-2xl rounded-tr-none ml-auto max-w-[85%] text-xs md:text-sm shadow-xl border border-white/5 animate-slide-up">
-                  Around 50-100 per month right now.
-                </div>
-              )}
-              {step >= 4 && (
-                <div className="bg-indigo-500/10 text-indigo-100 p-3.5 rounded-2xl rounded-tl-none mr-auto max-w-[85%] text-xs md:text-sm shadow-xl border border-indigo-500/30 animate-slide-up backdrop-blur-md">
-                  Perfect. I've logged your requirements. Our platform is ideal for that volume!
-                </div>
-              )}
-              {step >= 6 && (
-                <div className="bg-emerald-500/10 text-emerald-100 p-4 rounded-2xl rounded-tl-none mr-auto max-w-[90%] text-xs md:text-sm shadow-xl border border-emerald-500/40 animate-slide-up mt-6 relative overflow-hidden backdrop-blur-md">
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-50" />
-                  <div className="relative z-10">
-                    <div className="text-[10px] text-emerald-400 mb-2 font-bold flex items-center gap-2 uppercase tracking-widest">
-                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                      WhatsApp Auto-Pilot Triggered
-                    </div>
-                    Hey! Just checking in to see if you'd like to book a quick demo with our team?
-                  </div>
-                </div>
-              )}
-            </div>
-         </div>
-
          {/* Right: Dashboard Simulation */}
          <div className="flex-1 bg-[#030303] p-5 md:p-8 relative flex flex-col h-[400px] md:h-auto">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/[0.02] to-transparent pointer-events-none" />
@@ -397,16 +345,16 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto w-full flex flex-col items-center text-center gap-8 relative z-10">
           <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 inline-flex items-center gap-2 bg-white/[0.03] border border-white/[0.08] text-gray-300 text-[11px] md:text-xs font-medium px-5 py-2.5 rounded-full tracking-wide shadow-lg shadow-black/20 backdrop-blur-md">
             <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-            Premium AI-Powered Agency Growth System
+            Modern CRM For Agencies
           </div>
           
           <h1 className="reveal-up opacity-0 translate-y-6 transition-all duration-700 delay-100 hero-heading text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15] text-gray-100 max-w-4xl mx-auto">
             Manage Leads, Automate Follow-Ups & <br className="hidden md:block"/>
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Improve Conversions.</span>
+            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent drop-shadow-sm">Close More Clients.</span>
           </h1>
           
           <p className="reveal-up opacity-0 translate-y-6 transition-all duration-700 delay-200 text-base md:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed font-medium">
-            Pre Closer helps agencies organize leads, automate follow-ups, track conversions, and manage client flow through a modern AI-powered dashboard.
+            Stop losing deals in the chaos. Organize leads, automate multi-channel follow-ups, and track your entire sales pipeline from one beautiful dashboard.
           </p>
           
           <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 delay-300 flex flex-col sm:flex-row gap-4 justify-center mt-2 w-full sm:w-auto">
@@ -418,6 +366,10 @@ export default function LandingPage() {
               Book A Demo
             </a>
           </div>
+          
+          <p className="reveal-up opacity-0 translate-y-6 transition-all duration-700 delay-400 mt-8 text-sm text-gray-500 font-medium tracking-wide">
+            We help agencies identify ideal clients, organize lead pipelines, and automate outbound follow-ups.
+          </p>
         </div>
 
         {/* Dynamic Simulated Demo Component */}
@@ -471,7 +423,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {/* Card 1 */}
             <div className="reveal-up opacity-0 translate-y-10 transition-all duration-700 glass-premium rounded-3xl p-8 hover:shadow-[0_0_60px_rgba(99,102,241,0.15)] group relative overflow-hidden flex flex-col h-full border border-white/10 hover:border-indigo-500/30 bg-gradient-to-b from-white/[0.02] to-transparent">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -546,6 +498,31 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
+
+            {/* Card 4 */}
+            <div className="reveal-up opacity-0 translate-y-10 transition-all duration-700 delay-300 glass-premium rounded-3xl p-8 hover:shadow-[0_0_60px_rgba(245,158,11,0.15)] group relative overflow-hidden flex flex-col h-full border border-white/10 hover:border-amber-500/30 bg-gradient-to-b from-white/[0.02] to-transparent">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mb-6 border border-amber-500/20 group-hover:scale-110 transition-transform duration-500">
+                <svg className="w-7 h-7 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-100 mb-6">Outbound Optimization</h3>
+              <div className="space-y-5 flex-grow">
+                <div>
+                  <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">What it does</h4>
+                  <p className="text-sm text-gray-300 leading-relaxed">Identify ideal customer profiles, improve lead targeting, and automate follow-up workflows through structured outbound systems.</p>
+                </div>
+                <div>
+                  <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Why it matters</h4>
+                  <p className="text-sm text-gray-300 leading-relaxed">It shifts your agency from relying purely on inbound luck to having a predictable outbound growth engine.</p>
+                </div>
+                <div className="pt-2">
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+                    <h4 className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-1">Agency Benefit</h4>
+                    <p className="text-xs text-amber-100/80 leading-relaxed">Gives you a repeatable, automated system for acquiring high-value clients predictably.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -561,16 +538,16 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+          <div className="grid md:grid-cols-3 gap-6 text-left max-w-5xl mx-auto">
             {/* Starter */}
             <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium rounded-3xl p-8 relative flex flex-col border border-white/10 hover:border-white/20 hover:bg-white/[0.03] group">
               <h3 className="text-xl font-bold text-gray-100 mb-2">Starter</h3>
-              <p className="text-sm text-gray-400 mb-6">Perfect for solo consultants or small agency teams getting started.</p>
-              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">₹999</span><span className="text-sm font-medium text-gray-500">/mo</span></div>
+              <p className="text-sm text-gray-400 mb-6 min-h-[60px]">Perfect for solo consultants or small agency teams getting started.</p>
+              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">$99</span><span className="text-sm font-medium text-gray-500">/mo</span></div>
               <div className="flex-1">
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">What you get</div>
                 <ul className="space-y-4 mb-8">
-                  {['100 leads per month','AI lead summaries','Follow-up reminders','Basic pipeline dashboard','1 team member'].map((f,i) => (
+                  {['Basic CRM','100 leads per month','Follow-up reminders','Basic pipeline dashboard','Analytics','1 team member'].map((f,i) => (
                     <li key={i} className="flex items-start gap-3 text-sm text-gray-300">
                       <svg className="w-5 h-5 text-emerald-500/70 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
                       {f}
@@ -582,36 +559,16 @@ export default function LandingPage() {
             </div>
 
             {/* Growth */}
-            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium border-indigo-500/30 bg-gradient-to-b from-indigo-500/10 to-transparent rounded-3xl p-8 relative flex flex-col transform md:-translate-y-4 shadow-[0_0_60px_rgba(99,102,241,0.15)] hover:shadow-[0_0_80px_rgba(99,102,241,0.25)] ring-1 ring-indigo-500/50">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">Most Popular</div>
-              <h3 className="text-xl font-bold text-white mb-2">Growth</h3>
-              <p className="text-sm text-indigo-200/70 mb-6">For scaling agencies that need powerful automation to save time.</p>
-              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">₹2,999</span><span className="text-sm font-medium text-gray-400">/mo</span></div>
-              <div className="flex-1">
-                <div className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest mb-4">What you get</div>
-                <ul className="space-y-4 mb-8">
-                  {['1,000 leads per month','AI qualification & scoring','Automated follow-up flows','Conversion analytics dashboard','WhatsApp integration','5 team members','Admin controls'].map((f,i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-gray-100">
-                      <svg className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <a href="/signup" className="block w-full bg-white text-black text-center py-4 rounded-xl font-bold text-sm transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-[1.02]">Start Free Trial</a>
-            </div>
-
-            {/* Scale */}
             <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium rounded-3xl p-8 relative flex flex-col border border-white/10 hover:border-white/20 hover:bg-white/[0.03] group">
-              <h3 className="text-xl font-bold text-gray-100 mb-2">Scale</h3>
-              <p className="text-sm text-gray-400 mb-6">For high-volume international agencies focusing on optimization.</p>
-              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">$99</span><span className="text-sm font-medium text-gray-500">/mo</span></div>
+              <h3 className="text-xl font-bold text-white mb-2">Growth</h3>
+              <p className="text-sm text-gray-400 mb-6 min-h-[60px]">We help identify your ideal clients and optimize your outreach workflow.</p>
+              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">$199</span><span className="text-sm font-medium text-gray-400">/mo</span></div>
               <div className="flex-1">
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">What you get</div>
                 <ul className="space-y-4 mb-8">
-                  {['Unlimited leads','Advanced ROI analytics','Team performance tracking','AI workflow recommendations','Email + WhatsApp automation','Advanced pipeline stages','10 team members'].map((f,i) => (
+                  {['AI-powered CRM dashboard','Follow-up automation','Pipeline tracking','Analytics','Team collaboration','AI lead summaries','ICP Identification Assistance','Lead sourcing guidance','Outbound workflow setup','Follow-up sequence optimization'].map((f,i) => (
                     <li key={i} className="flex items-start gap-3 text-sm text-gray-300">
-                      <svg className="w-5 h-5 text-emerald-500/70 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                      <svg className="w-5 h-5 text-emerald-500/70 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
                       {f}
                     </li>
                   ))}
@@ -620,23 +577,24 @@ export default function LandingPage() {
               <a href="/signup" className="block w-full bg-white/5 hover:bg-white/10 text-white text-center py-4 rounded-xl font-bold text-sm transition-all border border-white/10 group-hover:border-white/20">Start Free Trial</a>
             </div>
 
-            {/* Enterprise */}
-            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium rounded-3xl p-8 relative flex flex-col border border-white/10 hover:border-white/20 hover:bg-white/[0.03] group">
-              <h3 className="text-xl font-bold text-gray-100 mb-2">Enterprise</h3>
-              <p className="text-sm text-gray-400 mb-6">Custom requirements, white-labeling, and dedicated support.</p>
-              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">$199</span><span className="text-sm font-medium text-gray-500">/mo</span></div>
+            {/* Elite */}
+            <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium border-indigo-500/30 bg-gradient-to-b from-indigo-500/10 to-transparent rounded-3xl p-8 relative flex flex-col transform md:-translate-y-4 shadow-[0_0_60px_rgba(99,102,241,0.15)] hover:shadow-[0_0_80px_rgba(99,102,241,0.25)] ring-1 ring-indigo-500/50">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg flex items-center gap-1.5 whitespace-nowrap"><span className="text-xs">⭐</span> BEST FOR SCALING AGENCIES</div>
+              <h3 className="text-xl font-bold text-white mb-2">Elite</h3>
+              <p className="text-sm text-indigo-200/70 mb-6 min-h-[60px]">We help agencies identify the right clients, build outbound systems, and automate follow-ups to improve conversions consistently.</p>
+              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">$249</span><span className="text-sm font-medium text-gray-400">/mo</span></div>
               <div className="flex-1">
-                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">What you get</div>
+                <div className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest mb-4">Everything in Growth, plus</div>
                 <ul className="space-y-4 mb-8">
-                  {['Everything in Scale','Custom AI workflows','API & Webhook access','Priority onboarding call','White-label options','Unlimited team members','Dedicated support agent'].map((f,i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-gray-300">
-                      <svg className="w-5 h-5 text-emerald-500/70 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                  {['Personalized ICP research','Done-with-you outbound strategy','Lead sourcing assistance','Automated follow-up system setup','Outreach workflow optimization','Priority onboarding','Advanced analytics','Higher automation limits','Dedicated support priority'].map((f,i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm text-gray-100">
+                      <svg className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>
                       {f}
                     </li>
                   ))}
                 </ul>
               </div>
-              <a href="#book" className="block w-full bg-white/5 hover:bg-white/10 text-white text-center py-4 rounded-xl font-bold text-sm transition-all border border-white/10 group-hover:border-white/20">Contact Sales</a>
+              <a href="/signup" className="block w-full bg-white text-black text-center py-4 rounded-xl font-bold text-sm transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-[1.02]">Start Free Trial</a>
             </div>
           </div>
         </div>
