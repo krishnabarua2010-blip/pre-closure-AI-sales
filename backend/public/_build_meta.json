@@ -1,5 +1,5 @@
 ﻿{
-    "indexSize":  65489,
-    "commit":  "mobile-responsive-update",
-    "buildTime":  "2026-05-11 20:10:19"
+    "indexSize":  65492,
+    "commit":  "8b4d1d2b fix: full mobile responsiveness ΓÇö hamburger nav, sidebar drawer, pricing stack, demo tabs, disable hover scale on mobile",
+    "buildTime":  "2026-05-12 04:32:19"
 }

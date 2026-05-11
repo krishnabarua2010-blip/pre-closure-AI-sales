@@ -43,7 +43,7 @@ Copy-Item -Recurse -Force $outDir $publicDir
 $stamp = @{
     buildTime = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
     indexSize = $outSize
-    commit    = (git -C $ROOT log --oneline -1 2>$null) ?? "unknown"
+    commit    = $(if ($c = git -C $ROOT log --oneline -1 2>$null) { $c } else { "unknown" })
 } | ConvertTo-Json
 $stamp | Out-File -FilePath "$publicDir\_build_meta.json" -Encoding utf8
 Write-Host "  Sync complete. Build stamp written." -ForegroundColor Green

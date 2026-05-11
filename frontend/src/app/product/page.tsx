@@ -108,9 +108,9 @@ export default function ProductPage() {
 
   useEffect(() => {
     setPrices({
-      starter: formatPrice(99),
+      starter: '₹999',
       growth: formatPrice(199),
-      starterOld: formatPrice(199),
+      starterOld: '₹1999',
       growthOld: formatPrice(399),
     });
   }, []);

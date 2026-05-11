@@ -43,20 +43,45 @@ const path_1 = __importDefault(require("path"));
 const static_1 = __importDefault(require("@fastify/static"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-// 🔥 TEMPORARY HARDCODE FOR DEBUGGING
-process.env.DATABASE_URL = "postgresql://postgres.sjezasjszvtrlpplxuuu:W7ZLLgOZSJley0UN@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require";
-process.env.REDIS_URL = "rediss://default:gQAAAAAAASu2AAIncDJhZGM3ZTM0N2JkMjE0MWMzOWQzNTg4ZmI2NGY3NmI4ZnAyNzY3MjY@fleet-beagle-76726.upstash.io:6379";
-process.env.JWT_SECRET = "supersecretkey";
-process.env.PORT = "8080";
+// 🔥 TEMPORARY FALLBACKS FOR DEBUGGING
+process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres.sjezasjszvtrlpplxuuu:W7ZLLgOZSJley0UN@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require";
+process.env.REDIS_URL = process.env.REDIS_URL || "rediss://default:gQAAAAAAASu2AAIncDJhZGM3ZTM0N2JkMjE0MWMzOWQzNTg4ZmI2NGY3NmI4ZnAyNzY3MjY@fleet-beagle-76726.upstash.io:6379";
+process.env.JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+process.env.PORT = process.env.PORT || "8080";
 const server = (0, fastify_1.default)({ logger: true });
 // ✅ Base plugins
 server.register(cors_1.default, { origin: true });
 server.register(static_1.default, {
     root: path_1.default.join(__dirname, '../public'),
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html') || filePath.endsWith('.json')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+        }
+        else {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        }
+    }
 });
 // ✅ Health route
 server.get("/api/health", async () => {
     return { status: "alive", timestamp: new Date().toISOString() };
+});
+// ✅ Build info route — verify which frontend is deployed
+server.get("/api/build-info", async () => {
+    try {
+        const fs = await Promise.resolve().then(() => __importStar(require('fs')));
+        const metaPath = path_1.default.join(__dirname, '../public/_build_meta.json');
+        if (fs.existsSync(metaPath)) {
+            const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+            return { deployed: true, ...meta };
+        }
+        return { deployed: true, buildTime: 'unknown', note: 'No _build_meta.json found' };
+    }
+    catch {
+        return { deployed: true, buildTime: 'unknown', error: 'Could not read build meta' };
+    }
 });
 // ✅ Crash shields (VERY IMPORTANT)
 process.on("uncaughtException", (err) => {
@@ -73,6 +98,9 @@ server.setErrorHandler((error, request, reply) => {
 // ✅ Fallback to frontend for all other routes (SPA support)
 server.setNotFoundHandler((req, reply) => {
     if (!req.url.startsWith('/api')) {
+        reply.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        reply.header('Pragma', 'no-cache');
+        reply.header('Expires', '0');
         return reply.sendFile('index.html');
     }
     reply.status(404).send({ error: 'Not found' });

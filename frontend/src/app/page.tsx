@@ -671,7 +671,7 @@ export default function LandingPage() {
             <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium rounded-3xl p-8 relative flex flex-col border border-white/10 hover:border-white/20 hover:bg-white/[0.03] group">
               <h3 className="text-xl font-bold text-gray-100 mb-2">Starter</h3>
               <p className="text-sm text-gray-400 mb-6 min-h-[60px]">Perfect for solo consultants or small agency teams getting started.</p>
-              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">$99</span><span className="text-sm font-medium text-gray-500">/mo</span></div>
+              <div className="mb-8"><span className="text-4xl md:text-5xl font-extrabold text-white">₹999</span><span className="text-sm font-medium text-gray-500">/mo</span></div>
               <div className="flex-1">
                 <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">What you get</div>
                 <ul className="space-y-4 mb-8">

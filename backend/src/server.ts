@@ -19,6 +19,15 @@ const server = Fastify({ logger: true });
 server.register(cors, { origin: true });
 server.register(fastifyStatic, {
   root: path.join(__dirname, '../public'),
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html') || filePath.endsWith('.json')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  }
 });
 
 // ✅ Health route
@@ -59,6 +68,9 @@ server.setErrorHandler((error, request, reply) => {
 // ✅ Fallback to frontend for all other routes (SPA support)
 server.setNotFoundHandler((req, reply) => {
   if (!req.url.startsWith('/api')) {
+    reply.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    reply.header('Pragma', 'no-cache');
+    reply.header('Expires', '0');
     return reply.sendFile('index.html');
   }
   reply.status(404).send({ error: 'Not found' });

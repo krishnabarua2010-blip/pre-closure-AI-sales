@@ -9,54 +9,46 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const BETA_FEATURES = [
-  '14-day full access',
-  '80 leads',
-  '40 AI enrichments',
-  '40 outreach messages',
-  '20 AI chats',
-  '₹1,500 credited on upgrade',
-];
-
 const STARTER_FEATURES = [
-  '200 leads / month',
-  '100 AI enrichments',
-  '200 outreach messages',
-  '50 AI chats',
-  'AI chat closer',
-  'Basic lead scoring',
-  'Follow-up automation (2-step)',
-  'Lead dashboard',
+  'Basic CRM',
+  '100 leads per month',
+  'Follow-up reminders',
+  'Basic pipeline dashboard',
+  'Analytics',
+  '1 team member',
 ];
 
 const GROWTH_FEATURES = [
-  '1,000 leads / month',
-  '500 AI enrichments',
-  '2,000 outreach messages',
-  '500 AI chats',
-  'Full AI lead intelligence',
-  'Personalized outreach generator',
-  'CRM pipeline dashboard',
-  '🔥 Hot lead alerts',
-  '4-step follow-up automation',
-  'AI chat qualification',
-  'Priority processing',
-  'Close strategy generator',
-  'Deal probability engine',
+  'AI-powered CRM dashboard',
+  'Follow-up automation',
+  'Pipeline tracking',
+  'Analytics',
+  'Team collaboration',
+  'AI lead summaries',
+  'ICP Identification Assistance',
+  'Lead sourcing guidance',
+  'Outbound workflow setup',
+  'Follow-up sequence optimization',
+];
+
+const ELITE_FEATURES = [
+  'Personalized ICP research',
+  'Done-with-you outbound strategy',
+  'Lead sourcing assistance',
+  'Automated follow-up system setup',
+  'Outreach workflow optimization',
+  'Priority onboarding',
+  'Advanced analytics',
+  'Higher automation limits',
+  'Dedicated support priority',
 ];
 
 const COMPARISON_DATA = [
-  { feature: 'Leads / month', beta: '80 (14 days)', starter: '200', growth: '1,000' },
-  { feature: 'AI enrichments', beta: '40', starter: '100', growth: '500' },
-  { feature: 'Outreach messages', beta: '40', starter: '200', growth: '2,000' },
-  { feature: 'AI chat sessions', beta: '20', starter: '50', growth: '500' },
-  { feature: 'Lead scoring', beta: '✅ Basic', starter: '✅ Basic', growth: '✅ 5-dimension' },
-  { feature: 'Follow-up automation', beta: '❌', starter: '✅ 2-step', growth: '✅ 4-step' },
-  { feature: 'Hot lead alerts', beta: '❌', starter: '❌', growth: '✅' },
-  { feature: 'CRM pipeline', beta: '❌', starter: 'Basic', growth: '✅ Full' },
-  { feature: 'AI qualification', beta: '✅', starter: '✅', growth: '✅ Advanced' },
-  { feature: 'Priority processing', beta: '❌', starter: '❌', growth: '✅' },
-  { feature: 'Cooldown between actions', beta: '15 sec', starter: '15 sec', growth: '3 sec' },
+  { feature: 'CRM Dashboard', starter: 'Basic', growth: 'AI-Powered', elite: 'AI-Powered + Advanced' },
+  { feature: 'Follow-up Automation', starter: 'Reminders', growth: 'Automated', elite: 'Done-with-you Setup' },
+  { feature: 'Lead Sourcing Guidance', starter: '❌', growth: '✅', elite: '✅ Hands-on Assistance' },
+  { feature: 'ICP Research', starter: '❌', growth: 'Assistance', elite: 'Personalized Research' },
+  { feature: 'Support Priority', starter: 'Standard', growth: 'Standard', elite: 'Dedicated Priority' },
 ];
 
 const ACTIVITY_MESSAGES = [
@@ -140,53 +132,45 @@ export default function PricingPage() {
           {/* Plans Grid */}
           <div className="grid md:grid-cols-3 gap-6 mt-8">
 
-            {/* Beta Access */}
+            {/* Starter */}
             <div data-reveal className="feature-card bg-[#0a0a0a] border border-[#1F2937] rounded-2xl p-8">
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase">Beta Access</p>
-                  <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-medium">Try First</span>
+                  <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase">Starter</p>
                 </div>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-black text-white">₹1,500</span>
-                  <span className="text-gray-500 text-sm">one-time</span>
+                  <span className="text-4xl font-black text-white">₹999</span>
+                  <span className="text-gray-500 text-sm">/month</span>
                 </div>
-                <p className="text-xs text-emerald-400 mt-1 font-medium">
-                  ✨ Credited fully on upgrade to any plan
-                </p>
               </div>
-              <p className="text-sm text-gray-400 mb-6">Try the full system for 14 days. Zero risk — your ₹1,500 becomes credit if you upgrade.</p>
+              <p className="text-sm text-gray-400 mb-6">Perfect for solo consultants or small agency teams getting started.</p>
               <ul className="space-y-3 mb-8">
-                {BETA_FEATURES.map((f, i) => (
+                {STARTER_FEATURES.map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
-                    <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
                     </svg>
                     {f}
                   </li>
                 ))}
               </ul>
-              <Link href="/signup" className="block text-center border border-[#374151] hover:border-amber-500/50 hover:bg-amber-500/5 text-white py-3.5 rounded-xl font-semibold transition-all text-sm">
-                Start Beta Access →
+              <Link href="/signup" className="block text-center border border-[#374151] hover:border-emerald-500/50 hover:bg-emerald-500/5 text-white py-3.5 rounded-xl font-semibold transition-all text-sm">
+                Get Started →
               </Link>
             </div>
 
-            {/* Starter */}
+            {/* Growth */}
             <div data-reveal className="feature-card bg-[#0a0a0a] border border-[#1F2937] rounded-2xl p-8">
               <div className="mb-6">
-                <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-4">Starter</p>
+                <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase mb-4">Growth</p>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-black text-white">₹9,999</span>
+                  <span className="text-4xl font-black text-white">$199</span>
                   <span className="text-gray-500 text-sm">/month</span>
                 </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm text-gray-600 line-through">₹14,999/month</span>
-                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">Save 33%</span>
-                </div>
               </div>
-              <p className="text-sm text-gray-400 mb-6">Perfect for solo founders qualifying leads on autopilot.</p>
+              <p className="text-sm text-gray-400 mb-6">We help identify your ideal clients and optimize your outreach workflow.</p>
               <ul className="space-y-3 mb-8">
-                {STARTER_FEATURES.map((f, i) => (
+                {GROWTH_FEATURES.map((f, i) => (
                   <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
                     <svg className="w-4 h-4 text-[#6366F1] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
@@ -196,47 +180,39 @@ export default function PricingPage() {
                 ))}
               </ul>
               <Link href="/signup" className="block text-center border border-[#374151] hover:border-[#6366F1]/50 hover:bg-[#6366F1]/5 text-white py-3.5 rounded-xl font-semibold transition-all text-sm">
-                Get Started with Starter
+                Get Growth Plan
               </Link>
             </div>
 
-            {/* Growth — HIGHLIGHTED */}
+            {/* Elite — HIGHLIGHTED */}
             <div data-reveal className="relative">
-              <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-[#6366F1] to-[#6366F1]/30" />
+              <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-indigo-500 to-indigo-500/30" />
               <div className="relative bg-[#0a0a0a] rounded-2xl p-8">
                 <div className="flex items-start justify-between mb-4">
-                  <p className="text-xs font-semibold text-gray-500 tracking-wider uppercase">Growth</p>
-                  <span className="text-xs bg-[#ef4444] text-white px-2.5 py-1 rounded-full font-semibold shadow-lg shadow-[#ef4444]/30 animate-pulse">⭐ Most Popular</span>
+                  <p className="text-xs font-semibold text-indigo-400 tracking-wider uppercase">Elite</p>
+                  <span className="text-[10px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2.5 py-1 rounded-full font-bold shadow-lg shadow-indigo-500/30 uppercase tracking-widest">⭐ Best For Scaling Agencies</span>
                 </div>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-black text-white">₹17,999</span>
+                  <span className="text-4xl font-black text-white">$249</span>
                   <span className="text-gray-500 text-sm">/month</span>
                 </div>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm text-gray-600 line-through">₹29,999/month</span>
-                  <span className="text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-0.5 rounded-full font-medium">Save 40%</span>
-                </div>
                 <p className="text-sm text-[#a5b4fc] mt-4 mb-2 font-medium">
-                  The complete AI sales floor. Full automation. Maximum clients.
+                  We help agencies identify the right clients, build outbound systems, and automate follow-ups to improve conversions consistently.
                 </p>
-                <p className="text-sm text-gray-400 mb-6">For businesses serious about automated client acquisition.</p>
+                <div className="text-[10px] font-bold text-indigo-400/80 uppercase tracking-widest mb-4 mt-4">Everything in Growth, plus</div>
                 <ul className="space-y-3 mb-8">
-                  {GROWTH_FEATURES.map((f, i) => (
+                  {ELITE_FEATURES.map((f, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
-                      <svg className="w-4 h-4 text-[#6366F1] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
                       </svg>
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link href="/signup" className="btn-glow w-full block text-center bg-[#6366F1] hover:bg-[#5558e3] text-white py-4 rounded-xl font-black transition-all shadow-xl shadow-[#6366F1]/40 hover:scale-[1.02]">
-                  Get Growth Plan →
+                <Link href="/signup" className="btn-glow w-full block text-center bg-white hover:bg-gray-100 text-black py-4 rounded-xl font-black transition-all shadow-xl hover:scale-[1.02]">
+                  Get Elite Plan →
                 </Link>
-                <div className="mt-5 space-y-1">
-                  <p className="text-[10px] text-center text-[#f59e0b] font-bold tracking-wide mb-3">🔥 Early access pricing — increases as we grow</p>
-                  <p className="text-xs text-center text-emerald-400 font-semibold tracking-wide">✨ Works instantly — no setup needed</p>
-                </div>
               </div>
             </div>
           </div>
@@ -258,18 +234,18 @@ export default function PricingPage() {
                 <thead>
                   <tr className="bg-[#111827]">
                     <th className="text-left px-4 py-3 text-gray-400 font-medium">Feature</th>
-                    <th className="text-center px-4 py-3 text-amber-400 font-medium">Beta (₹1,500)</th>
-                    <th className="text-center px-4 py-3 text-gray-300 font-medium">Starter (₹9,999)</th>
-                    <th className="text-center px-4 py-3 text-[#6366F1] font-bold">Growth (₹17,999)</th>
+                    <th className="text-center px-4 py-3 text-emerald-400 font-medium">Starter (₹999)</th>
+                    <th className="text-center px-4 py-3 text-gray-300 font-medium">Growth ($199)</th>
+                    <th className="text-center px-4 py-3 text-[#6366F1] font-bold">Elite ($249)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {COMPARISON_DATA.map((row, i) => (
                     <tr key={i} className={`border-t border-[#1F2937] ${i % 2 === 0 ? 'bg-[#0a0a0a]' : 'bg-[#080808]'}`}>
                       <td className="px-4 py-3 text-gray-300 font-medium">{row.feature}</td>
-                      <td className="px-4 py-3 text-center text-gray-400">{row.beta}</td>
-                      <td className="px-4 py-3 text-center text-gray-300">{row.starter}</td>
-                      <td className="px-4 py-3 text-center text-[#a5b4fc] font-semibold">{row.growth}</td>
+                      <td className="px-4 py-3 text-center text-gray-400">{row.starter}</td>
+                      <td className="px-4 py-3 text-center text-gray-300">{row.growth}</td>
+                      <td className="px-4 py-3 text-center text-[#a5b4fc] font-semibold">{row.elite}</td>
                     </tr>
                   ))}
                 </tbody>

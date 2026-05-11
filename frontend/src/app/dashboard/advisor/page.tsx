@@ -13,7 +13,7 @@ export default function AdvisorPage() {
     setLoading(true);
     setError('');
     try {
-      const { data } = await api.post('/advisor_analysis', {});
+      const { data } = await api.post('/advisor/scan', {});
       setAnalysis(data);
     } catch (err: any) {
       setError('Failed to generate advisor analysis. Ensure pipeline data exists.');
