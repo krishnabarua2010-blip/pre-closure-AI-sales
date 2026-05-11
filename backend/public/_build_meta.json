@@ -1,5 +1,5 @@
 ﻿{
-    "indexSize":  64315,
-    "commit":  "07a6c1de feat(frontend): rebrand to premium CRM, update pricing, restructure dashboard navigation",
-    "buildTime":  "2026-05-11 18:53:45"
+    "indexSize":  64903,
+    "commit":  "6a66ee71 deploy: sync latest frontend build to backend/public, add build-info endpoint and deploy script",
+    "buildTime":  "2026-05-11 18:57:01"
 }
