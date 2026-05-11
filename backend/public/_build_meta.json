@@ -1,5 +1,5 @@
 ﻿{
-    "indexSize":  64903,
-    "commit":  "6a66ee71 deploy: sync latest frontend build to backend/public, add build-info endpoint and deploy script",
-    "buildTime":  "2026-05-11 18:57:01"
+    "indexSize":  65489,
+    "commit":  "mobile-responsive-update",
+    "buildTime":  "2026-05-11 20:10:19"
 }

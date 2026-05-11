@@ -163,18 +163,20 @@ function SimulatedDemo() {
       <div className="w-full h-full bg-[#050505] flex flex-col relative overflow-hidden text-sm font-sans rounded-2xl md:rounded-3xl border border-white/20 shadow-[0_0_80px_rgba(99,102,241,0.2)]">
         
         {/* Top Toggle Bar */}
-        <div className="bg-[#0B0F19] border-b border-white/[0.08] p-3 flex justify-center gap-2 relative z-20">
+        <div className="bg-[#0B0F19] border-b border-white/[0.08] p-2 sm:p-3 flex justify-center gap-1.5 sm:gap-2 relative z-20">
           <button 
             onClick={() => { setMode('inbound'); setStep(0); }}
-            className={`px-4 py-2 rounded-lg font-bold text-xs transition-all ${mode === 'inbound' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-3 sm:px-4 py-2 rounded-lg font-bold text-[10px] sm:text-xs transition-all ${mode === 'inbound' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 'text-gray-500 hover:text-gray-300'}`}
           >
-            Starter / Growth (Inbound)
+            <span className="hidden sm:inline">Starter / Growth (Inbound)</span>
+            <span className="sm:hidden">Inbound</span>
           </button>
           <button 
             onClick={() => { setMode('outbound'); setStep(0); }}
-            className={`px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-2 ${mode === 'outbound' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-3 sm:px-4 py-2 rounded-lg font-bold text-[10px] sm:text-xs transition-all flex items-center gap-1.5 sm:gap-2 ${mode === 'outbound' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'text-gray-500 hover:text-gray-300'}`}
           >
-            Elite Plan (Outbound Engine)
+            <span className="hidden sm:inline">Elite Plan (Outbound Engine)</span>
+            <span className="sm:hidden">Outbound</span>
           </button>
         </div>
 
@@ -374,6 +376,60 @@ function FaqItem({q,a}:{q:string;a:string}) {
   );
 }
 
+/* ── Mobile Navigation ── */
+function MobileNav() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const links = [
+    { href: '#how', label: 'How It Works' },
+    { href: '#features', label: 'Features' },
+    { href: '#pricing', label: 'Pricing' },
+    { href: '#book', label: 'Book Demo' },
+  ];
+
+  return (
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-10 py-3 md:py-4 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 transition-all">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 12H2.5L9 2Z" fill="white" fillOpacity="0.9"/></svg>
+          </div>
+          <span className="text-sm font-bold text-gray-100 tracking-tight">Pre Closer</span>
+        </Link>
+        
+        {/* Desktop nav links */}
+        <div className="hidden md:flex items-center gap-8 text-xs font-medium text-gray-400">
+          {links.map(l => <a key={l.href} href={l.href} className="hover:text-white transition-colors">{l.label}</a>)}
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Link href="/login" className="text-xs font-medium text-gray-400 hover:text-white transition-colors hidden md:block">Sign in</Link>
+          <a href="#book" className="text-xs bg-indigo-500 hover:bg-indigo-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg font-bold transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hidden sm:block">Get Started</a>
+          
+          {/* Mobile hamburger */}
+          <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 border border-white/10 text-gray-400" aria-label="Menu">
+            {menuOpen ? (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/></svg>
+            )}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile dropdown menu */}
+      {menuOpen && (
+        <div className="md:hidden fixed top-[57px] left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-b border-white/5 px-4 py-4 space-y-1">
+          {links.map(l => (
+            <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)} className="block px-4 py-3 text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-colors">{l.label}</a>
+          ))}
+          <Link href="/login" onClick={() => setMenuOpen(false)} className="block px-4 py-3 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors">Sign in</Link>
+          <a href="#book" onClick={() => setMenuOpen(false)} className="block w-full text-center bg-indigo-500 text-white py-3 rounded-xl font-bold text-sm mt-2">Get Started</a>
+        </div>
+      )}
+    </>
+  );
+}
+
 /* ── MAIN PAGE ── */
 export default function LandingPage() {
   const router = useRouter();
@@ -410,24 +466,7 @@ export default function LandingPage() {
       <div className="glow-blur w-[600px] h-[600px] md:w-[800px] md:h-[800px] bg-emerald-500/10 top-[30%] left-[20%]" style={{ animationDelay: '4s' }}></div>
 
       {/* NAV */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 md:px-10 py-4 bg-[#050505]/70 backdrop-blur-xl border-b border-white/5 transition-all">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-            <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 12H2.5L9 2Z" fill="white" fillOpacity="0.9"/></svg>
-          </div>
-          <span className="text-sm font-bold text-gray-100 tracking-tight">Pre Closer</span>
-        </Link>
-        <div className="hidden md:flex items-center gap-8 text-xs font-medium text-gray-400">
-          <a href="#how" className="hover:text-white transition-colors">How It Works</a>
-          <a href="#features" className="hover:text-white transition-colors">Features</a>
-          <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          <a href="#book" className="hover:text-white transition-colors">Book Demo</a>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="text-xs font-medium text-gray-400 hover:text-white transition-colors hidden md:block">Sign in</Link>
-          <a href="#book" className="text-xs bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)]">Get Started</a>
-        </div>
-      </nav>
+      <MobileNav />
 
       {/* HERO & DEMO */}
       <section className="relative min-h-[100vh] flex flex-col items-center pt-32 pb-20 px-5 md:px-10 z-10">
@@ -512,7 +551,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {/* Card 1 */}
             <div className="reveal-up opacity-0 translate-y-10 transition-all duration-700 glass-premium rounded-3xl p-8 hover:shadow-[0_0_60px_rgba(99,102,241,0.15)] group relative overflow-hidden flex flex-col h-full border border-white/10 hover:border-indigo-500/30 bg-gradient-to-b from-white/[0.02] to-transparent">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -627,7 +666,7 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-6 text-left max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left max-w-5xl mx-auto">
             {/* Starter */}
             <div className="reveal-up opacity-0 translate-y-6 transition-all duration-700 glass-premium rounded-3xl p-8 relative flex flex-col border border-white/10 hover:border-white/20 hover:bg-white/[0.03] group">
               <h3 className="text-xl font-bold text-gray-100 mb-2">Starter</h3>
