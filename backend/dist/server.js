@@ -164,6 +164,10 @@ const start = async () => {
             const routes = await Promise.resolve().then(() => __importStar(require("./modules/user/user.routes")));
             server.register(routes.default, { prefix: "/api/user" });
         });
+        await safeRegister("external", async () => {
+            const routes = await Promise.resolve().then(() => __importStar(require("./modules/external/external.routes")));
+            server.register(routes.default, { prefix: "/api/external" });
+        });
         console.log("ENV PORT:", process.env.PORT);
         const PORT = process.env.PORT || 3000;
         console.log("USING PORT:", PORT);

@@ -61,6 +61,8 @@ export class WidgetController {
         publicToken: string;
         message: string;
       };
+      const { AIService } = await import('../ai/ai.service');
+      const { EscalationService } = await import('../conversation/escalation.service');
 
       if (!conversationId || !publicToken || !message) {
         return reply.code(400).send({ error: 'conversationId, publicToken, and message are required' });
@@ -99,8 +101,14 @@ export class WidgetController {
       });
 
       // Generate AI response
-      const { AIService } = await import('../ai/ai.service');
-      const aiReply = await AIService.generateResponse(conversation.id, message);
+      const escResult = await EscalationService.checkAndEscalate(conversation.id, message);
+
+      let aiReply;
+      if (escResult.escalated) {
+        aiReply = escResult.reply;
+      } else {
+        aiReply = await AIService.generateResponse(conversation.id, message);
+      }
 
       // Save AI response
       await prisma.message.create({

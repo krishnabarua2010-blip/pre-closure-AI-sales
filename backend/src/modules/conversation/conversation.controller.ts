@@ -49,6 +49,8 @@ export class ConversationController {
   static async handleAiMessage(request: FastifyRequest, reply: FastifyReply) {
     try {
       const parsedBody = aiMessageSchema.parse(request.body);
+      const { AIService } = await import('../ai/ai.service');
+      const { EscalationService } = await import('./escalation.service');
       
       // 1. Strict validation of conversation AND public_token
       const conversation = await prisma.conversation.findUnique({
@@ -86,8 +88,14 @@ export class ConversationController {
 
       // --- DELEGATING TO AI LOGIC (Agent 3) ---
       
-      const { AIService } = await import('../ai/ai.service');
-      const aiResponseContent = await AIService.generateResponse(conversation.id, parsedBody.message);
+      const escResult = await EscalationService.checkAndEscalate(conversation.id, parsedBody.message);
+
+      let aiResponseContent;
+      if (escResult.escalated) {
+        aiResponseContent = escResult.reply;
+      } else {
+        aiResponseContent = await AIService.generateResponse(conversation.id, parsedBody.message);
+      }
 
       // Save AI Response
       await prisma.message.create({

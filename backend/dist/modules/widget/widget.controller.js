@@ -83,6 +83,8 @@ class WidgetController {
     static async chat(request, reply) {
         try {
             const { conversationId, publicToken, message } = request.body;
+            const { AIService } = await Promise.resolve().then(() => __importStar(require('../ai/ai.service')));
+            const { EscalationService } = await Promise.resolve().then(() => __importStar(require('../conversation/escalation.service')));
             if (!conversationId || !publicToken || !message) {
                 return reply.code(400).send({ error: 'conversationId, publicToken, and message are required' });
             }
@@ -113,8 +115,14 @@ class WidgetController {
                 data: { messages_used: { increment: 1 } }
             });
             // Generate AI response
-            const { AIService } = await Promise.resolve().then(() => __importStar(require('../ai/ai.service')));
-            const aiReply = await AIService.generateResponse(conversation.id, message);
+            const escResult = await EscalationService.checkAndEscalate(conversation.id, message);
+            let aiReply;
+            if (escResult.escalated) {
+                aiReply = escResult.reply;
+            }
+            else {
+                aiReply = await AIService.generateResponse(conversation.id, message);
+            }
             // Save AI response
             await prisma_1.prisma.message.create({
                 data: {

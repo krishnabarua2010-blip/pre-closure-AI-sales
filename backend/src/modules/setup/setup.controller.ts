@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { prisma } from '../../config/prisma';
+import { ScraperService } from './scraper.service';
 
 export class SetupController {
 
@@ -116,6 +117,47 @@ export class SetupController {
     } catch (error: any) {
       request.log.error(error);
       return reply.code(500).send({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * POST /setup/scrape
+   * Triggers the web crawler and auto-populates the business profile context via NIM LLM.
+   */
+  static async scrapeAndAutoFill(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const user = request.user as any;
+      const bp = user?.BusinessProfiles?.[0];
+      if (!bp) return reply.code(404).send({ error: 'No business profile found.' });
+
+      const { url } = request.body as any;
+      if (!url) return reply.code(400).send({ error: 'Missing website url' });
+
+      const result = await ScraperService.crawlAndExtract(bp.id, url);
+      const profile = result.profile;
+
+      const updated = await prisma.businessProfile.update({
+        where: { id: bp.id },
+        data: {
+          company_name: profile.business_name || bp.company_name,
+          industry: profile.industry || bp.industry,
+          business_description: profile.value_propositions.join('\n') || bp.business_description,
+          services_offered: profile.services.join(', ') || bp.services_offered,
+          pricing_range: profile.pricing.join(', ') || bp.pricing_range,
+          target_audience: profile.target_audience.join(', ') || bp.target_audience,
+          common_objections: profile.common_objections.map((o: any) => `${o.objection}: ${o.response}`).join('\n') || bp.common_objections,
+          selling_points: profile.value_propositions.join('\n') || bp.selling_points
+        }
+      });
+
+      return reply.send({
+        message: 'Website scraped and business profile auto-filled successfully.',
+        confidence_score: result.confidence_score,
+        profile: updated
+      });
+    } catch (error: any) {
+      request.log.error(error);
+      return reply.code(500).send({ error: 'Internal server error: ' + error.message });
     }
   }
 }

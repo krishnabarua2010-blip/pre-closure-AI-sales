@@ -7,4 +7,5 @@ async function setupRoutes(fastify) {
     fastify.get('/config', { preHandler: [auth_1.authenticate] }, setup_controller_1.SetupController.getConfig);
     fastify.put('/business-context', { preHandler: [auth_1.authenticate] }, setup_controller_1.SetupController.updateBusinessContext);
     fastify.put('/chatbot-config', { preHandler: [auth_1.authenticate] }, setup_controller_1.SetupController.updateChatbotConfig);
+    fastify.post('/scrape', { preHandler: [auth_1.authenticate] }, setup_controller_1.SetupController.scrapeAndAutoFill);
 }

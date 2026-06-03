@@ -1,16 +1,67 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AIService = void 0;
 const openai_1 = require("openai");
+const generative_ai_1 = require("@google/generative-ai");
 const dotenv_1 = __importDefault(require("dotenv"));
 const prisma_1 = require("../../config/prisma");
+const weave = __importStar(require("weave"));
 dotenv_1.default.config();
+if (process.env.WANDB_PROJECT) {
+    weave.init(process.env.WANDB_PROJECT);
+}
 const openai = new openai_1.OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || 'sk-dummy-key' // Replace with real key in production
+    apiKey: process.env.OPENAI_API_KEY || 'sk-dummy-key'
 });
+const deepseek = new openai_1.OpenAI({
+    apiKey: process.env.NGC_API_KEY || process.env.MISTRAL_API_KEY || 'nvapi-dummy',
+    baseURL: 'https://integrate.api.nvidia.com/v1'
+});
+const mistral = new openai_1.OpenAI({
+    apiKey: process.env.MISTRAL_API_KEY || process.env.NGC_API_KEY || 'nvapi-dummy',
+    baseURL: process.env.MISTRAL_BASE_URL || 'http://localhost:8000/v1'
+});
+const wandb = new openai_1.OpenAI({
+    apiKey: process.env.WANDB_API_KEY || 'wandb-dummy',
+    baseURL: process.env.WANDB_BASE_URL || 'https://api.inference.wandb.ai/v1'
+});
+const genAI = new generative_ai_1.GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'gemini-dummy-key');
 // A robust AI service mapping to Agent 3's strict requirements
 class AIService {
     /**
@@ -118,17 +169,54 @@ ${rules || 'None'}`;
         }));
         messages.push({ role: 'user', content: userMessage });
         const operation = async () => {
-            const response = await openai.chat.completions.create({
-                model: "gpt-4o-mini",
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    ...messages
-                ],
-                temperature: 0.7
+            const hasNvidia = (process.env.NGC_API_KEY && process.env.NGC_API_KEY.startsWith('nvapi-')) ||
+                (process.env.MISTRAL_API_KEY && process.env.MISTRAL_API_KEY.startsWith('nvapi-'));
+            if (hasNvidia) {
+                try {
+                    console.log("[AI Service] Routing conversation response to deepseek-ai/deepseek-v4-pro via NVIDIA NIM...");
+                    const response = await deepseek.chat.completions.create({
+                        model: "deepseek-ai/deepseek-v4-pro",
+                        messages: [{ role: "system", content: systemPrompt }, ...messages],
+                        temperature: 0.7
+                    });
+                    return response.choices[0].message.content || "I understand. Can you elaborate on your current situation?";
+                }
+                catch (err) {
+                    console.warn("[AI Service Warn] DeepSeek v4 Pro call failed, trying Llama-3.3-70b on NVIDIA NIM:", err.message);
+                    try {
+                        const response = await deepseek.chat.completions.create({
+                            model: "meta/llama-3.3-70b-instruct",
+                            messages: [{ role: "system", content: systemPrompt }, ...messages],
+                            temperature: 0.7
+                        });
+                        return response.choices[0].message.content || "I understand. Can you elaborate on your current situation?";
+                    }
+                    catch (llamaErr) {
+                        console.error("[AI Service Error] Llama-3.3-70b fallback on NVIDIA NIM also failed, falling back to OpenAI/Gemini:", llamaErr.message);
+                    }
+                }
+            }
+            if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'sk-dummy-key') {
+                console.log("[AI Service] Routing conversation response to OpenAI gpt-4o-mini...");
+                const response = await openai.chat.completions.create({
+                    model: "gpt-4o-mini",
+                    messages: [{ role: "system", content: systemPrompt }, ...messages],
+                    temperature: 0.7
+                });
+                return response.choices[0].message.content || "I understand. Can you elaborate on your current situation?";
+            }
+            console.log("[AI Service] Routing conversation response to Gemini fallback...");
+            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+            const chat = model.startChat({
+                history: messages.map(m => ({
+                    role: m.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: m.content }]
+                }))
             });
-            return response.choices[0].message.content || "I understand. Can you elaborate on your current situation?";
+            const result = await chat.sendMessage(systemPrompt + "\n\nUser: " + userMessage);
+            return result.response.text() || "I understand. Can you elaborate on your current situation?";
         };
-        return await this.executeWithReliability(operation, 2, 10000, "We're experiencing heavy traffic, but I want to make sure I understand your needs perfectly.");
+        return await this.executeWithReliability(operation, 2, 30000, "We're experiencing heavy traffic, but I want to make sure I understand your needs perfectly.");
     }
     /**
      * Deep multi-dimensional lead analysis engine.
@@ -156,36 +244,53 @@ ${rules || 'None'}`;
         const transcript = conversation.Messages.map((m) => `${m.sender}: ${m.content}`).join('\n');
         const bp = conversation.BusinessProfile;
         const operation = async () => {
-            const response = await openai.chat.completions.create({
-                model: "gpt-4o-mini",
+            let client = openai;
+            let model = "gpt-4o-mini";
+            const hasNvidia = (process.env.NGC_API_KEY && process.env.NGC_API_KEY.startsWith('nvapi-')) ||
+                (process.env.MISTRAL_API_KEY && process.env.MISTRAL_API_KEY.startsWith('nvapi-'));
+            if (hasNvidia) {
+                console.log("[AI Service] Routing lead analysis to deepseek-ai/deepseek-v4-pro via NVIDIA NIM...");
+                client = deepseek;
+                model = "deepseek-ai/deepseek-v4-pro";
+            }
+            else {
+                console.log("[AI Service] Routing lead analysis to OpenAI gpt-4o-mini...");
+            }
+            const options = {
+                model: model,
                 messages: [
                     {
                         role: "system",
-                        content: `You are an elite AI Lead Intelligence Engine for ${bp.company_name} (${bp.industry || 'software'}).
+                        content: `You are the Chief Revenue Intelligence Agent for ${bp.company_name} (${bp.industry || 'software'}).
+You act as a hybrid of Elite Sales Setter, Elite Sales Closer, Revenue Strategist, Lead Qualifier, and Business Analyst.
+
 Business context: ${bp.business_description || 'SaaS product'}.
 Pricing: ${bp.pricing_range || 'Not specified'}.
 
-Analyze the FULL conversation transcript below. Apply deep behavioral psychology and neuromarketing principles INTERNALLY (loss aversion, urgency triggers, trust signals, commitment patterns) but DO NOT output technical jargon.
+Analyze the FULL conversation transcript below. Apply deep behavioral psychology and consultative closing principles.
 
 Evaluate these dimensions:
-1. Intent Level (1-10): How serious is the lead? Exploring vs ready to buy.
-2. Budget Capability (1-10): Direct mention OR inferred from context, role, company size.
-3. Urgency (1-10): Immediate / short-term / long-term need.
-4. Behavioral Signals: hesitation level, confidence level, clarity of need, emotional tone (each: low/medium/high).
-5. Psychological Indicators (use internally): buying readiness, pain intensity, decision authority.
+1. Intent Level (0-100): How serious is the lead? Exploring vs ready to buy.
+2. Budget Score (0-100): Inferred capability based on roles, sizing, or direct mention.
+3. Urgency Score (0-100): Immediate need vs long-term explorer.
+4. Authority Score (0-100): Decision maker capability.
+5. Objection Score (0-100): Severity of unresolved objections.
+6. Fit Score (0-100): Overall ICP fit.
+7. Lead Category: COLD, WARM, or HOT.
 
 Produce a JSON response with EXACTLY this structure:
 {
-  "intent_score": <1-10>,
-  "budget_score": <1-10>,
-  "urgency_score": <1-10>,
+  "intent_score": <0-100>,
+  "budget_score": <0-100>,
+  "urgency_score": <0-100>,
   "authority_score": <0-100>,
   "objection_score": <0-100>,
+  "fit_score": <0-100>,
   "conversion_probability": <0-100>,
   "lead_value_estimate": <dollar amount based on pricing context>,
-  "qualification_level": "HIGH" | "MEDIUM" | "LOW",
+  "qualification_level": "HOT" | "WARM" | "COLD",
   "summary": "<1-2 sentence lead summary in simple business language>",
-  "explanation": "<2-3 sentence explanation of WHY this lead is good or bad, in simple plain English a business owner would understand>",
+  "explanation": "<2-3 sentence explanation of WHY this lead is categorized this way, in plain English>",
   "recommended_action": "follow_up_immediately" | "send_proposal" | "nurture_later" | "ignore",
   "behavioral_signals": {
     "hesitation": "low" | "medium" | "high",
@@ -198,35 +303,61 @@ Produce a JSON response with EXACTLY this structure:
                     },
                     { role: "user", content: `FULL TRANSCRIPT:\n${transcript}\n\nLATEST MESSAGE: ${userMessage}` }
                 ],
-                response_format: { type: "json_object" },
                 temperature: 0.2
-            });
-            const parsed = JSON.parse(response.choices[0].message.content || "{}");
+            };
+            if (client === openai) {
+                options.response_format = { type: "json_object" };
+            }
+            else {
+                options.messages[0].content += "\n\nCRITICAL: Output raw JSON only. Do not enclose in markdown blocks. No other text.";
+            }
+            let response;
+            try {
+                const res = await client.chat.completions.create(options);
+                response = res;
+            }
+            catch (err) {
+                if (hasNvidia && model === "deepseek-ai/deepseek-v4-pro") {
+                    console.warn("[AI Service Warn] DeepSeek v4 Pro analysis failed, trying Llama-3.3-70b on NVIDIA NIM:", err.message);
+                    options.model = "meta/llama-3.3-70b-instruct";
+                    const res = await client.chat.completions.create(options);
+                    response = res;
+                }
+                else {
+                    throw err;
+                }
+            }
+            let content = (response.choices[0].message.content || "{}").trim();
+            if (content.startsWith("```")) {
+                content = content.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
+            }
+            const parsed = JSON.parse(content);
             // Ensure revenue_probability_score for backward compat with Conversation model
-            const revenue_probability_score = parsed.conversion_probability || Math.max(0, ((parsed.urgency_score || 0) * 10 * 0.3) +
+            const revenue_probability_score = parsed.conversion_probability || Math.max(0, ((parsed.urgency_score || 0) * 0.3) +
                 ((parsed.authority_score || 0) * 0.3) +
-                ((parsed.budget_score || 0) * 10 * 0.4) -
+                ((parsed.budget_score || 0) * 0.4) -
                 ((parsed.objection_score || 0) * 0.2));
             return {
                 ...parsed,
                 revenue_probability_score
             };
         };
-        const scores = await this.executeWithReliability(operation, 2, 15000, fallbackScores);
+        const scores = await this.executeWithReliability(operation, 2, 45000, fallbackScores);
         // Update Conversation scores (backward compatible)
         await prisma_1.prisma.conversation.update({
             where: { id: conversationId },
             data: {
-                urgency_score: { increment: Math.floor((scores.urgency_score || 0)) },
+                urgency_score: { increment: Math.floor((scores.urgency_score || 0) / 10) }, // Scale to original 1-10 range in DB
                 authority_score: { increment: Math.floor((scores.authority_score || 0) / 5) },
-                budget_score: { increment: Math.floor((scores.budget_score || 0)) },
+                budget_score: { increment: Math.floor((scores.budget_score || 0) / 10) }, // Scale to original 1-10 range in DB
                 objection_score: { increment: Math.floor((scores.objection_score || 0) / 5) },
                 revenue_probability_score: scores.revenue_probability_score,
                 raw_signals: scores.buying_signals
             }
         });
         // Auto-trigger Lead Promotion Logic with deep intelligence data
-        if (scores.conversion_probability >= 40 || scores.qualification_level === 'HIGH' || scores.buying_signals?.includes("pricing")) {
+        const isHighOrHot = scores.qualification_level === 'HIGH' || scores.qualification_level === 'HOT';
+        if (scores.conversion_probability >= 40 || isHighOrHot || scores.buying_signals?.includes("pricing")) {
             await prisma_1.prisma.conversation.update({
                 where: { id: conversationId },
                 data: { status: 'QUALIFIED' }
@@ -243,7 +374,7 @@ Produce a JSON response with EXACTLY this structure:
                     urgency_score: scores.urgency_score || 0,
                     conversion_probability: scores.conversion_probability || 0,
                     lead_value_estimate: scores.lead_value_estimate || 0,
-                    qualification_level: scores.qualification_level || 'LOW',
+                    qualification_level: scores.qualification_level || 'COLD',
                     ai_summary: scores.summary || '',
                     ai_explanation: scores.explanation || '',
                     recommended_action: scores.recommended_action || 'nurture_later',
@@ -257,7 +388,7 @@ Produce a JSON response with EXACTLY this structure:
                     urgency_score: scores.urgency_score || 0,
                     conversion_probability: scores.conversion_probability || 0,
                     lead_value_estimate: scores.lead_value_estimate || 0,
-                    qualification_level: scores.qualification_level || 'LOW',
+                    qualification_level: scores.qualification_level || 'COLD',
                     ai_summary: scores.summary || '',
                     ai_explanation: scores.explanation || '',
                     recommended_action: scores.recommended_action || 'nurture_later',
@@ -292,8 +423,18 @@ TRANSCRIPT:
 ${transcript}`;
         let content = "Hey! Following up on our chat. Let me know when you're free for a quick call.";
         try {
-            const response = await openai.chat.completions.create({
-                model: "gpt-4o-mini",
+            let client = openai;
+            let model = "gpt-4o-mini";
+            if (process.env.WANDB_API_KEY && process.env.WANDB_API_KEY !== 'your_wandb_api_key_here') {
+                client = wandb;
+                model = process.env.WANDB_MODEL || "Qwen/Qwen3-Coder-480B-A35B-Instruct";
+            }
+            else if (process.env.MISTRAL_API_KEY) {
+                client = mistral;
+                model = "mistralai/mistral-medium-3.5-128b";
+            }
+            const response = await client.chat.completions.create({
+                model: model,
                 messages: [{ role: "system", content: prompt }]
             });
             content = response.choices[0].message.content || content;

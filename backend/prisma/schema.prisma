@@ -213,6 +213,7 @@ enum ConversationStatus {
   QUALIFIED
   CONVERTED
   DROPPED
+  ESCALATED
 }
 
 enum LeadStatus {
@@ -224,6 +225,10 @@ enum LeadStatus {
   CONTACTED
   REPLIED
   CONVERTED
+  RESCHEDULED
+  CANCELLED
+  NO_SHOW
+  COMPLETED
 }
 
 enum SenderType {
@@ -231,3 +236,28 @@ enum SenderType {
   AI
   SYSTEM
 }
+
+model ScrapeJob {
+  id                  Int      @id @default(autoincrement())
+  business_profile_id Int
+  url                 String
+  status              String   // PENDING, RUNNING, COMPLETED, FAILED
+  confidence_score    Float
+  extracted_data      Json     // Extracted Business Profile JSON
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+}
+
+model CalendarEvent {
+  id          Int      @id @default(autoincrement())
+  lead_id     Int
+  provider    String   // GOOGLE, CAL_COM, CALENDLY
+  event_id    String   @unique
+  status      String   // BOOKED, CONFIRMED, RESCHEDULED, CANCELLED, COMPLETED, NO_SHOW
+  start_time  DateTime
+  end_time    DateTime
+  meeting_url String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
