@@ -43,10 +43,13 @@ const path_1 = __importDefault(require("path"));
 const static_1 = __importDefault(require("@fastify/static"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
-// 🔥 TEMPORARY FALLBACKS FOR DEBUGGING
-process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://postgres.sjezasjszvtrlpplxuuu:W7ZLLgOZSJley0UN@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require";
-process.env.REDIS_URL = process.env.REDIS_URL || "rediss://default:gQAAAAAAASu2AAIncDJhZGM3ZTM0N2JkMjE0MWMzOWQzNTg4ZmI2NGY3NmI4ZnAyNzY3MjY@fleet-beagle-76726.upstash.io:6379";
-process.env.JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+// ✅ Validate critical environment variables on startup
+const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET'];
+for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+        console.warn(`⚠️  Missing environment variable: ${envVar}. Some features may not work correctly.`);
+    }
+}
 process.env.PORT = process.env.PORT || "8080";
 const server = (0, fastify_1.default)({ logger: true });
 // ✅ Base plugins
@@ -92,8 +95,13 @@ process.on("unhandledRejection", (err) => {
 });
 // ✅ Wrap all routes with Fastify Global Error Handler
 server.setErrorHandler((error, request, reply) => {
-    console.error("Route error:", error);
-    reply.status(500).send({ error: "Something failed" });
+    const errorId = `ERR-${Date.now().toString(36).toUpperCase()}`;
+    console.error(`[${errorId}] Route error on ${request.method} ${request.url}:`, error.message);
+    reply.status(error.statusCode || 500).send({
+        error: "Something failed",
+        errorId,
+        path: request.url
+    });
 });
 // ✅ Fallback to frontend for all other routes (SPA support)
 server.setNotFoundHandler((req, reply) => {
@@ -118,7 +126,13 @@ async function safeRegister(name, fn) {
 // ✅ START SERVER LAST
 const start = async () => {
     try {
-        console.log("🚀 Starting server...");
+        console.log("\n" + "═".repeat(60));
+        console.log("  🚀 PRE-CLOSURE AI — Production Server Starting...");
+        console.log("═".repeat(60));
+        console.log(`  📅 ${new Date().toISOString()}`);
+        console.log(`  🌍 NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`  🔌 PORT: ${process.env.PORT}`);
+        console.log("═".repeat(60) + "\n");
         // ✅ Register modules SAFELY inside start to allow async/await without top-level await issues
         await safeRegister("auth", async () => {
             const routes = await Promise.resolve().then(() => __importStar(require("./modules/auth/auth.routes")));
@@ -168,14 +182,16 @@ const start = async () => {
             const routes = await Promise.resolve().then(() => __importStar(require("./modules/external/external.routes")));
             server.register(routes.default, { prefix: "/api/external" });
         });
-        console.log("ENV PORT:", process.env.PORT);
-        const PORT = process.env.PORT || 3000;
-        console.log("USING PORT:", PORT);
+        const PORT = Number(process.env.PORT) || 3000;
         await server.listen({
-            port: Number(PORT),
+            port: PORT,
             host: "0.0.0.0",
         });
-        console.log("🔥 SERVER RUNNING ON", PORT);
+        console.log("\n" + "═".repeat(60));
+        console.log(`  ✅ PRE-CLOSURE AI SERVER LIVE ON PORT ${PORT}`);
+        console.log(`  🔗 http://localhost:${PORT}`);
+        console.log(`  📡 Health: http://localhost:${PORT}/api/health`);
+        console.log("═".repeat(60) + "\n");
     }
     catch (err) {
         console.error("💥 START FAILED:", err);
