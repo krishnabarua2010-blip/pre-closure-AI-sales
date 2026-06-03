@@ -43,7 +43,7 @@ export function Sidebar() {
           <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
             <svg width="13" height="13" viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 12H2.5L9 2Z" fill="white"/></svg>
           </div>
-          <span className="text-sm font-bold text-gray-200 tracking-tight">Pre Closer</span>
+          <span className="text-sm font-bold text-gray-200 tracking-tight">Pre-Closure AI</span>
         </Link>
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
@@ -70,7 +70,7 @@ export function Sidebar() {
             <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
               <svg width="13" height="13" viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 12H2.5L9 2Z" fill="white"/></svg>
             </div>
-            <span className="text-sm font-bold text-gray-200 tracking-tight">Pre Closer</span>
+            <span className="text-sm font-bold text-gray-200 tracking-tight">Pre-Closure AI</span>
           </Link>
           <button onClick={() => setMobileOpen(false)} className="text-gray-500 hover:text-white">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
@@ -92,7 +92,7 @@ export function Sidebar() {
                     : 'text-gray-500 hover:text-gray-200 hover:bg-white/5'
                 }`}
               >
-                <span className={`transition-colors ${isActive ? 'text-[#6366F1]' : 'text-gray-600 group-hover:text-gray-400'}`}>
+                <span className={`transition-colors ${isActive ? 'text-[#00E5FF]' : 'text-gray-600 group-hover:text-gray-400'}`}>
                   {item.icon}
                 </span>
                 {item.label}
@@ -127,7 +127,7 @@ export function Sidebar() {
               </svg>
             </div>
             <div>
-              <h2 className="text-sm font-bold text-gray-200 tracking-tight leading-none">Pre Closer</h2>
+              <h2 className="text-sm font-bold text-gray-200 tracking-tight leading-none">Pre-Closure AI</h2>
               <p className="text-[10px] text-gray-600 mt-0.5">Agency Growth Platform</p>
             </div>
           </Link>

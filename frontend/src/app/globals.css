@@ -6,7 +6,7 @@
   --color-background: #000000;
   --color-card: #0a0a0a;
   --color-border: #1F2937;
-  --color-primary: #6366F1;
+  --color-primary: #00E5FF;
   --font-sans: "Inter", sans-serif;
 }
 
@@ -62,13 +62,13 @@ html, body {
 
 /* ── Glow Effects ── */
 .glow-primary {
-  box-shadow: 0 0 40px rgba(99, 102, 241, 0.25), 0 0 80px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 40px rgba(0, 229, 255, 0.25), 0 0 80px rgba(0, 229, 255, 0.1);
 }
 .glow-primary-sm {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
 }
 .text-glow {
-  text-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+  text-shadow: 0 0 40px rgba(0, 229, 255, 0.5);
 }
 
 /* ── Glass Card ── */
@@ -89,7 +89,7 @@ html, body {
 
 /* ── Gradient Text ── */
 .gradient-text {
-  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 50%, #6366f1 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #80F5FF 50%, #00E5FF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -116,7 +116,7 @@ html, body {
 }
 .feature-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.15), 0 8px 24px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 229, 255, 0.15), 0 8px 24px rgba(0,0,0,0.3);
 }
 
 /* ── Button Glow Hover ── */
@@ -137,7 +137,7 @@ html, body {
   opacity: 1;
 }
 .btn-glow:hover {
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.4), 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.4), 0 4px 16px rgba(0,0,0,0.3);
   transform: translateY(-1px);
 }
 
@@ -178,13 +178,13 @@ html, body {
   transition: all 0.2s ease;
 }
 .sidebar-item:hover {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(0, 229, 255, 0.08);
   color: white;
 }
 .sidebar-item.active {
-  background: rgba(99, 102, 241, 0.15);
-  color: #a5b4fc;
-  border-left: 2px solid #6366f1;
+  background: rgba(0, 229, 255, 0.15);
+  color: #80F5FF;
+  border-left: 2px solid #00E5FF;
 }
 
 /* ── Product Simulation Steps ── */
@@ -196,8 +196,8 @@ html, body {
   animation: simFadeIn 0.5s ease forwards;
 }
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-  50%      { box-shadow: 0 0 20px 4px rgba(99, 102, 241, 0.2); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.4); }
+  50%      { box-shadow: 0 0 20px 4px rgba(0, 229, 255, 0.2); }
 }
 .pulse-glow {
   animation: pulseGlow 2s ease infinite;
